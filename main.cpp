@@ -41,6 +41,14 @@ public:
     , price{price}
     , timestamp{std::chrono::system_clock::now()} {}
 
+    Order(Side side, int volume, Type type)
+    : id{uuids::to_string(uuid_generator())}
+    , side{side}
+    , volume{volume}
+    , type{type}
+    , price{-1}
+    , timestamp{std::chrono::system_clock::now()} {}
+
     friend std::ostream& operator<<(std::ostream& out, const Order& order)
     {
         return out << "Order(SIDE:" << Order::side_str[order.side] << ", VOL:" << order.volume
@@ -158,9 +166,12 @@ TEST_CASE("OrderBook")
     OrderBook ob{};
     Order buy1{Order::BUY, 3, Order::LIMIT, 50};
     Order buy2{Order::BUY, 5, Order::LIMIT, 45};
-    Order sell1{Order::SELL, 3, Order::LIMIT, 55};
+    Order buy3{Order::BUY, 5, Order::MARKET};
+
+    Order sell1{Order::SELL, 3, Order::LIMIT, 50};
     Order sell2{Order::SELL, 10, Order::LIMIT, 60};
-    Order sell3{Order::SELL, 3, Order::LIMIT, 50};
+    Order sell3{Order::SELL, 3, Order::LIMIT, 55};
+
 
     SECTION("Returns the appropriate order status when an order is placed and matched")
     {
@@ -168,9 +179,9 @@ TEST_CASE("OrderBook")
         REQUIRE(ob.place_order(buy1) == OrderResult{buy1.get_id(), OrderResult::PLACED, std::vector<Trade>(), &buy1, ""});
 
         // special handling here since we cant guess the trade id's
-        OrderResult result{ob.place_order(sell3)};
+        OrderResult result{ob.place_order(sell1)};
         // Check the status and other predictable fields
-        REQUIRE(result.id == sell3.get_id());
+        REQUIRE(result.id == sell1.get_id());
         REQUIRE(result.status == OrderResult::FILLED);
         REQUIRE(result.remainingOrder == nullptr);
 
@@ -185,18 +196,21 @@ TEST_CASE("OrderBook")
         REQUIRE(result.trades[0].agressor == Order::Side::SELL);
     }
 
+    SECTION("Reject market order when there is not enough liquidity")
+    {
+        REQUIRE(ob.place_order(buy3) == OrderResult{buy3.get_id(), OrderResult::REJECTED, std::vector<Trade>(), &buy3, "Not enough liquidity"});
+    }
+
     SECTION("Takes limit orders and puts them at their price level")
     {
         ob.place_order(buy1);
         ob.place_order(buy2);
-        ob.place_order(sell1);
+        ob.place_order(sell3);
         ob.place_order(sell2);
 
         REQUIRE(ob.oldestBuyAt(50.00).is_equal(buy1));
         REQUIRE(ob.oldestBuyAt(45.00).is_equal(buy1));
-        REQUIRE(ob.oldestSellAt(55.00).is_equal(sell1));
+        REQUIRE(ob.oldestSellAt(55.00).is_equal(sell3));
         REQUIRE(ob.oldestSellAt(60.00).is_equal(sell1));
     }
-
-
 }
