@@ -7,19 +7,53 @@
 #include <list>
 #include <map>
 
-struct PriceLevel
-{
-    float price;
-    int volume;
-    std::list<Order> bids;
-    std::list<Order> sells;
-};
-
 class OrderBook
 {
-    using id_map = std::unordered_map<std::string, std::pair<float, std::list<Order>::iterator>>;
-    using pricelevel_map = std::map<float, PriceLevel>;
+    // linked list of orders, easy to swap out implementation by just changing it here
+    using order_list = std::list<Order>;
+
+    // aggregrates the volume at a given price level so no need to recalculate
+    // when getting depth
+    struct PriceLevel
+    {
+        int volume{};
+        order_list orders;
+    };
+
+    // bid/ask map = {price: (volume, [orders...])}
+    using bid_map = std::map<float, PriceLevel, std::greater<float>>;
+    using ask_map = std::map<float, PriceLevel>;
+
+    struct OrderLocation
+    {
+        float price;
+        order_list::iterator itr;
+        Order::Side side; // easier to determine which map to search
+    };
+
+    // id map = {id: (price, &order, BUY/SELL)}
+    using id_map = std::unordered_map<std::string, OrderLocation>;
 public:
+
+    // snapshot at each price level
+    struct Level
+    {
+        float price;
+        int volume;
+        int orderCount;
+    };
+
+    // snapshot of orderbook and each pricelevel
+    struct Depth
+    {
+        std::vector<Level> bids;
+        std::vector<Level> asks;
+        int volume;
+        float bestBid;
+        float bestAsk;
+        float marketPrice;
+    };
+
     OrderBook() = default;
 
     OrderResult place_order(Order& order)
@@ -59,7 +93,8 @@ public:
     std::list<Order> dummy{{Order::Side::BUY, 3, Order::Type::LIMIT, 50}};
 
 private:
-    pricelevel_map priceLevels{};
+    bid_map bidMap{};
+    ask_map askMap{};
     id_map orderIDs{};
 
     float bestBid{-1};
