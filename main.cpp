@@ -107,53 +107,53 @@ TEST_CASE("Order")
 TEST_CASE("OrderBook")
 {
     OrderBook ob{};
-    Order buy1{Order::Side::BUY, 3,  Order::Type::LIMIT, 50};
-    Order buy2{Order::Side::BUY, 5,  Order::Type::LIMIT, 45};
-    Order buy3{Order::Side::BUY, 5,  Order::Type::MARKET};
-    Order buy4{Order::Side::BUY, 10, Order::Type::LIMIT, 50};
-    Order buy5{Order::Side::BUY, 15, Order::Type::LIMIT, 50};
+    Order buy50{Order::Side::BUY, 3,  Order::Type::LIMIT, 50};
+    Order buy45{Order::Side::BUY, 5,  Order::Type::LIMIT, 45};
+    Order buyMarket{Order::Side::BUY, 5,  Order::Type::MARKET};
+    Order buy50_2{Order::Side::BUY, 10, Order::Type::LIMIT, 50};
+    Order buy50_3{Order::Side::BUY, 15, Order::Type::LIMIT, 50};
 
-    Order sell1{Order::Side::SELL, 3,  Order::Type::LIMIT, 50};
-    Order sell2{Order::Side::SELL, 10, Order::Type::LIMIT, 60};
-    Order sell3{Order::Side::SELL, 3,  Order::Type::LIMIT, 55};
-    Order sell4{Order::Side::SELL, 30, Order::Type::LIMIT, 60};
-    Order sell5{Order::Side::SELL, 27, Order::Type::LIMIT, 60};
+    Order sell50{Order::Side::SELL, 3,  Order::Type::LIMIT, 50};
+    Order sell60{Order::Side::SELL, 10, Order::Type::LIMIT, 60};
+    Order sell55{Order::Side::SELL, 3,  Order::Type::LIMIT, 55};
+    Order sell60_2{Order::Side::SELL, 30, Order::Type::LIMIT, 60};
+    Order sell60_3{Order::Side::SELL, 27, Order::Type::LIMIT, 60};
 
     std::vector orders{
-        buy1,  buy2,  buy3,  buy4,  buy5,
-        sell1, sell2, sell3, sell4, sell5
+        buy50,  buy45,  buyMarket,  buy50_2,  buy50_3,
+        sell50, sell60, sell55, sell60_2, sell60_3
     };
 
     SECTION("Takes limit orders and puts them at their price level")
     {
-        ob.place_order(buy1);
-        ob.place_order(buy2);
-        ob.place_order(sell3);
-        ob.place_order(sell2);
+        ob.place_order(buy50);
+        ob.place_order(buy45);
+        ob.place_order(sell55);
+        ob.place_order(sell60);
 
-        REQUIRE(compareOrderLists(ob.bidsAt(50.00), std::list{buy1}));
-        REQUIRE(compareOrderLists(ob.bidsAt(45.00), std::list{buy2}));
-        REQUIRE(compareOrderLists(ob.asksAt(55.00), std::list{sell3}));
-        REQUIRE(compareOrderLists(ob.asksAt(60.00), std::list{sell1}));
+        REQUIRE(compareOrderLists(ob.bidsAt(50.00), std::list{buy50}));
+        REQUIRE(compareOrderLists(ob.bidsAt(45.00), std::list{buy45}));
+        REQUIRE(compareOrderLists(ob.asksAt(55.00), std::list{sell55}));
+        REQUIRE(compareOrderLists(ob.asksAt(60.00), std::list{sell60}));
     }
 
     SECTION("Handles multiple orders at the same price level")
     {
         // buys at same price
-        ob.place_order(buy1);
-        ob.place_order(buy4);
-        ob.place_order(buy5);
+        ob.place_order(buy50);
+        ob.place_order(buy50_2);
+        ob.place_order(buy50_3);
 
         // sells at same price
-        ob.place_order(sell2);
-        ob.place_order(sell4);
-        ob.place_order(sell5);
+        ob.place_order(sell60);
+        ob.place_order(sell60_2);
+        ob.place_order(sell60_3);
 
         REQUIRE(compareOrderLists(ob.bidsAt(50.00), std::list<Order>{
-            buy1, buy4, buy5
+            buy50, buy50_2, buy50_3
         }));
         REQUIRE(compareOrderLists(ob.asksAt(60.00), std::list<Order>{
-            sell2, sell4, sell5
+            sell60, sell60_2, sell60_3
         }));
     }
 
@@ -187,9 +187,9 @@ TEST_CASE("OrderBook")
 
     SECTION("Gets order by ID")
     {
-        auto id1{buy1.get_id()};
-        ob.place_order(buy1);
-        REQUIRE(ob.getOrderByID(id1).is_equal(buy1));
+        auto id1{buy50.get_id()};
+        ob.place_order(buy50);
+        REQUIRE(ob.getOrderByID(id1).is_equal(buy50));
     }
 
     SECTION("Tracks volume at price level")
@@ -225,10 +225,10 @@ TEST_CASE("OrderBook")
     {
         REQUIRE_THROWS(ob.getSpread());
 
-        ob.place_order(buy1);
+        ob.place_order(buy50);
         REQUIRE_THROWS(ob.getSpread());
 
-        ob.place_order(sell3);
+        ob.place_order(sell55);
 
         REQUIRE(ob.getSpread() == Catch::Approx(5.00f));
     }
@@ -433,26 +433,59 @@ TEST_CASE("OrderBook")
 TEST_CASE("Order Filling")
 {
     OrderBook ob{};
-    Order buy1{Order::Side::BUY, 3, Order::Type::LIMIT, 50};
-    Order buy2{Order::Side::BUY, 5, Order::Type::LIMIT, 45};
-    Order buy3{Order::Side::BUY, 5, Order::Type::MARKET};
+    Order buy50{Order::Side::BUY, 3, Order::Type::LIMIT, 50};
+    Order buy45{Order::Side::BUY, 5, Order::Type::LIMIT, 45};
+    Order buyMarket{Order::Side::BUY, 5, Order::Type::MARKET};
 
-    Order sell1{Order::Side::SELL, 3, Order::Type::LIMIT, 50};
-    Order sell2{Order::Side::SELL, 10, Order::Type::LIMIT, 60};
-    Order sell3{Order::Side::SELL, 3, Order::Type::LIMIT, 55};
+    Order sell50{Order::Side::SELL, 3, Order::Type::LIMIT, 50};
+    Order sell60{Order::Side::SELL, 10, Order::Type::LIMIT, 60};
+    Order sell55{Order::Side::SELL, 3, Order::Type::LIMIT, 55};
 
     SECTION("Returns the appropriate order status when an order is placed and matched")
     {
-        REQUIRE(ob.place_order(buy1).equals_to(OrderResult{buy1.get_id(), OrderResult::PLACED, std::vector<Trade>(), &buy1, ""}));
-        REQUIRE(ob.place_order(sell1).equals_to(OrderResult{sell1.get_id(), OrderResult::FILLED, std::vector<Trade>{
-            Trade{"", buy1.get_id(), sell1.get_id(), 50, 3, time_point(), Order::Side::SELL}
-        }, nullptr, ""}));
+        OrderResult expectedPlaced{
+            buy50.get_id(), 
+            OrderResult::PLACED, 
+            std::vector<Trade>(), 
+            &buy50, 
+            ""
+        };
+
+        auto actualPlaced{ob.place_order(buy50)};
+        REQUIRE(actualPlaced.equals_to(expectedPlaced));
+
+        OrderResult expectedMatched{
+            sell50.get_id(), 
+            OrderResult::FILLED, 
+            std::vector<Trade>{
+                Trade{"", buy50.get_id(), sell50.get_id(), 50, 3, time_point(), Order::Side::SELL}
+            }, 
+            nullptr, 
+            ""
+        };
+
+        auto actualMatched{ob.place_order(sell50)};
+        REQUIRE(actualMatched.equals_to(expectedMatched));
 
     }
 
     SECTION("Reject market order when there is not enough liquidity")
     {
-        REQUIRE(ob.place_order(buy3).equals_to(OrderResult{buy3.get_id(), OrderResult::REJECTED, std::vector<Trade>(), &buy3, "Not enough liquidity"}));
+        OrderResult expected{
+            buyMarket.get_id(),
+            OrderResult::REJECTED,
+             std::vector<Trade>(), 
+             &buyMarket, 
+             "Not enough liquidity"
+        };
+
+        auto actual{ob.place_order(buyMarket)};
+        REQUIRE(actual.equals_to(expected));
+    }
+
+    SECTION("Fill market order")
+    {
+        // ob.place_order();
     }
 }
 

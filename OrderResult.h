@@ -24,6 +24,8 @@ struct OrderResult{
         FILLED,
         PARTIALLY_FILLED,
         REJECTED,
+        MODIFIED,
+        CANCELLED,
     };
 
     std::string_view id;
