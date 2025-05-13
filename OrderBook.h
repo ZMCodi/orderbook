@@ -27,7 +27,7 @@ class OrderBook
     struct OrderLocation
     {
         float price;
-        order_list::iterator itr;
+        order_list::iterator itr; // O(1) access to cancel/modify/fetch
         Order::Side side; // easier to determine which map to search
     };
 
@@ -75,7 +75,7 @@ public:
 
     const Order& getOrderByID(std::string_view id)
     {
-        [[maybe_unused]] std::size_t lol = id.size();
+        [[maybe_unused]] size_t lol = id.size();
         return *dummy.begin();
     }
 
@@ -83,6 +83,29 @@ public:
     {
         [[maybe_unused]] float lol = priceLevel * 2;
         return -1;
+    }
+
+    // center around best bid/ask
+    Depth getDepth(size_t levels = 5)
+    {
+        [[maybe_unused]] auto lol = levels * 2;
+        return {std::vector<Level>(), std::vector<Level>(), 0, 0, 0, 0};
+    }
+
+    // center around a given price
+    Depth getDepth(float price, size_t levels = 5)
+    {
+        [[maybe_unused]] auto lol = levels * 2;
+        [[maybe_unused]] auto lol2 = price * 2;
+        return {std::vector<Level>(), std::vector<Level>(), 0, 0, 0, 0};
+    }
+
+    // depth in a given range
+    Depth getDepth(float maxPrice, float minPrice)
+    {
+        [[maybe_unused]] auto lol = maxPrice * 2;
+        [[maybe_unused]] auto lol2 = minPrice * 2;
+        return {std::vector<Level>(), std::vector<Level>(), 0, 0, 0, 0};
     }
 
     float getBestBid() {return bestBid;}

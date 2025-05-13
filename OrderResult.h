@@ -8,7 +8,7 @@ bool compareTrades(const std::vector<Trade>& first, const std::vector<Trade>& se
 {
     if (first.size() != second.size()) {return false;}
 
-    for (std::size_t i{}; i <= first.size(); ++i)
+    for (size_t i{}; i <= first.size(); ++i)
     {
         if (!first[i].is_equal(second[i])) {return false;}
 

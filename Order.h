@@ -53,8 +53,8 @@ public:
 
     friend std::ostream& operator<<(std::ostream& out, const Order& order)
     {
-        return out << "Order(SIDE:" << Order::side_str[static_cast<std::size_t>(order.side)] << ", VOL:" << order.volume
-            << ", TYPE:" << Order::type_str[static_cast<std::size_t>(order.type)] << ", PRICE:" << order.price
+        return out << "Order(SIDE:" << Order::side_str[static_cast<size_t>(order.side)] << ", VOL:" << order.volume
+            << ", TYPE:" << Order::type_str[static_cast<size_t>(order.type)] << ", PRICE:" << order.price
             << " PLACED_AT:" << order.timestamp << ")";
     }
 
