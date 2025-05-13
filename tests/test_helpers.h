@@ -25,3 +25,10 @@ inline bool compareOrderLists(const std::list<Order>& first, const std::list<Ord
 
     return true;
 }
+
+// helper for partially filled order
+inline Order& modify_volume(Order& order, int change)
+{
+    order.volume += change;
+    return order;
+}

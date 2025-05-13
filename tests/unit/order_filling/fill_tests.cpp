@@ -10,7 +10,6 @@ TEST_CASE("Order filling", "[order filling][filling]")
     Order buyMarket{Order::Side::BUY, 5, Order::Type::MARKET};
 
     Order sell50{Order::Side::SELL, 3, Order::Type::LIMIT, 50};
-    Order sell60{Order::Side::SELL, 10, Order::Type::LIMIT, 60};
     Order sell55{Order::Side::SELL, 5, Order::Type::LIMIT, 55};
     Order sellMarket{Order::Side::SELL, 5, Order::Type::MARKET};
 

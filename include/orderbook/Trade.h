@@ -5,6 +5,7 @@
 struct Trade
 {
     std::string id{uuids::to_string(uuid_generator())};
+    // consider orders getting deleted after fill, how would sv persist
     std::string_view buyer_id;
     std::string_view seller_id;
     float price;

@@ -35,6 +35,7 @@ public:
 
     Order(Side side, int volume, Type type, float price = -1);
     bool is_equal(const Order& other) const; // for testing
+    friend Order& modify_volume(Order& order, int change); // for testing
     bool operator==(const Order& other) const;
     std::string_view get_id() {return id;}
 

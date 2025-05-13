@@ -19,6 +19,7 @@ bool OrderResult::operator==(const OrderResult& other) const
     return id == other.id
     && status == other.status
     && remainingOrder == other.remainingOrder
+    && remainingOrder->is_equal(*(other.remainingOrder))
     && message == other.message
     && compareTrades(trades, other.trades);
 }
