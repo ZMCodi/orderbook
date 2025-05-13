@@ -4,8 +4,20 @@
 #include "Order.h"
 #include "OrderResult.h"
 
+#include <list>
+#include <map>
+
+struct PriceLevel
+{
+    float price;
+    int volume;
+    std::list<Order> orders;
+};
+
 class OrderBook
 {
+    using id_map = std::unordered_map<std::string, std::pair<double, std::list<Order>::iterator>>;
+    using pricelevel_map = std::map<float, PriceLevel>;
 public:
     OrderBook() = default;
 
@@ -26,9 +38,15 @@ public:
         return dummy;
     }
 
+    float getBestBid() {return bestBid;}
+    float getBestAsk() {return bestAsk;}
+
     Order dummy{Order::Side::BUY, 3, Order::Type::LIMIT, 50};
 
 private:
-    std::map<float, std::set<Order>> priceLevels;
+    pricelevel_map priceLevels;
+    id_map orderIDs;
 
+    float bestBid{-1};
+    float bestAsk{-1};
 };
