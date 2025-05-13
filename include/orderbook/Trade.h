@@ -10,7 +10,7 @@ struct Trade
     float price;
     int volume;
     std::chrono::time_point<std::chrono::system_clock> timestamp;
-    Order::Side agressor;
+    Order::Side taker;
 
     bool is_equal(const Trade& other) const; // for testing
     bool operator==(const Trade& other) const;

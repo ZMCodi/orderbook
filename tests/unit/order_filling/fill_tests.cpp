@@ -16,6 +16,20 @@ TEST_CASE("Order filling", "[order filling][filling]")
 
     SECTION("Fill limit buy order")
     {
+        ob.place_order(sell50);
+
+        OrderResult expected{
+            buy50.get_id(),
+            OrderResult::FILLED,
+            std::vector<Trade>{
+                Trade{"", buy50.get_id(), sell50.get_id(), 50, 3, time_point(), Order::Side::BUY}
+            },
+            nullptr,
+            ""
+        };
+
+        auto actual{ob.place_order(buy50)};
+        REQUIRE(actual.equals_to(expected));
 
     }
 
@@ -62,14 +76,29 @@ TEST_CASE("Order filling", "[order filling][filling]")
             std::vector<Trade>{
                 Trade{"", buyMarket.get_id(), sell55.get_id(), 55, 5, time_point(), Order::Side::BUY}
             },
-            &buyMarket,
+            nullptr,
             ""
         };
-        ob.place_order(buyMarket);
+
+        auto actual{ob.place_order(buyMarket)};
+        REQUIRE(actual.equals_to(expected));
     }
 
     SECTION("Fill market sell order")
     {
+        ob.place_order(buy45);
 
+        OrderResult expected{
+            sellMarket.get_id(),
+            OrderResult::FILLED,
+            std::vector<Trade>{
+                Trade{"", buy45.get_id(), sellMarket.get_id(), 55, 5, time_point(), Order::Side::SELL}
+            },
+            nullptr,
+            ""
+        };
+
+        auto actual{ob.place_order(sellMarket)};
+        REQUIRE(actual.equals_to(expected));
     }
 }

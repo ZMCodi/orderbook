@@ -6,7 +6,7 @@ bool Trade::is_equal(const Trade& other) const
     && seller_id == other.seller_id
     && price == other.price
     && volume == other.volume
-    && agressor == other.agressor;
+    && taker == other.taker;
 }
 
 bool Trade::operator==(const Trade& other) const
