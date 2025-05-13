@@ -40,4 +40,9 @@ struct OrderResult{
         && message == other.message
         && compareTrades(trades, other.trades);
     }
+
+    bool equals_to(const OrderResult& other) const
+    {
+        return *this == other;
+    }
 };
