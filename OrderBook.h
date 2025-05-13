@@ -41,6 +41,13 @@ public:
         float price;
         int volume;
         int orderCount;
+
+        bool operator==(const Level& other) const
+        {
+            return price == other.price
+            && volume == other.volume
+            && orderCount == other.orderCount;
+        }
     };
 
     // snapshot of orderbook and each pricelevel
@@ -52,6 +59,16 @@ public:
         float bestBid;
         float bestAsk;
         float marketPrice;
+
+        bool operator==(const Depth& other) const
+        {
+            return bids == other.bids
+            && asks == other.asks
+            && volume == other.volume
+            && bestBid == other.bestBid
+            && bestAsk == other.bestAsk
+            && marketPrice == other.marketPrice;
+        }
     };
 
     OrderBook() = default;
@@ -86,14 +103,14 @@ public:
     }
 
     // center around best bid/ask
-    Depth getDepth(size_t levels = 5)
+    Depth getDepth(size_t levels)
     {
         [[maybe_unused]] auto lol = levels * 2;
         return {std::vector<Level>(), std::vector<Level>(), 0, 0, 0, 0};
     }
 
     // center around a given price
-    Depth getDepth(float price, size_t levels = 5)
+    Depth getDepthAtPrice(float price, size_t levels)
     {
         [[maybe_unused]] auto lol = levels * 2;
         [[maybe_unused]] auto lol2 = price * 2;
@@ -101,7 +118,7 @@ public:
     }
 
     // depth in a given range
-    Depth getDepth(float maxPrice, float minPrice)
+    Depth getDepthInRange(float maxPrice, float minPrice)
     {
         [[maybe_unused]] auto lol = maxPrice * 2;
         [[maybe_unused]] auto lol2 = minPrice * 2;
@@ -112,6 +129,7 @@ public:
     float getBestAsk() {return bestAsk;}
     float getMarketPrice() {return marketPrice;}
     int getTotalVolume() {return totalVolume;}
+    float getSpread() {return bestAsk - bestBid;}
 
     std::list<Order> dummy{{Order::Side::BUY, 3, Order::Type::LIMIT, 50}};
 
@@ -122,6 +140,6 @@ private:
 
     float bestBid{-1};
     float bestAsk{-1};
-    float marketPrice{};
+    float marketPrice{-1};
     int totalVolume{};
 };
