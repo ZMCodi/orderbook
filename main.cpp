@@ -233,6 +233,69 @@ TEST_CASE("OrderBook")
         REQUIRE(ob.getSpread() == Catch::Approx(5.00f));
     }
 
+    SECTION("Order cancellation/modification")
+    {
+        SECTION("Cancel full limit buy")
+        {
+
+        }
+
+        SECTION("Cancel full limit sell")
+        {
+
+        }
+
+        SECTION("Cancel partial limit buy")
+        {
+
+        }
+
+        SECTION("Cancel partial limit sell")
+        {
+
+        }
+
+        SECTION("Modify volume full limit buy")
+        {
+
+        }
+
+        SECTION("Modify volume full limit sell")
+        {
+
+        }
+
+        SECTION("Modify volume partial limit buy")
+        {
+
+        }
+
+        SECTION("Modify volume partial limit sell")
+        {
+
+        }
+
+        SECTION("Modify price full limit buy")
+        {
+
+        }
+
+        SECTION("Modify price full limit sell")
+        {
+
+        }
+
+        SECTION("Modify price partial limit buy")
+        {
+
+        }
+
+        SECTION("Modify price partial limit sell")
+        {
+
+        }
+    }
+
     SECTION("Depth")
     {
         // Setup some test orders at various price levels
@@ -439,11 +502,12 @@ TEST_CASE("Order Filling")
 
     Order sell50{Order::Side::SELL, 3, Order::Type::LIMIT, 50};
     Order sell60{Order::Side::SELL, 10, Order::Type::LIMIT, 60};
-    Order sell55{Order::Side::SELL, 3, Order::Type::LIMIT, 55};
+    Order sell55{Order::Side::SELL, 5, Order::Type::LIMIT, 55};
+    Order sellMarket{Order::Side::SELL, 5, Order::Type::MARKET};
 
-    SECTION("Returns the appropriate order status when an order is placed and matched")
+    SECTION("Place buy order")
     {
-        OrderResult expectedPlaced{
+        OrderResult expected{
             buy50.get_id(), 
             OrderResult::PLACED, 
             std::vector<Trade>(), 
@@ -451,10 +515,29 @@ TEST_CASE("Order Filling")
             ""
         };
 
-        auto actualPlaced{ob.place_order(buy50)};
-        REQUIRE(actualPlaced.equals_to(expectedPlaced));
+        auto actual{ob.place_order(buy50)};
+        REQUIRE(actual.equals_to(expected));
+    }
 
-        OrderResult expectedMatched{
+    SECTION("Place sell order")
+    {
+        OrderResult expected{
+            sell50.get_id(), 
+            OrderResult::PLACED, 
+            std::vector<Trade>(), 
+            &sell50, 
+            ""
+        };
+
+        auto actual{ob.place_order(sell50)};
+        REQUIRE(actual.equals_to(expected));
+    }
+
+    SECTION("Fill limit sell order")
+    {
+        ob.place_order(buy50);
+
+        OrderResult expected{
             sell50.get_id(), 
             OrderResult::FILLED, 
             std::vector<Trade>{
@@ -464,8 +547,13 @@ TEST_CASE("Order Filling")
             ""
         };
 
-        auto actualMatched{ob.place_order(sell50)};
-        REQUIRE(actualMatched.equals_to(expectedMatched));
+        auto actual{ob.place_order(sell50)};
+        REQUIRE(actual.equals_to(expected));
+
+    }
+
+    SECTION("Fill limit buy order")
+    {
 
     }
 
@@ -474,29 +562,86 @@ TEST_CASE("Order Filling")
         OrderResult expected{
             buyMarket.get_id(),
             OrderResult::REJECTED,
-             std::vector<Trade>(), 
-             &buyMarket, 
-             "Not enough liquidity"
+            std::vector<Trade>(), 
+            &buyMarket, 
+            "Not enough liquidity"
         };
 
         auto actual{ob.place_order(buyMarket)};
         REQUIRE(actual.equals_to(expected));
     }
 
-    SECTION("Fill market order")
+    SECTION("Fill market buy order")
     {
-        // ob.place_order();
-    }
-}
+        ob.place_order(sell55);
 
-// TODO:
-// ORDER BOOK:
-// modify order
-// cancel full/partially filled order
-// EDGE CASES:
-// identical price levels
-// ORDER:
-// market order with partial rejection
-// partial filling market/limit order
-// walking the book market/limit order
-// time priority within price level
+        OrderResult expected{
+            buyMarket.get_id(),
+            OrderResult::FILLED,
+            std::vector<Trade>{
+                Trade{"", buyMarket.get_id(), sell55.get_id(), 55, 5, time_point(), Order::Side::BUY}
+            },
+            &buyMarket,
+            ""
+        };
+        ob.place_order(buyMarket);
+    }
+
+    SECTION("Fill market sell order")
+    {
+
+    }
+
+    SECTION("Partial fill limit buy")
+    {
+
+    }
+
+    SECTION("Partial fill limit sell")
+    {
+
+    }
+
+    SECTION("Partial fill market buy")
+    {
+        // execute trades until liquidity is exhausted
+        // remaining order is cancelled
+    }
+
+    SECTION("Partial fill market sell")
+    {
+        // execute trades until liquidity is exhausted
+        // remaining order is cancelled
+    }
+
+    SECTION("Walk the book limit buy")
+    {
+
+    }
+
+    SECTION("Walk the book limit sell")
+    {
+
+    }
+
+    SECTION("Walk the book market buy")
+    {
+
+    }
+
+    SECTION("Walk the book market sell")
+    {
+
+    }
+
+    SECTION("Time priority for buy")
+    {
+
+    }
+
+    SECTION("Time priority for sell")
+    {
+
+    }
+
+}
