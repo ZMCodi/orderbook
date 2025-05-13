@@ -42,12 +42,7 @@ public:
         int volume;
         int orderCount;
 
-        bool operator==(const Level& other) const
-        {
-            return price == other.price
-            && volume == other.volume
-            && orderCount == other.orderCount;
-        }
+        bool operator==(const Level& other) const;
     };
 
     // snapshot of orderbook and each pricelevel
@@ -60,71 +55,19 @@ public:
         float bestAsk;
         float marketPrice;
 
-        bool operator==(const Depth& other) const
-        {
-            return bids == other.bids
-            && asks == other.asks
-            && volume == other.volume
-            && bestBid == other.bestBid
-            && bestAsk == other.bestAsk
-            && marketPrice == other.marketPrice;
-        }
+        bool operator==(const Depth& other) const;
     };
 
     OrderBook() = default;
 
-    OrderResult place_order(Order& order)
-    {
-        return {order.get_id(), OrderResult::FILLED, std::vector<Trade>(), &order, ""};
-    }
-
-    const std::list<Order>& bidsAt(float priceLevel)
-    {
-        [[maybe_unused]] float lol = priceLevel * 2;
-        return dummy;
-    }
-
-    const std::list<Order>& asksAt(float priceLevel)
-    {
-        [[maybe_unused]] float lol = priceLevel * 2;
-        return dummy;
-    }
-
-    const Order& getOrderByID(std::string_view id)
-    {
-        [[maybe_unused]] size_t lol = id.size();
-        return *dummy.begin();
-    }
-
-    int volumeAt(float priceLevel)
-    {
-        [[maybe_unused]] float lol = priceLevel * 2;
-        return -1;
-    }
-
-    // center around best bid/ask
-    Depth getDepth(size_t levels)
-    {
-        [[maybe_unused]] auto lol = levels * 2;
-        return {std::vector<Level>(), std::vector<Level>(), 0, 0, 0, 0};
-    }
-
-    // center around a given price
-    Depth getDepthAtPrice(float price, size_t levels)
-    {
-        [[maybe_unused]] auto lol = levels * 2;
-        [[maybe_unused]] auto lol2 = price * 2;
-        return {std::vector<Level>(), std::vector<Level>(), 0, 0, 0, 0};
-    }
-
-    // depth in a given range
-    Depth getDepthInRange(float maxPrice, float minPrice)
-    {
-        [[maybe_unused]] auto lol = maxPrice * 2;
-        [[maybe_unused]] auto lol2 = minPrice * 2;
-        return {std::vector<Level>(), std::vector<Level>(), 0, 0, 0, 0};
-    }
-
+    OrderResult place_order(Order& order);
+    const std::list<Order>& bidsAt(float priceLevel);
+    const std::list<Order>& asksAt(float priceLevel);
+    const Order& getOrderByID(std::string_view id);
+    int volumeAt(float priceLevel);
+    Depth getDepth(size_t levels);
+    Depth getDepthAtPrice(float price, size_t levels);
+    Depth getDepthInRange(float maxPrice, float minPrice);
     float getBestBid() {return bestBid;}
     float getBestAsk() {return bestAsk;}
     float getMarketPrice() {return marketPrice;}
