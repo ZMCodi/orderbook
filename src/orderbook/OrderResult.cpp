@@ -1,6 +1,6 @@
 #include "orderbook/OrderResult.h"
 
-// helper for comparing Trades
+// helper for comparing trade_ptrs
 bool compareTrades(const trade_ptrs& first, const trade_ptrs& second)
 {
     if (first.size() != second.size()) {return false;}

@@ -13,16 +13,12 @@ TEST_CASE("Partial filling orders", "[order filling][partial filling]")
     Order sell55{Order::Side::SELL, 5, Order::Type::LIMIT, 55};
     Order sellMarket{Order::Side::SELL, 5, Order::Type::MARKET};
 
-    // dummy uid pointer to instantiate Trade
-    uuids::uuid uid{uuid_generator()};
-    const auto* ptr{&uid};
-
     SECTION("Partial fill limit buy")
     {
         ob.place_order(sell50);
         auto actual{ob.place_order(buy50)};
 
-        Trade expTrade{ptr, buy50.get_id(), sell50.get_id(), 50, 3, time_point(), Order::Side::BUY};
+        Trade expTrade{nullptr, buy50.get_id(), sell50.get_id(), 50, 3, time_point(), Order::Side::BUY};
         OrderResult expected{
             buy50.get_id(),
             OrderResult::PARTIALLY_FILLED,
@@ -54,7 +50,7 @@ TEST_CASE("Partial filling orders", "[order filling][partial filling]")
         ob.place_order(buy55);
         auto actual{ob.place_order(sell55)};
 
-        Trade expTrade{ptr, buy55.get_id(), sell55.get_id(), 55, 3, time_point(), Order::Side::SELL};
+        Trade expTrade{nullptr, buy55.get_id(), sell55.get_id(), 55, 3, time_point(), Order::Side::SELL};
         OrderResult expected{
             sell55.get_id(),
             OrderResult::PARTIALLY_FILLED,
@@ -86,7 +82,7 @@ TEST_CASE("Partial filling orders", "[order filling][partial filling]")
         ob.place_order(sell50);
         auto actual{ob.place_order(buyMarket)};
 
-        Trade expTrade{ptr, buyMarket.get_id(), sell50.get_id(), 50, 3, time_point(), Order::Side::BUY};
+        Trade expTrade{nullptr, buyMarket.get_id(), sell50.get_id(), 50, 3, time_point(), Order::Side::BUY};
         OrderResult expected{
             buyMarket.get_id(),
             OrderResult::PARTIALLY_FILLED,
@@ -110,7 +106,7 @@ TEST_CASE("Partial filling orders", "[order filling][partial filling]")
         ob.place_order(buy55);
         auto actual{ob.place_order(sellMarket)};
 
-        Trade expTrade{ptr, buy55.get_id(), sellMarket.get_id(), 55, 3, time_point(), Order::Side::SELL};
+        Trade expTrade{nullptr, buy55.get_id(), sellMarket.get_id(), 55, 3, time_point(), Order::Side::SELL};
         OrderResult expected{
             sellMarket.get_id(),
             OrderResult::PARTIALLY_FILLED,

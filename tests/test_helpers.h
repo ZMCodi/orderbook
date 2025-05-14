@@ -20,7 +20,7 @@ inline bool compareOrderLists(const std::list<Order>& first, const std::list<Ord
     auto s{sec.begin()};
     for (size_t i{}; i < first.size(); ++i)
     {
-        if (!(*f).equals_to(*s)) {return false;}
+        if (!f->equals_to(*s)) {return false;}
         ++f;
         ++s;
     }

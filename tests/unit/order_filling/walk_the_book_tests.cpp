@@ -28,10 +28,6 @@ TEST_CASE("Walking the book", "[order filling][walking the book]")
         sell50, sell51, sell52, sell53
     };
 
-    // dummy uid pointer to instantiate Trade
-    uuids::uuid uid{uuid_generator()};
-    [[maybe_unused]] const auto* ptr{&uid};
-
     SECTION("Walk the book limit buy")
     {
         for (auto sell : sells)
@@ -40,10 +36,10 @@ TEST_CASE("Walking the book", "[order filling][walking the book]")
         }
         auto actual{ob.place_order(buyBig53)};
 
-        Trade expTrade1{ptr, buyBig53.get_id(), sell50.get_id(), 50, 2, time_point(), Order::Side::BUY};
-        Trade expTrade2{ptr, buyBig53.get_id(), sell51.get_id(), 51, 2, time_point(), Order::Side::BUY};
-        Trade expTrade3{ptr, buyBig53.get_id(), sell52.get_id(), 52, 2, time_point(), Order::Side::BUY};
-        Trade expTrade4{ptr, buyBig53.get_id(), sell53.get_id(), 53, 2, time_point(), Order::Side::BUY};
+        Trade expTrade1{nullptr, buyBig53.get_id(), sell50.get_id(), 50, 2, time_point(), Order::Side::BUY};
+        Trade expTrade2{nullptr, buyBig53.get_id(), sell51.get_id(), 51, 2, time_point(), Order::Side::BUY};
+        Trade expTrade3{nullptr, buyBig53.get_id(), sell52.get_id(), 52, 2, time_point(), Order::Side::BUY};
+        Trade expTrade4{nullptr, buyBig53.get_id(), sell53.get_id(), 53, 2, time_point(), Order::Side::BUY};
 
         OrderResult expected{
             buyBig53.get_id(),
@@ -70,10 +66,10 @@ TEST_CASE("Walking the book", "[order filling][walking the book]")
         }
         auto actual{ob.place_order(sellBig50)};
 
-        Trade expTrade1{ptr, sellBig50.get_id(), buy53.get_id(), 53, 2, time_point(), Order::Side::SELL};
-        Trade expTrade2{ptr, sellBig50.get_id(), buy52.get_id(), 52, 2, time_point(), Order::Side::SELL};
-        Trade expTrade3{ptr, sellBig50.get_id(), buy51.get_id(), 51, 2, time_point(), Order::Side::SELL};
-        Trade expTrade4{ptr, sellBig50.get_id(), buy50.get_id(), 50, 2, time_point(), Order::Side::SELL};
+        Trade expTrade1{nullptr, buy53.get_id(), sellBig50.get_id(), 53, 2, time_point(), Order::Side::SELL};
+        Trade expTrade2{nullptr, buy52.get_id(), sellBig50.get_id(), 52, 2, time_point(), Order::Side::SELL};
+        Trade expTrade3{nullptr, buy51.get_id(), sellBig50.get_id(), 51, 2, time_point(), Order::Side::SELL};
+        Trade expTrade4{nullptr, buy50.get_id(), sellBig50.get_id(), 50, 2, time_point(), Order::Side::SELL};
 
         OrderResult expected{
             sellBig50.get_id(),
@@ -99,9 +95,9 @@ TEST_CASE("Walking the book", "[order filling][walking the book]")
         ob.place_order(sell52);
         auto actual{ob.place_order(buyBig53)};
 
-        Trade expTrade1{ptr, buyBig53.get_id(), sell50.get_id(), 50, 2, time_point(), Order::Side::BUY};
-        Trade expTrade2{ptr, buyBig53.get_id(), sell51.get_id(), 51, 2, time_point(), Order::Side::BUY};
-        Trade expTrade3{ptr, buyBig53.get_id(), sell52.get_id(), 52, 2, time_point(), Order::Side::BUY};
+        Trade expTrade1{nullptr, buyBig53.get_id(), sell50.get_id(), 50, 2, time_point(), Order::Side::BUY};
+        Trade expTrade2{nullptr, buyBig53.get_id(), sell51.get_id(), 51, 2, time_point(), Order::Side::BUY};
+        Trade expTrade3{nullptr, buyBig53.get_id(), sell52.get_id(), 52, 2, time_point(), Order::Side::BUY};
 
         OrderResult expected{
             buyBig53.get_id(),
@@ -136,9 +132,9 @@ TEST_CASE("Walking the book", "[order filling][walking the book]")
         ob.place_order(buy51);
         auto actual{ob.place_order(sellBig50)};
 
-        Trade expTrade1{ptr, sellBig50.get_id(), buy53.get_id(), 53, 2, time_point(), Order::Side::SELL};
-        Trade expTrade2{ptr, sellBig50.get_id(), buy52.get_id(), 52, 2, time_point(), Order::Side::SELL};
-        Trade expTrade3{ptr, sellBig50.get_id(), buy51.get_id(), 51, 2, time_point(), Order::Side::SELL};
+        Trade expTrade1{nullptr, buy53.get_id(), sellBig50.get_id(), 53, 2, time_point(), Order::Side::SELL};
+        Trade expTrade2{nullptr, buy52.get_id(), sellBig50.get_id(), 52, 2, time_point(), Order::Side::SELL};
+        Trade expTrade3{nullptr, buy51.get_id(), sellBig50.get_id(), 51, 2, time_point(), Order::Side::SELL};
 
         OrderResult expected{
             sellBig50.get_id(),
@@ -174,10 +170,10 @@ TEST_CASE("Walking the book", "[order filling][walking the book]")
         }
         auto actual{ob.place_order(buyMarket)};
 
-        Trade expTrade1{ptr, buyMarket.get_id(), sell50.get_id(), 50, 2, time_point(), Order::Side::BUY};
-        Trade expTrade2{ptr, buyMarket.get_id(), sell51.get_id(), 51, 2, time_point(), Order::Side::BUY};
-        Trade expTrade3{ptr, buyMarket.get_id(), sell52.get_id(), 52, 2, time_point(), Order::Side::BUY};
-        Trade expTrade4{ptr, buyMarket.get_id(), sell53.get_id(), 53, 2, time_point(), Order::Side::BUY};
+        Trade expTrade1{nullptr, buyMarket.get_id(), sell50.get_id(), 50, 2, time_point(), Order::Side::BUY};
+        Trade expTrade2{nullptr, buyMarket.get_id(), sell51.get_id(), 51, 2, time_point(), Order::Side::BUY};
+        Trade expTrade3{nullptr, buyMarket.get_id(), sell52.get_id(), 52, 2, time_point(), Order::Side::BUY};
+        Trade expTrade4{nullptr, buyMarket.get_id(), sell53.get_id(), 53, 2, time_point(), Order::Side::BUY};
 
         OrderResult expected{
             buyMarket.get_id(),
@@ -204,10 +200,10 @@ TEST_CASE("Walking the book", "[order filling][walking the book]")
         }
         auto actual{ob.place_order(sellMarket)};
 
-        Trade expTrade1{ptr, sellMarket.get_id(), buy53.get_id(), 53, 2, time_point(), Order::Side::SELL};
-        Trade expTrade2{ptr, sellMarket.get_id(), buy52.get_id(), 52, 2, time_point(), Order::Side::SELL};
-        Trade expTrade3{ptr, sellMarket.get_id(), buy51.get_id(), 51, 2, time_point(), Order::Side::SELL};
-        Trade expTrade4{ptr, sellMarket.get_id(), buy50.get_id(), 50, 2, time_point(), Order::Side::SELL};
+        Trade expTrade1{nullptr, buy53.get_id(), sellMarket.get_id(), 53, 2, time_point(), Order::Side::SELL};
+        Trade expTrade2{nullptr, buy52.get_id(), sellMarket.get_id(), 52, 2, time_point(), Order::Side::SELL};
+        Trade expTrade3{nullptr, buy51.get_id(), sellMarket.get_id(), 51, 2, time_point(), Order::Side::SELL};
+        Trade expTrade4{nullptr, buy50.get_id(), sellMarket.get_id(), 50, 2, time_point(), Order::Side::SELL};
 
         OrderResult expected{
             sellMarket.get_id(),
@@ -233,9 +229,9 @@ TEST_CASE("Walking the book", "[order filling][walking the book]")
         ob.place_order(sell52);
         auto actual{ob.place_order(buyMarket)};
 
-        Trade expTrade1{ptr, buyMarket.get_id(), sell50.get_id(), 50, 2, time_point(), Order::Side::BUY};
-        Trade expTrade2{ptr, buyMarket.get_id(), sell51.get_id(), 51, 2, time_point(), Order::Side::BUY};
-        Trade expTrade3{ptr, buyMarket.get_id(), sell52.get_id(), 52, 2, time_point(), Order::Side::BUY};
+        Trade expTrade1{nullptr, buyMarket.get_id(), sell50.get_id(), 50, 2, time_point(), Order::Side::BUY};
+        Trade expTrade2{nullptr, buyMarket.get_id(), sell51.get_id(), 51, 2, time_point(), Order::Side::BUY};
+        Trade expTrade3{nullptr, buyMarket.get_id(), sell52.get_id(), 52, 2, time_point(), Order::Side::BUY};
 
         OrderResult expected{
             buyMarket.get_id(),
@@ -262,9 +258,9 @@ TEST_CASE("Walking the book", "[order filling][walking the book]")
         ob.place_order(buy51);
         auto actual{ob.place_order(sellMarket)};
 
-        Trade expTrade1{ptr, sellMarket.get_id(), buy53.get_id(), 53, 2, time_point(), Order::Side::SELL};
-        Trade expTrade2{ptr, sellMarket.get_id(), buy52.get_id(), 52, 2, time_point(), Order::Side::SELL};
-        Trade expTrade3{ptr, sellMarket.get_id(), buy51.get_id(), 51, 2, time_point(), Order::Side::SELL};
+        Trade expTrade1{nullptr, buy53.get_id(), sellMarket.get_id(), 53, 2, time_point(), Order::Side::SELL};
+        Trade expTrade2{nullptr, buy52.get_id(), sellMarket.get_id(), 52, 2, time_point(), Order::Side::SELL};
+        Trade expTrade3{nullptr, buy51.get_id(), sellMarket.get_id(), 51, 2, time_point(), Order::Side::SELL};
 
         OrderResult expected{
             sellMarket.get_id(),
