@@ -8,7 +8,6 @@ bool compareTrades(const trade_ptrs& first, const trade_ptrs& second)
     for (size_t i{}; i < first.size(); ++i)
     {
         if (!first[i]->equals_to(*second[i])) {return false;}
-
     }
 
     return true;

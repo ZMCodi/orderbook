@@ -32,191 +32,257 @@ TEST_CASE("Walking the book", "[order filling][walking the book]")
     uuids::uuid uid{uuid_generator()};
     [[maybe_unused]] const auto* ptr{&uid};
 
-    // SECTION("Walk the book limit buy")
-    // {
-    //     for (auto sell : sells)
-    //     {
-    //         ob.place_order(sell);
-    //     }
-    //     auto actual{ob.place_order(buyBig53)};
+    SECTION("Walk the book limit buy")
+    {
+        for (auto sell : sells)
+        {
+            ob.place_order(sell);
+        }
+        auto actual{ob.place_order(buyBig53)};
 
-    //     OrderResult expected{
-    //         buyBig53.get_id(),
-    //         OrderResult::FILLED,
-    //         std::vector<Trade>{
-    //             Trade{ptr, buyBig53.get_id(), sell50.get_id(), 50, 2, time_point(), Order::Side::BUY},
-    //             Trade{ptr, buyBig53.get_id(), sell51.get_id(), 51, 2, time_point(), Order::Side::BUY},
-    //             Trade{ptr, buyBig53.get_id(), sell52.get_id(), 52, 2, time_point(), Order::Side::BUY},
-    //             Trade{ptr, buyBig53.get_id(), sell53.get_id(), 53, 2, time_point(), Order::Side::BUY}
-    //         },
-    //         nullptr,
-    //         ""
-    //     };
+        Trade expTrade1{ptr, buyBig53.get_id(), sell50.get_id(), 50, 2, time_point(), Order::Side::BUY};
+        Trade expTrade2{ptr, buyBig53.get_id(), sell51.get_id(), 51, 2, time_point(), Order::Side::BUY};
+        Trade expTrade3{ptr, buyBig53.get_id(), sell52.get_id(), 52, 2, time_point(), Order::Side::BUY};
+        Trade expTrade4{ptr, buyBig53.get_id(), sell53.get_id(), 53, 2, time_point(), Order::Side::BUY};
 
-    //     REQUIRE(actual.equals_to(expected));
-    // }
+        OrderResult expected{
+            buyBig53.get_id(),
+            OrderResult::FILLED,
+            trade_ptrs{&expTrade1, &expTrade2, &expTrade3, &expTrade4},
+            nullptr,
+            ""
+        };
 
-    // SECTION("Walk the book limit sell")
-    // {
-    //     for (auto buy : buys)
-    //     {
-    //         ob.place_order(buy);
-    //     }
-    //     auto actual{ob.place_order(sellBig50)};
+        REQUIRE(actual.equals_to(expected));
 
-    //     OrderResult expected{
-    //         sellBig50.get_id(),
-    //         OrderResult::FILLED,
-    //         std::vector<Trade>{
-    //             Trade{ptr, sellBig50.get_id(), buy53.get_id(), 53, 2, time_point(), Order::Side::SELL},
-    //             Trade{ptr, sellBig50.get_id(), buy52.get_id(), 52, 2, time_point(), Order::Side::SELL},
-    //             Trade{ptr, sellBig50.get_id(), buy51.get_id(), 51, 2, time_point(), Order::Side::SELL},
-    //             Trade{ptr, sellBig50.get_id(), buy50.get_id(), 50, 2, time_point(), Order::Side::SELL}
-    //         },
-    //         nullptr,
-    //         ""
-    //     };
+        OrderBookState expState{
+            bid_map(), ask_map(), id_map(), trade_list{expTrade1, expTrade2, expTrade3, expTrade4},
+            -1, -1, 53, 0
+        };
+        REQUIRE(checkOBState(ob, expState));
+    }
 
-    //     REQUIRE(actual.equals_to(expected));
-    // }
+    SECTION("Walk the book limit sell")
+    {
+        for (auto buy : buys)
+        {
+            ob.place_order(buy);
+        }
+        auto actual{ob.place_order(sellBig50)};
 
-    // SECTION("Walk the book limit buy partial fill")
-    // {
-    //     ob.place_order(sell50);
-    //     ob.place_order(sell51);
-    //     ob.place_order(sell52);
-    //     auto actual{ob.place_order(buyBig53)};
+        Trade expTrade1{ptr, sellBig50.get_id(), buy53.get_id(), 53, 2, time_point(), Order::Side::SELL};
+        Trade expTrade2{ptr, sellBig50.get_id(), buy52.get_id(), 52, 2, time_point(), Order::Side::SELL};
+        Trade expTrade3{ptr, sellBig50.get_id(), buy51.get_id(), 51, 2, time_point(), Order::Side::SELL};
+        Trade expTrade4{ptr, sellBig50.get_id(), buy50.get_id(), 50, 2, time_point(), Order::Side::SELL};
 
-    //     OrderResult expected{
-    //         buyBig53.get_id(),
-    //         OrderResult::PARTIALLY_FILLED,
-    //         std::vector<Trade>{
-    //             Trade{ptr, buyBig53.get_id(), sell50.get_id(), 50, 2, time_point(), Order::Side::BUY},
-    //             Trade{ptr, buyBig53.get_id(), sell51.get_id(), 51, 2, time_point(), Order::Side::BUY},
-    //             Trade{ptr, buyBig53.get_id(), sell52.get_id(), 52, 2, time_point(), Order::Side::BUY}
-    //         },
-    //         &buyBig53,
-    //         "Partially filled 6 shares, 2 shares remaining"
-    //     };
+        OrderResult expected{
+            sellBig50.get_id(),
+            OrderResult::FILLED,
+            trade_ptrs{&expTrade1, &expTrade2, &expTrade3, &expTrade4},
+            nullptr,
+            ""
+        };
 
-    //     REQUIRE(actual.equals_to(expected));
-    //     REQUIRE(buyBig53.volume == 2);
-    // }
+        REQUIRE(actual.equals_to(expected));
 
-    // SECTION("Walk the book limit sell partial fill")
-    // {
-    //     ob.place_order(buy53);
-    //     ob.place_order(buy52);
-    //     ob.place_order(buy51);
-    //     auto actual{ob.place_order(sellBig50)};
+        OrderBookState expState{
+            bid_map(), ask_map(), id_map(), trade_list{expTrade1, expTrade2, expTrade3, expTrade4},
+            -1, -1, 50, 0
+        };
+        REQUIRE(checkOBState(ob, expState));
+    }
 
-    //     OrderResult expected{
-    //         sellBig50.get_id(),
-    //         OrderResult::PARTIALLY_FILLED,
-    //         std::vector<Trade>{
-    //             Trade{ptr, sellBig50.get_id(), buy53.get_id(), 53, 2, time_point(), Order::Side::SELL},
-    //             Trade{ptr, sellBig50.get_id(), buy52.get_id(), 52, 2, time_point(), Order::Side::SELL},
-    //             Trade{ptr, sellBig50.get_id(), buy51.get_id(), 51, 2, time_point(), Order::Side::SELL}            },
-    //         &sellBig50,
-    //         "Partially filled 6 shares, 2 shares remaining"
-    //     };
+    SECTION("Walk the book limit buy partial fill")
+    {
+        ob.place_order(sell50);
+        ob.place_order(sell51);
+        ob.place_order(sell52);
+        auto actual{ob.place_order(buyBig53)};
 
-    //     REQUIRE(actual.equals_to(expected));
-    //     REQUIRE(sellBig50.volume == 2);
-    // }
+        Trade expTrade1{ptr, buyBig53.get_id(), sell50.get_id(), 50, 2, time_point(), Order::Side::BUY};
+        Trade expTrade2{ptr, buyBig53.get_id(), sell51.get_id(), 51, 2, time_point(), Order::Side::BUY};
+        Trade expTrade3{ptr, buyBig53.get_id(), sell52.get_id(), 52, 2, time_point(), Order::Side::BUY};
 
-    // SECTION("Walk the book market buy")
-    // {
-    //     for (auto sell : sells)
-    //     {
-    //         ob.place_order(sell);
-    //     }
-    //     auto actual{ob.place_order(buyMarket)};
+        OrderResult expected{
+            buyBig53.get_id(),
+            OrderResult::PARTIALLY_FILLED,
+            trade_ptrs{&expTrade1, &expTrade2, &expTrade3},
+            &buyBig53,
+            "Partially filled 6 shares, 2 shares remaining"
+        };
 
-    //     OrderResult expected{
-    //         buyMarket.get_id(),
-    //         OrderResult::FILLED,
-    //         std::vector<Trade>{
-    //             Trade{ptr, buyMarket.get_id(), sell50.get_id(), 50, 2, time_point(), Order::Side::BUY},
-    //             Trade{ptr, buyMarket.get_id(), sell51.get_id(), 51, 2, time_point(), Order::Side::BUY},
-    //             Trade{ptr, buyMarket.get_id(), sell52.get_id(), 52, 2, time_point(), Order::Side::BUY},
-    //             Trade{ptr, buyMarket.get_id(), sell53.get_id(), 53, 2, time_point(), Order::Side::BUY}
-    //         },
-    //         nullptr,
-    //         ""
-    //     };
+        REQUIRE(actual.equals_to(expected));
+        REQUIRE(buyBig53.volume == 2);
 
-    //     REQUIRE(actual.equals_to(expected));
-    // }
+        bid_map expBM{
+            {53.0, PriceLevel{2, order_list{buyBig53}}}
+        };
 
-    // SECTION("Walk the book market sell")
-    // {
-    //     for (auto buy : buys)
-    //     {
-    //         ob.place_order(buy);
-    //     }
-    //     auto actual{ob.place_order(sellMarket)};
+        id_map expIDM{
+            {buyBig53.get_id(), OrderLocation{53, expBM.at(53.0).orders.begin(), Order::Side::BUY}}
+        };
 
-    //     OrderResult expected{
-    //         sellMarket.get_id(),
-    //         OrderResult::FILLED,
-    //         std::vector<Trade>{
-    //             Trade{ptr, sellMarket.get_id(), buy53.get_id(), 53, 2, time_point(), Order::Side::SELL},
-    //             Trade{ptr, sellMarket.get_id(), buy52.get_id(), 52, 2, time_point(), Order::Side::SELL},
-    //             Trade{ptr, sellMarket.get_id(), buy51.get_id(), 51, 2, time_point(), Order::Side::SELL},
-    //             Trade{ptr, sellMarket.get_id(), buy50.get_id(), 50, 2, time_point(), Order::Side::SELL}
-    //         },
-    //         nullptr,
-    //         ""
-    //     };
+        OrderBookState expState{
+            expBM, ask_map(), expIDM, trade_list{expTrade1, expTrade2, expTrade3},
+            53, -1, 52, 2
+        };
+        REQUIRE(checkOBState(ob, expState));
+    }
 
-    //     REQUIRE(actual.equals_to(expected));
-    // }
+    SECTION("Walk the book limit sell partial fill")
+    {
+        ob.place_order(buy53);
+        ob.place_order(buy52);
+        ob.place_order(buy51);
+        auto actual{ob.place_order(sellBig50)};
 
-    // SECTION("Walk the book market buy partial fill")
-    // {
-    //     ob.place_order(sell50);
-    //     ob.place_order(sell51);
-    //     ob.place_order(sell52);
-    //     auto actual{ob.place_order(buyMarket)};
+        Trade expTrade1{ptr, sellBig50.get_id(), buy53.get_id(), 53, 2, time_point(), Order::Side::SELL};
+        Trade expTrade2{ptr, sellBig50.get_id(), buy52.get_id(), 52, 2, time_point(), Order::Side::SELL};
+        Trade expTrade3{ptr, sellBig50.get_id(), buy51.get_id(), 51, 2, time_point(), Order::Side::SELL};
 
-    //     OrderResult expected{
-    //         buyMarket.get_id(),
-    //         OrderResult::PARTIALLY_FILLED,
-    //         std::vector<Trade>{
-    //             Trade{ptr, buyMarket.get_id(), sell50.get_id(), 50, 2, time_point(), Order::Side::BUY},
-    //             Trade{ptr, buyMarket.get_id(), sell51.get_id(), 51, 2, time_point(), Order::Side::BUY},
-    //             Trade{ptr, buyMarket.get_id(), sell52.get_id(), 52, 2, time_point(), Order::Side::BUY}
-    //         },
-    //         &buyMarket,
-    //         "Partially filled 6 shares, remaining order cancelled"
-    //     };
+        OrderResult expected{
+            sellBig50.get_id(),
+            OrderResult::PARTIALLY_FILLED,
+            trade_ptrs{&expTrade1, &expTrade2, &expTrade3},
+            &sellBig50,
+            "Partially filled 6 shares, 2 shares remaining"
+        };
 
-    //     REQUIRE(actual.equals_to(expected));
-    //     REQUIRE(buyMarket.volume == 2);
-    // }
+        REQUIRE(actual.equals_to(expected));
+        REQUIRE(sellBig50.volume == 2);
 
-    // SECTION("Walk the book market sell partial fill")
-    // {
-    //     ob.place_order(buy53);
-    //     ob.place_order(buy52);
-    //     ob.place_order(buy51);
-    //     auto actual{ob.place_order(sellMarket)};
+        ask_map expAM{
+            {50.0, PriceLevel{2, order_list{sellBig50}}}
+        };
 
-    //     OrderResult expected{
-    //         sellMarket.get_id(),
-    //         OrderResult::PARTIALLY_FILLED,
-    //         std::vector<Trade>{
-    //             Trade{ptr, sellMarket.get_id(), buy53.get_id(), 53, 2, time_point(), Order::Side::SELL},
-    //             Trade{ptr, sellMarket.get_id(), buy52.get_id(), 52, 2, time_point(), Order::Side::SELL},
-    //             Trade{ptr, sellMarket.get_id(), buy51.get_id(), 51, 2, time_point(), Order::Side::SELL}            },
-    //         &sellMarket,
-    //         "Partially filled 6 shares, remaining order cancelled"
-    //     };
+        id_map expIDM{
+            {sellBig50.get_id(), OrderLocation{50, expAM.at(50.0).orders.begin(), Order::Side::SELL}}
+        };
 
-    //     REQUIRE(actual.equals_to(expected));
-    //     REQUIRE(sellMarket.volume == 2);
-    // }
+        OrderBookState expState{
+            bid_map(), expAM, expIDM, trade_list{expTrade1, expTrade2, expTrade3},
+            -1, 50, 51, 2
+        };
+        REQUIRE(checkOBState(ob, expState));
+    }
+
+    SECTION("Walk the book market buy")
+    {
+        for (auto sell : sells)
+        {
+            ob.place_order(sell);
+        }
+        auto actual{ob.place_order(buyMarket)};
+
+        Trade expTrade1{ptr, buyMarket.get_id(), sell50.get_id(), 50, 2, time_point(), Order::Side::BUY};
+        Trade expTrade2{ptr, buyMarket.get_id(), sell51.get_id(), 51, 2, time_point(), Order::Side::BUY};
+        Trade expTrade3{ptr, buyMarket.get_id(), sell52.get_id(), 52, 2, time_point(), Order::Side::BUY};
+        Trade expTrade4{ptr, buyMarket.get_id(), sell53.get_id(), 53, 2, time_point(), Order::Side::BUY};
+
+        OrderResult expected{
+            buyMarket.get_id(),
+            OrderResult::FILLED,
+            trade_ptrs{&expTrade1, &expTrade2, &expTrade3, &expTrade4},
+            nullptr,
+            ""
+        };
+
+        REQUIRE(actual.equals_to(expected));
+
+        OrderBookState expState{
+            bid_map(), ask_map(), id_map(), trade_list{expTrade1, expTrade2, expTrade3, expTrade4},
+            -1, -1, 53, 0
+        };
+        REQUIRE(checkOBState(ob, expState));
+    }
+
+    SECTION("Walk the book market sell")
+    {
+        for (auto buy : buys)
+        {
+            ob.place_order(buy);
+        }
+        auto actual{ob.place_order(sellMarket)};
+
+        Trade expTrade1{ptr, sellMarket.get_id(), buy53.get_id(), 53, 2, time_point(), Order::Side::SELL};
+        Trade expTrade2{ptr, sellMarket.get_id(), buy52.get_id(), 52, 2, time_point(), Order::Side::SELL};
+        Trade expTrade3{ptr, sellMarket.get_id(), buy51.get_id(), 51, 2, time_point(), Order::Side::SELL};
+        Trade expTrade4{ptr, sellMarket.get_id(), buy50.get_id(), 50, 2, time_point(), Order::Side::SELL};
+
+        OrderResult expected{
+            sellMarket.get_id(),
+            OrderResult::FILLED,
+            trade_ptrs{&expTrade1, &expTrade2, &expTrade3, &expTrade4},
+            nullptr,
+            ""
+        };
+
+        REQUIRE(actual.equals_to(expected));
+
+        OrderBookState expState{
+            bid_map(), ask_map(), id_map(), trade_list{expTrade1, expTrade2, expTrade3, expTrade4},
+            -1, -1, 50, 0
+        };
+        REQUIRE(checkOBState(ob, expState));
+    }
+
+    SECTION("Walk the book market buy partial fill")
+    {
+        ob.place_order(sell50);
+        ob.place_order(sell51);
+        ob.place_order(sell52);
+        auto actual{ob.place_order(buyMarket)};
+
+        Trade expTrade1{ptr, buyMarket.get_id(), sell50.get_id(), 50, 2, time_point(), Order::Side::BUY};
+        Trade expTrade2{ptr, buyMarket.get_id(), sell51.get_id(), 51, 2, time_point(), Order::Side::BUY};
+        Trade expTrade3{ptr, buyMarket.get_id(), sell52.get_id(), 52, 2, time_point(), Order::Side::BUY};
+
+        OrderResult expected{
+            buyMarket.get_id(),
+            OrderResult::PARTIALLY_FILLED,
+            trade_ptrs{&expTrade1, &expTrade2, &expTrade3},
+            &buyMarket,
+            "Partially filled 6 shares, remaining order cancelled"
+        };
+
+        REQUIRE(actual.equals_to(expected));
+        REQUIRE(buyMarket.volume == 2);
+
+        OrderBookState expState{
+            bid_map(), ask_map(), id_map(), trade_list{expTrade1, expTrade2, expTrade3},
+            -1, -1, 52, 0
+        };
+        REQUIRE(checkOBState(ob, expState));
+    }
+
+    SECTION("Walk the book market sell partial fill")
+    {
+        ob.place_order(buy53);
+        ob.place_order(buy52);
+        ob.place_order(buy51);
+        auto actual{ob.place_order(sellMarket)};
+
+        Trade expTrade1{ptr, sellMarket.get_id(), buy53.get_id(), 53, 2, time_point(), Order::Side::SELL};
+        Trade expTrade2{ptr, sellMarket.get_id(), buy52.get_id(), 52, 2, time_point(), Order::Side::SELL};
+        Trade expTrade3{ptr, sellMarket.get_id(), buy51.get_id(), 51, 2, time_point(), Order::Side::SELL};
+
+        OrderResult expected{
+            sellMarket.get_id(),
+            OrderResult::PARTIALLY_FILLED,
+            trade_ptrs{&expTrade1, &expTrade2, &expTrade3},
+            &sellMarket,
+            "Partially filled 6 shares, remaining order cancelled"
+        };
+
+        REQUIRE(actual.equals_to(expected));
+        REQUIRE(sellMarket.volume == 2);
+
+        OrderBookState expState{
+            bid_map(), ask_map(), id_map(), trade_list{expTrade1, expTrade2, expTrade3},
+            -1, -1, 51, 0
+        };
+        REQUIRE(checkOBState(ob, expState));
+    }
 }
 
 // TODO:
