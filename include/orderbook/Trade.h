@@ -13,6 +13,6 @@ struct Trade
     std::chrono::time_point<std::chrono::system_clock> timestamp;
     Order::Side taker;
 
-    bool is_equal(const Trade& other) const; // for testing
+    bool equals_to(const Trade& other) const; // for testing
     bool operator==(const Trade& other) const;
 };

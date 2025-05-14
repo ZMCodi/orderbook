@@ -18,10 +18,10 @@ TEST_CASE("Order filling", "[order filling][filling]")
         ob.place_order(sell50);
 
         OrderResult expected{
-            buy50.get_id(),
+            buy50.id,
             OrderResult::FILLED,
             std::vector<Trade>{
-                Trade{"", buy50.get_id(), sell50.get_id(), 50, 3, time_point(), Order::Side::BUY}
+                Trade{"", buy50.id, sell50.id, 50, 3, time_point(), Order::Side::BUY}
             },
             nullptr,
             ""
@@ -37,10 +37,10 @@ TEST_CASE("Order filling", "[order filling][filling]")
         ob.place_order(buy50);
 
         OrderResult expected{
-            sell50.get_id(), 
+            sell50.id, 
             OrderResult::FILLED, 
             std::vector<Trade>{
-                Trade{"", buy50.get_id(), sell50.get_id(), 50, 3, time_point(), Order::Side::SELL}
+                Trade{"", buy50.id, sell50.id, 50, 3, time_point(), Order::Side::SELL}
             }, 
             nullptr, 
             ""
@@ -54,7 +54,7 @@ TEST_CASE("Order filling", "[order filling][filling]")
     SECTION("Reject market order when there is not enough liquidity")
     {
         OrderResult expected{
-            buyMarket.get_id(),
+            buyMarket.id,
             OrderResult::REJECTED,
             std::vector<Trade>(), 
             &buyMarket, 
@@ -70,10 +70,10 @@ TEST_CASE("Order filling", "[order filling][filling]")
         ob.place_order(sell55);
 
         OrderResult expected{
-            buyMarket.get_id(),
+            buyMarket.id,
             OrderResult::FILLED,
             std::vector<Trade>{
-                Trade{"", buyMarket.get_id(), sell55.get_id(), 55, 5, time_point(), Order::Side::BUY}
+                Trade{"", buyMarket.id, sell55.id, 55, 5, time_point(), Order::Side::BUY}
             },
             nullptr,
             ""
@@ -88,10 +88,10 @@ TEST_CASE("Order filling", "[order filling][filling]")
         ob.place_order(buy45);
 
         OrderResult expected{
-            sellMarket.get_id(),
+            sellMarket.id,
             OrderResult::FILLED,
             std::vector<Trade>{
-                Trade{"", buy45.get_id(), sellMarket.get_id(), 55, 5, time_point(), Order::Side::SELL}
+                Trade{"", buy45.id, sellMarket.id, 55, 5, time_point(), Order::Side::SELL}
             },
             nullptr,
             ""

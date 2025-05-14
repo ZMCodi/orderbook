@@ -12,7 +12,7 @@
 inline static std::mt19937 engine{Random::generate()};
 inline static uuids::uuid_random_generator uuid_generator(engine);
 
-class Order
+struct Order
 {
 public:
     enum class Side
@@ -34,12 +34,9 @@ public:
     };
 
     Order(Side side, int volume, Type type, float price = -1);
-    bool is_equal(const Order& other) const; // for testing
-    friend Order& modify_volume(Order& order, int change); // for testing
+    bool equals_to(const Order& other) const; // for testing
     bool operator==(const Order& other) const;
-    std::string_view get_id() {return id;}
 
-private:
     std::string id;
     Side side;
     int volume;

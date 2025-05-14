@@ -49,10 +49,10 @@ TEST_CASE("Order", "[order]")
         Order order4{Order::Side::BUY, 1, Order::Type::MARKET};
 
         // Now get the IDs from the persistent objects
-        auto id1 = order1.get_id();
-        auto id2 = order2.get_id();
-        auto id3 = order3.get_id();
-        auto id4 = order4.get_id();
+        auto id1 = order1.id;
+        auto id2 = order2.id;
+        auto id3 = order3.id;
+        auto id4 = order4.id;
 
         std::unordered_set<std::string_view> ids{
             id1, id2, id3, id4

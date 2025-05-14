@@ -17,7 +17,7 @@ TEST_CASE("Placing orders", "[order filling][placing]")
     SECTION("Place buy order")
     {
         OrderResult expected{
-            buy50.get_id(), 
+            buy50.id, 
             OrderResult::PLACED, 
             std::vector<Trade>(), 
             &buy50, 
@@ -31,7 +31,7 @@ TEST_CASE("Placing orders", "[order filling][placing]")
     SECTION("Place sell order")
     {
         OrderResult expected{
-            sell50.get_id(), 
+            sell50.id, 
             OrderResult::PLACED, 
             std::vector<Trade>(), 
             &sell50, 

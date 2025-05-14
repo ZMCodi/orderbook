@@ -17,13 +17,14 @@ Order::Order(Side side, int volume, Type type, float price)
 }
 
 // for testing
-bool Order::is_equal(const Order& other) const
+bool Order::equals_to(const Order& other) const
 {
     return id == other.id
     && side == other.side
     && volume == other.volume
     && type == other.type
-    && price == other.price;
+    && price == other.price
+    && timestamp == other.timestamp;
 }
 
 bool Order::operator==(const Order& other) const

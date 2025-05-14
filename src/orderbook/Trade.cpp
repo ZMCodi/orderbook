@@ -1,6 +1,6 @@
 #include "orderbook/Trade.h"
 
-bool Trade::is_equal(const Trade& other) const
+bool Trade::equals_to(const Trade& other) const
 {
     return buyer_id == other.buyer_id
     && seller_id == other.seller_id

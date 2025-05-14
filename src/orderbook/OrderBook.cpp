@@ -19,7 +19,7 @@ bool OrderBook::Depth::operator==(const Depth& other) const
 
 OrderResult OrderBook::place_order(Order& order)
 {
-    return {order.get_id(), OrderResult::FILLED, std::vector<Trade>(), &order, ""};
+    return {order.id, OrderResult::FILLED, std::vector<Trade>(), &order, ""};
 }
 
 const std::list<Order>& OrderBook::bidsAt(float priceLevel)

@@ -18,17 +18,10 @@ inline bool compareOrderLists(const std::list<Order>& first, const std::list<Ord
     auto s{sec.begin()};
     for (size_t i{}; i < first.size(); ++i)
     {
-        if (!(*f).is_equal(*s)) {return false;}
+        if (!(*f).equals_to(*s)) {return false;}
         ++f;
         ++s;
     }
 
     return true;
-}
-
-// helper for partially filled order
-inline Order& modify_volume(Order& order, int change)
-{
-    order.volume += change;
-    return order;
 }

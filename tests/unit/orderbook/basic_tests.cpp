@@ -85,9 +85,9 @@ TEST_CASE("OrderBook", "[orderbook][basic]")
 
     SECTION("Gets order by ID")
     {
-        auto id1{buy50.get_id()};
+        auto id1{buy50.id};
         ob.place_order(buy50);
-        REQUIRE(ob.getOrderByID(id1).is_equal(buy50));
+        REQUIRE(ob.getOrderByID(id1).equals_to(buy50));
     }
 
     SECTION("Tracks volume at price level")
