@@ -19,7 +19,7 @@ bool OrderBook::Depth::operator==(const Depth& other) const
 
 OrderResult OrderBook::place_order(Order& order)
 {
-    return {order.id, OrderResult::FILLED, std::vector<Trade>(), &order, ""};
+    return {order.get_id(), OrderResult::FILLED, std::vector<Trade>(), &order, ""};
 }
 
 const std::list<Order>& OrderBook::bidsAt(float priceLevel)
@@ -34,9 +34,15 @@ const std::list<Order>& OrderBook::asksAt(float priceLevel)
     return dummy;
 }
 
-const Order& OrderBook::getOrderByID(std::string_view id)
+const Order& OrderBook::getOrderByID(const uuids::uuid* id)
 {
-    [[maybe_unused]] size_t lol = id.size();
+    [[maybe_unused]] auto lol = id;
+    return *dummy.begin();
+}
+
+const Order& OrderBook::getOrderByID(const uuids::uuid& id)
+{
+    [[maybe_unused]] auto lol = id;
     return *dummy.begin();
 }
 
@@ -67,4 +73,23 @@ OrderBook::Depth OrderBook::getDepthInRange(float maxPrice, float minPrice)
     [[maybe_unused]] auto lol = maxPrice * 2;
     [[maybe_unused]] auto lol2 = minPrice * 2;
     return {std::vector<OrderBook::Level>(), std::vector<OrderBook::Level>(), 0, 0, 0, 0};
+}
+
+void OrderBook::setState(const OrderBookState& state)
+{
+    bidMap = state.bidMap;
+    askMap = state.askMap;
+    idMap = state.idMap;
+    bestBid = state.bestBid;
+    bestAsk = state.bestAsk;
+    marketPrice = state.marketPrice;
+    totalVolume = state.totalVolume;
+}
+
+OrderBookState OrderBook::getState()
+{
+    return {
+        bidMap, askMap, idMap, tradeList,
+        bestBid, bestAsk, marketPrice, totalVolume
+    };
 }

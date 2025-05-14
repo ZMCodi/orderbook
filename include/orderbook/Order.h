@@ -9,12 +9,8 @@
 #include "libraries/uuid.h"
 #include "libraries/Random.h"
 
-inline static std::mt19937 engine{Random::generate()};
-inline static uuids::uuid_random_generator uuid_generator(engine);
-
 struct Order
 {
-public:
     enum class Side
     {
         BUY,
@@ -36,11 +32,16 @@ public:
     Order(Side side, int volume, Type type, float price = -1);
     bool equals_to(const Order& other) const; // for testing
     bool operator==(const Order& other) const;
+    const uuids::uuid* get_id();
 
-    std::string id;
     Side side;
     int volume;
     Type type;
     float price;
     std::chrono::time_point<std::chrono::system_clock> timestamp;
+
+private:
+    // id should be private since its represented internally
+    // as int instead of uuid
+    uint64_t id;
 };

@@ -22,6 +22,34 @@ TEST_CASE("OrderBook", "[orderbook][basic]")
         sell50, sell60, sell55, sell60_2, sell60_3
     };
 
+    SECTION("Place buy order")
+    {
+        OrderResult expected{
+            buy50.get_id(), 
+            OrderResult::PLACED, 
+            std::vector<Trade>(), 
+            &buy50, 
+            ""
+        };
+
+        auto actual{ob.place_order(buy50)};
+        REQUIRE(actual.equals_to(expected));
+    }
+
+    SECTION("Place sell order")
+    {
+        OrderResult expected{
+            sell50.get_id(), 
+            OrderResult::PLACED, 
+            std::vector<Trade>(), 
+            &sell50, 
+            ""
+        };
+
+        auto actual{ob.place_order(sell50)};
+        REQUIRE(actual.equals_to(expected));
+    }
+
     SECTION("Takes limit orders and puts them at their price level")
     {
         ob.place_order(buy50);
@@ -85,7 +113,7 @@ TEST_CASE("OrderBook", "[orderbook][basic]")
 
     SECTION("Gets order by ID")
     {
-        auto id1{buy50.id};
+        auto id1{buy50.get_id()};
         ob.place_order(buy50);
         REQUIRE(ob.getOrderByID(id1).equals_to(buy50));
     }

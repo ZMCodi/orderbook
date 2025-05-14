@@ -4,15 +4,22 @@
 
 struct Trade
 {
-    std::string id{uuids::to_string(uuid_generator())};
-    // consider orders getting deleted after fill, how would sv persist
-    std::string_view buyer_id;
-    std::string_view seller_id;
+private:
+    // id should be private since they are represented
+    // internally as ints instead of uuid
+    uint64_t id;
+public:
+    const uuids::uuid* buyer_id;
+    const uuids::uuid* seller_id;
     float price;
     int volume;
     std::chrono::time_point<std::chrono::system_clock> timestamp;
     Order::Side taker;
 
+    using ptr = const uuids::uuid*;
+    using tp = std::chrono::time_point<std::chrono::system_clock>;
+    Trade(uint64_t id, ptr buyer_id, ptr seller_id, float price, int vol, tp timestamp, Order::Side taker);
     bool equals_to(const Trade& other) const; // for testing
     bool operator==(const Trade& other) const;
+    const uuids::uuid* get_id();
 };

@@ -16,18 +16,18 @@ TEST_CASE("Partial filling orders", "[order filling][partial filling]")
     SECTION("Partial fill limit buy")
     {
         ob.place_order(sell50);
+        auto actual{ob.place_order(buy50)};
 
         OrderResult expected{
-            buy50.id,
+            buy50.get_id(),
             OrderResult::PARTIALLY_FILLED,
             std::vector<Trade>{
-                Trade{"", buy50.id, sell50.id, 50, 3, time_point(), Order::Side::BUY}
+                Trade{2, buy50.get_id(), sell50.get_id(), 50, 3, time_point(), Order::Side::BUY}
             },
             &buy50,
             "Partially filled 3 shares, 2 shares remaining"
         };
 
-        auto actual{ob.place_order(buy50)};
         REQUIRE(actual.equals_to(expected));
         REQUIRE(buy50.volume == 2);
     }
@@ -35,18 +35,18 @@ TEST_CASE("Partial filling orders", "[order filling][partial filling]")
     SECTION("Partial fill limit sell")
     {
         ob.place_order(buy55);
+        auto actual{ob.place_order(sell55)};
 
         OrderResult expected{
-            sell55.id,
+            sell55.get_id(),
             OrderResult::PARTIALLY_FILLED,
             std::vector<Trade>{
-                Trade{"", buy55.id, sell55.id, 55, 3, time_point(), Order::Side::SELL}
+                Trade{2, buy55.get_id(), sell55.get_id(), 55, 3, time_point(), Order::Side::SELL}
             },
             &sell55,
             "Partially filled 3 shares, 2 shares remaining"
         };
 
-        auto actual{ob.place_order(sell55)};
         REQUIRE(actual.equals_to(expected));
         REQUIRE(sell55.volume == 2);
     }
@@ -54,18 +54,18 @@ TEST_CASE("Partial filling orders", "[order filling][partial filling]")
     SECTION("Partial fill market buy")
     {
         ob.place_order(sell50);
+        auto actual{ob.place_order(buyMarket)};
 
         OrderResult expected{
-            buyMarket.id,
+            buyMarket.get_id(),
             OrderResult::PARTIALLY_FILLED,
             std::vector<Trade>{
-                Trade{"", buyMarket.id, sell50.id, 50, 3, time_point(), Order::Side::BUY}
+                Trade{2, buyMarket.get_id(), sell50.get_id(), 50, 3, time_point(), Order::Side::BUY}
             },
             &buyMarket,
             "Partially filled 3 shares, remaining order cancelled"
         };
 
-        auto actual{ob.place_order(buyMarket)};
         REQUIRE(actual.equals_to(expected));
         REQUIRE(buyMarket.volume == 2);
     }
@@ -73,18 +73,18 @@ TEST_CASE("Partial filling orders", "[order filling][partial filling]")
     SECTION("Partial fill market sell")
     {
         ob.place_order(buy55);
+        auto actual{ob.place_order(sellMarket)};
 
         OrderResult expected{
-            sellMarket.id,
+            sellMarket.get_id(),
             OrderResult::PARTIALLY_FILLED,
             std::vector<Trade>{
-                Trade{"", buy55.id, sellMarket.id, 55, 3, time_point(), Order::Side::SELL}
+                Trade{2, buy55.get_id(), sellMarket.get_id(), 55, 3, time_point(), Order::Side::SELL}
             },
             &sellMarket,
             "Partially filled 3 shares, remaining order cancelled"
         };
 
-        auto actual{ob.place_order(sellMarket)};
         REQUIRE(actual.equals_to(expected));
         REQUIRE(sellMarket.volume == 2);
     }

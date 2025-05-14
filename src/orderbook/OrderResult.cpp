@@ -16,7 +16,7 @@ bool compareTrades(const std::vector<Trade>& first, const std::vector<Trade>& se
 
 bool OrderResult::operator==(const OrderResult& other) const
 {
-    return id == other.id
+    return order_id == other.order_id
     && status == other.status
     && remainingOrder == other.remainingOrder
     && message == other.message

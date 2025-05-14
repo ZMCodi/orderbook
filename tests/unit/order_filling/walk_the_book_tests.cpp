@@ -34,21 +34,21 @@ TEST_CASE("Walking the book", "[order filling][walking the book]")
         {
             ob.place_order(sell);
         }
+        auto actual{ob.place_order(buyBig53)};
 
         OrderResult expected{
-            buyBig53.id,
+            buyBig53.get_id(),
             OrderResult::FILLED,
             std::vector<Trade>{
-                Trade{"", buyBig53.id, sell50.id, 50, 2, time_point(), Order::Side::BUY},
-                Trade{"", buyBig53.id, sell51.id, 51, 2, time_point(), Order::Side::BUY},
-                Trade{"", buyBig53.id, sell52.id, 52, 2, time_point(), Order::Side::BUY},
-                Trade{"", buyBig53.id, sell53.id, 53, 2, time_point(), Order::Side::BUY}
+                Trade{5ULL, buyBig53.get_id(), sell50.get_id(), 50, 2, time_point(), Order::Side::BUY},
+                Trade{6, buyBig53.get_id(), sell51.get_id(), 51, 2, time_point(), Order::Side::BUY},
+                Trade{7, buyBig53.get_id(), sell52.get_id(), 52, 2, time_point(), Order::Side::BUY},
+                Trade{8, buyBig53.get_id(), sell53.get_id(), 53, 2, time_point(), Order::Side::BUY}
             },
             nullptr,
             ""
         };
 
-        auto actual{ob.place_order(buyBig53)};
         REQUIRE(actual.equals_to(expected));
     }
 
@@ -58,21 +58,21 @@ TEST_CASE("Walking the book", "[order filling][walking the book]")
         {
             ob.place_order(buy);
         }
+        auto actual{ob.place_order(sellBig50)};
 
         OrderResult expected{
-            sellBig50.id,
+            sellBig50.get_id(),
             OrderResult::FILLED,
             std::vector<Trade>{
-                Trade{"", sellBig50.id, buy53.id, 53, 2, time_point(), Order::Side::SELL},
-                Trade{"", sellBig50.id, buy52.id, 52, 2, time_point(), Order::Side::SELL},
-                Trade{"", sellBig50.id, buy51.id, 51, 2, time_point(), Order::Side::SELL},
-                Trade{"", sellBig50.id, buy50.id, 50, 2, time_point(), Order::Side::SELL}
+                Trade{5, sellBig50.get_id(), buy53.get_id(), 53, 2, time_point(), Order::Side::SELL},
+                Trade{6, sellBig50.get_id(), buy52.get_id(), 52, 2, time_point(), Order::Side::SELL},
+                Trade{7, sellBig50.get_id(), buy51.get_id(), 51, 2, time_point(), Order::Side::SELL},
+                Trade{8, sellBig50.get_id(), buy50.get_id(), 50, 2, time_point(), Order::Side::SELL}
             },
             nullptr,
             ""
         };
 
-        auto actual{ob.place_order(sellBig50)};
         REQUIRE(actual.equals_to(expected));
     }
 
@@ -81,20 +81,20 @@ TEST_CASE("Walking the book", "[order filling][walking the book]")
         ob.place_order(sell50);
         ob.place_order(sell51);
         ob.place_order(sell52);
+        auto actual{ob.place_order(buyBig53)};
 
         OrderResult expected{
-            buyBig53.id,
+            buyBig53.get_id(),
             OrderResult::PARTIALLY_FILLED,
             std::vector<Trade>{
-                Trade{"", buyBig53.id, sell50.id, 50, 2, time_point(), Order::Side::BUY},
-                Trade{"", buyBig53.id, sell51.id, 51, 2, time_point(), Order::Side::BUY},
-                Trade{"", buyBig53.id, sell52.id, 52, 2, time_point(), Order::Side::BUY}
+                Trade{4, buyBig53.get_id(), sell50.get_id(), 50, 2, time_point(), Order::Side::BUY},
+                Trade{5, buyBig53.get_id(), sell51.get_id(), 51, 2, time_point(), Order::Side::BUY},
+                Trade{6, buyBig53.get_id(), sell52.get_id(), 52, 2, time_point(), Order::Side::BUY}
             },
             &buyBig53,
             "Partially filled 6 shares, 2 shares remaining"
         };
 
-        auto actual{ob.place_order(buyBig53)};
         REQUIRE(actual.equals_to(expected));
         REQUIRE(buyBig53.volume == 2);
     }
@@ -104,19 +104,19 @@ TEST_CASE("Walking the book", "[order filling][walking the book]")
         ob.place_order(buy53);
         ob.place_order(buy52);
         ob.place_order(buy51);
+        auto actual{ob.place_order(sellBig50)};
 
         OrderResult expected{
-            sellBig50.id,
+            sellBig50.get_id(),
             OrderResult::PARTIALLY_FILLED,
             std::vector<Trade>{
-                Trade{"", sellBig50.id, buy53.id, 53, 2, time_point(), Order::Side::SELL},
-                Trade{"", sellBig50.id, buy52.id, 52, 2, time_point(), Order::Side::SELL},
-                Trade{"", sellBig50.id, buy51.id, 51, 2, time_point(), Order::Side::SELL}            },
+                Trade{4, sellBig50.get_id(), buy53.get_id(), 53, 2, time_point(), Order::Side::SELL},
+                Trade{5, sellBig50.get_id(), buy52.get_id(), 52, 2, time_point(), Order::Side::SELL},
+                Trade{6, sellBig50.get_id(), buy51.get_id(), 51, 2, time_point(), Order::Side::SELL}            },
             &sellBig50,
             "Partially filled 6 shares, 2 shares remaining"
         };
 
-        auto actual{ob.place_order(sellBig50)};
         REQUIRE(actual.equals_to(expected));
         REQUIRE(sellBig50.volume == 2);
     }
@@ -127,21 +127,21 @@ TEST_CASE("Walking the book", "[order filling][walking the book]")
         {
             ob.place_order(sell);
         }
+        auto actual{ob.place_order(buyMarket)};
 
         OrderResult expected{
-            buyMarket.id,
+            buyMarket.get_id(),
             OrderResult::FILLED,
             std::vector<Trade>{
-                Trade{"", buyMarket.id, sell50.id, 50, 2, time_point(), Order::Side::BUY},
-                Trade{"", buyMarket.id, sell51.id, 51, 2, time_point(), Order::Side::BUY},
-                Trade{"", buyMarket.id, sell52.id, 52, 2, time_point(), Order::Side::BUY},
-                Trade{"", buyMarket.id, sell53.id, 53, 2, time_point(), Order::Side::BUY}
+                Trade{5, buyMarket.get_id(), sell50.get_id(), 50, 2, time_point(), Order::Side::BUY},
+                Trade{6, buyMarket.get_id(), sell51.get_id(), 51, 2, time_point(), Order::Side::BUY},
+                Trade{7, buyMarket.get_id(), sell52.get_id(), 52, 2, time_point(), Order::Side::BUY},
+                Trade{8, buyMarket.get_id(), sell53.get_id(), 53, 2, time_point(), Order::Side::BUY}
             },
             nullptr,
             ""
         };
 
-        auto actual{ob.place_order(buyMarket)};
         REQUIRE(actual.equals_to(expected));
     }
 
@@ -151,21 +151,21 @@ TEST_CASE("Walking the book", "[order filling][walking the book]")
         {
             ob.place_order(buy);
         }
+        auto actual{ob.place_order(sellMarket)};
 
         OrderResult expected{
-            sellMarket.id,
+            sellMarket.get_id(),
             OrderResult::FILLED,
             std::vector<Trade>{
-                Trade{"", sellMarket.id, buy53.id, 53, 2, time_point(), Order::Side::SELL},
-                Trade{"", sellMarket.id, buy52.id, 52, 2, time_point(), Order::Side::SELL},
-                Trade{"", sellMarket.id, buy51.id, 51, 2, time_point(), Order::Side::SELL},
-                Trade{"", sellMarket.id, buy50.id, 50, 2, time_point(), Order::Side::SELL}
+                Trade{5, sellMarket.get_id(), buy53.get_id(), 53, 2, time_point(), Order::Side::SELL},
+                Trade{6, sellMarket.get_id(), buy52.get_id(), 52, 2, time_point(), Order::Side::SELL},
+                Trade{7, sellMarket.get_id(), buy51.get_id(), 51, 2, time_point(), Order::Side::SELL},
+                Trade{8, sellMarket.get_id(), buy50.get_id(), 50, 2, time_point(), Order::Side::SELL}
             },
             nullptr,
             ""
         };
 
-        auto actual{ob.place_order(sellMarket)};
         REQUIRE(actual.equals_to(expected));
     }
 
@@ -174,20 +174,20 @@ TEST_CASE("Walking the book", "[order filling][walking the book]")
         ob.place_order(sell50);
         ob.place_order(sell51);
         ob.place_order(sell52);
+        auto actual{ob.place_order(buyMarket)};
 
         OrderResult expected{
-            buyMarket.id,
+            buyMarket.get_id(),
             OrderResult::PARTIALLY_FILLED,
             std::vector<Trade>{
-                Trade{"", buyMarket.id, sell50.id, 50, 2, time_point(), Order::Side::BUY},
-                Trade{"", buyMarket.id, sell51.id, 51, 2, time_point(), Order::Side::BUY},
-                Trade{"", buyMarket.id, sell52.id, 52, 2, time_point(), Order::Side::BUY}
+                Trade{4, buyMarket.get_id(), sell50.get_id(), 50, 2, time_point(), Order::Side::BUY},
+                Trade{5, buyMarket.get_id(), sell51.get_id(), 51, 2, time_point(), Order::Side::BUY},
+                Trade{6, buyMarket.get_id(), sell52.get_id(), 52, 2, time_point(), Order::Side::BUY}
             },
             &buyMarket,
             "Partially filled 6 shares, remaining order cancelled"
         };
 
-        auto actual{ob.place_order(buyMarket)};
         REQUIRE(actual.equals_to(expected));
         REQUIRE(buyMarket.volume == 2);
     }
@@ -197,19 +197,19 @@ TEST_CASE("Walking the book", "[order filling][walking the book]")
         ob.place_order(buy53);
         ob.place_order(buy52);
         ob.place_order(buy51);
+        auto actual{ob.place_order(sellMarket)};
 
         OrderResult expected{
-            sellMarket.id,
+            sellMarket.get_id(),
             OrderResult::PARTIALLY_FILLED,
             std::vector<Trade>{
-                Trade{"", sellMarket.id, buy53.id, 53, 2, time_point(), Order::Side::SELL},
-                Trade{"", sellMarket.id, buy52.id, 52, 2, time_point(), Order::Side::SELL},
-                Trade{"", sellMarket.id, buy51.id, 51, 2, time_point(), Order::Side::SELL}            },
+                Trade{4, sellMarket.get_id(), buy53.get_id(), 53, 2, time_point(), Order::Side::SELL},
+                Trade{5, sellMarket.get_id(), buy52.get_id(), 52, 2, time_point(), Order::Side::SELL},
+                Trade{6, sellMarket.get_id(), buy51.get_id(), 51, 2, time_point(), Order::Side::SELL}            },
             &sellMarket,
             "Partially filled 6 shares, remaining order cancelled"
         };
 
-        auto actual{ob.place_order(sellMarket)};
         REQUIRE(actual.equals_to(expected));
         REQUIRE(sellMarket.volume == 2);
     }

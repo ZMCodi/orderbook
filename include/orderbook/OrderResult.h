@@ -17,8 +17,7 @@ struct OrderResult{
         CANCELLED,
     };
 
-    // consider orders getting deleted after fill, how would sv persist
-    std::string_view id;
+    const uuids::uuid* order_id;
     Status status;
     std::vector<Trade> trades;
     Order* remainingOrder;

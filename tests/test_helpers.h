@@ -35,6 +35,7 @@ inline bool checkOBState(const OrderBook& ob, const OrderBookState& state)
     if (ob.bestAsk != state.bestAsk) {return false;}
     if (ob.marketPrice != state.marketPrice) {return false;}
     if (ob.totalVolume != state.totalVolume) {return false;}
+    // std::cout << "Passed simple values\n";
 
     try
     {
@@ -51,6 +52,7 @@ inline bool checkOBState(const OrderBook& ob, const OrderBookState& state)
 
             if (!compareOrderLists(expOrders, actOrders)) {return false;}
         }
+        // std::cout << "Pass bid map\n";
 
         // compare ask map
         if (ob.askMap.size() != state.askMap.size()) {return false;}
@@ -65,6 +67,7 @@ inline bool checkOBState(const OrderBook& ob, const OrderBookState& state)
 
             if (!compareOrderLists(expOrders, actOrders)) {return false;}
         }
+        // std::cout << "Pass ask map\n";
 
         // compare id map
         if (ob.idMap.size() != state.idMap.size()) {return false;}
@@ -77,11 +80,18 @@ inline bool checkOBState(const OrderBook& ob, const OrderBookState& state)
             if (!expItr->equals_to(*actItr)) {return false;}
             if (expSide != actSide) {return false;}
         }
+        // std::cout << "Pass id map\n";
+
+        // compare trade list
+        if (ob.tradeList.size() != state.tradeList.size()) {return false;}
+        for (size_t i{}; i < state.tradeList.size(); ++i)
+        {
+            if (!state.tradeList[i].equals_to(ob.tradeList[i])) {return false;}
+        }
 
     } catch (const std::exception& e) 
     {
-        // put this here first to test the method actually works
-        std::cout << "Error: " << e.what();
+        // std::cout << "Error: " << e.what();
         return false; // .at() throws an error
     }
 

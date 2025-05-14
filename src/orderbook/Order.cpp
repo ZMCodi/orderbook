@@ -1,8 +1,8 @@
 #include "orderbook/Order.h"
 
+// order id is going to be initialized when it is passed to the order book
 Order::Order(Side side, int volume, Type type, float price)
-    : id{uuids::to_string(uuid_generator())}
-    , side{side}, volume{volume}
+    : side{side}, volume{volume}
     , type{type}, price{price}
     , timestamp{std::chrono::system_clock::now()} 
 {
@@ -30,4 +30,9 @@ bool Order::equals_to(const Order& other) const
 bool Order::operator==(const Order& other) const
 {
     return id == other.id;
+}
+
+const uuids::uuid* Order::get_id()
+{
+    return nullptr;
 }
