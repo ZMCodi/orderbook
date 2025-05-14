@@ -108,6 +108,7 @@ public:
     friend bool checkOBState(const OrderBook& ob, const OrderBookState& state); // for testing
     void setState(const OrderBookState& state);
     OrderBookState getState();
+    id_pool getIDPool() {return idPool;}
 
     std::list<Order> dummy{{Order::Side::BUY, 3, Order::Type::LIMIT, 50}};
 

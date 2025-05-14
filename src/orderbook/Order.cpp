@@ -1,10 +1,9 @@
 #include "orderbook/Order.h"
 
-// order id is going to be initialized when it is passed to the order book
+// order id and timestamp is going to be initialized when it is passed to the order book
 Order::Order(Side side, int volume, Type type, float price)
-    : side{side}, volume{volume}
-    , type{type}, price{price}
-    , timestamp{std::chrono::system_clock::now()} 
+: side{side}, volume{volume}
+, type{type}, price{price}
 {
     // Validate based on order type
     if (type == Type::MARKET && price != -1) {
@@ -23,8 +22,7 @@ bool Order::equals_to(const Order& other) const
     && side == other.side
     && volume == other.volume
     && type == other.type
-    && price == other.price
-    && timestamp == other.timestamp;
+    && price == other.price;
 }
 
 bool Order::operator==(const Order& other) const

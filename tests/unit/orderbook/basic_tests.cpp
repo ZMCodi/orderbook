@@ -57,30 +57,10 @@ TEST_CASE("OrderBook", "[orderbook][basic]")
         ob.place_order(sell55);
         ob.place_order(sell60);
 
-        REQUIRE(compareOrderLists(ob.bidsAt(50.00), std::list{buy50}));
-        REQUIRE(compareOrderLists(ob.bidsAt(45.00), std::list{buy45}));
-        REQUIRE(compareOrderLists(ob.asksAt(55.00), std::list{sell55}));
-        REQUIRE(compareOrderLists(ob.asksAt(60.00), std::list{sell60}));
-    }
-
-    SECTION("Handles multiple orders at the same price level")
-    {
-        // buys at same price
-        ob.place_order(buy50);
-        ob.place_order(buy50_2);
-        ob.place_order(buy50_3);
-
-        // sells at same price
-        ob.place_order(sell60);
-        ob.place_order(sell60_2);
-        ob.place_order(sell60_3);
-
-        REQUIRE(compareOrderLists(ob.bidsAt(50.00), std::list<Order>{
-            buy50, buy50_2, buy50_3
-        }));
-        REQUIRE(compareOrderLists(ob.asksAt(60.00), std::list<Order>{
-            sell60, sell60_2, sell60_3
-        }));
+        REQUIRE(compareOrderLists(ob.bidsAt(50.00), order_list{buy50}));
+        REQUIRE(compareOrderLists(ob.bidsAt(45.00), order_list{buy45}));
+        REQUIRE(compareOrderLists(ob.asksAt(55.00), order_list{sell55}));
+        REQUIRE(compareOrderLists(ob.asksAt(60.00), order_list{sell60}));
     }
 
     SECTION("Tracks market price")

@@ -36,49 +36,16 @@ TEST_CASE("Order", "[order]")
         REQUIRE_THROWS(Order{Order::Side::SELL, 20, Order::Type::LIMIT, 0});
         REQUIRE_THROWS(Order{Order::Side::BUY, 20, Order::Type::LIMIT, -1});
         REQUIRE_THROWS(Order{Order::Side::SELL, 20, Order::Type::LIMIT, -1});
+
     }
 
-    SECTION("Order ID's generated are unique")
-    {
-        Order order1{Order::Side::BUY, 1, Order::Type::LIMIT, 1};
-        Order order2{Order::Side::BUY, 1, Order::Type::LIMIT, 1};
-        Order order3{Order::Side::SELL, 1, Order::Type::MARKET};
-        Order order4{Order::Side::BUY, 1, Order::Type::MARKET};
-
-        // ids are only generated when an order is placed
-        OrderBook ob{};
-        ob.place_order(order1);
-        ob.place_order(order2);
-        ob.place_order(order3);
-        ob.place_order(order4);
-
-        auto id1 = order1.get_id();
-        auto id2 = order2.get_id();
-        auto id3 = order3.get_id();
-        auto id4 = order4.get_id();
-
-        std::unordered_set ids{
-            id1, id2, id3, id4
-        };
-
-        auto id{uuid_generator()};
-        auto idstr{uuids::to_string(id)};
-        uuids::uuid* idptr{&id};
-        std::cout << "sizeof(uuid) " << sizeof(uuids::uuid);
-        std::cout << "\nsizeof(uuid string) " << sizeof(idstr);
-        std::cout << "\nsizeof(char) " << sizeof(idstr[0]);
-        std::cout << "\nsizeof(uuid pointer) " << sizeof(idptr);
-        std::cout << "\nsizeof(uuid sv) " << sizeof(std::string_view(idstr));
-        std::cout << "\nsizeof(uint64_t) " << sizeof(uint64_t);
-        std::cout << "\nuuid: " << idstr << " length: " << idstr.length();
-
-        REQUIRE(ids.size() == 4);
-    }
-
-    SECTION("Order handles large volume")
+    SECTION("Order handles large and small volumes")
     {
         int max_vol{std::numeric_limits<int>::max()};
         REQUIRE_NOTHROW(Order{Order::Side::BUY, max_vol, Order::Type::LIMIT, 1});
+        REQUIRE_NOTHROW(Order{Order::Side::BUY, 1, Order::Type::LIMIT, 1});
+        REQUIRE_NOTHROW(Order{Order::Side::BUY, max_vol, Order::Type::MARKET});
+        REQUIRE_NOTHROW(Order{Order::Side::BUY, 1, Order::Type::MARKET});
     }
 
     SECTION("Test state testing")

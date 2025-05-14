@@ -28,6 +28,8 @@ TEST_CASE("Check time priority", "[order filling][time priority checking]")
         ob.place_order(buy50_2);
         ob.place_order(buy50_3);
 
+        REQUIRE(buy50_1.timestamp < buy50_2.timestamp);
+        REQUIRE(buy50_2.timestamp < buy50_3.timestamp);
         REQUIRE(compareOrderLists(ob.bidsAt(50.0), order_list{buy50_1, buy50_2, buy50_3}));
     }
 
@@ -37,6 +39,8 @@ TEST_CASE("Check time priority", "[order filling][time priority checking]")
         ob.place_order(sell51_2);
         ob.place_order(sell51_3);
 
+        REQUIRE(sell51_1.timestamp < sell51_2.timestamp);
+        REQUIRE(sell51_2.timestamp < sell51_3.timestamp);
         REQUIRE(compareOrderLists(ob.asksAt(51.0), order_list{sell51_1, sell51_2, sell51_3}));
     }
 
@@ -49,6 +53,11 @@ TEST_CASE("Check time priority", "[order filling][time priority checking]")
         ob.place_order(buy50_3);
         ob.place_order(sell51_3);
 
+        REQUIRE(buy50_1.timestamp < sell51_1.timestamp);
+        REQUIRE(sell51_1.timestamp < buy50_2.timestamp);
+        REQUIRE(buy50_2.timestamp < sell51_2.timestamp);
+        REQUIRE(sell51_2.timestamp < buy50_3.timestamp);
+        REQUIRE(buy50_3.timestamp < sell51_3.timestamp);
         REQUIRE(compareOrderLists(ob.bidsAt(50.0), order_list{buy50_1, buy50_2, buy50_3}));
         REQUIRE(compareOrderLists(ob.asksAt(51.0), order_list{sell51_1, sell51_2, sell51_3}));
     }
