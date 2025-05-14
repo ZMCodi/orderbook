@@ -28,6 +28,26 @@ inline bool compareOrderLists(const std::list<Order>& first, const std::list<Ord
     return true;
 }
 
+inline void OrderBook::setState(const OrderBookState& state)
+{
+    bidMap = state.bidMap;
+    askMap = state.askMap;
+    idMap = state.idMap;
+    bestBid = state.bestBid;
+    bestAsk = state.bestAsk;
+    marketPrice = state.marketPrice;
+    totalVolume = state.totalVolume;
+}
+
+inline OrderBookState OrderBook::getState()
+{
+    return {
+        bidMap, askMap, idMap, tradeList,
+        bestBid, bestAsk, marketPrice, totalVolume
+    };
+}
+
+// helpers for checking OB state after trades
 inline bool checkOBState(const OrderBook& ob, const OrderBookState& state)
 {
     // compare simple states

@@ -13,6 +13,10 @@ TEST_CASE("Partial filling orders", "[order filling][partial filling]")
     Order sell55{Order::Side::SELL, 5, Order::Type::LIMIT, 55};
     Order sellMarket{Order::Side::SELL, 5, Order::Type::MARKET};
 
+    // dummy uid pointer to instantiate Trade
+    uuids::uuid uid{uuid_generator()};
+    const auto* ptr{&uid};
+
     SECTION("Partial fill limit buy")
     {
         ob.place_order(sell50);
@@ -22,7 +26,7 @@ TEST_CASE("Partial filling orders", "[order filling][partial filling]")
             buy50.get_id(),
             OrderResult::PARTIALLY_FILLED,
             std::vector<Trade>{
-                Trade{2, buy50.get_id(), sell50.get_id(), 50, 3, time_point(), Order::Side::BUY}
+                Trade{ptr, buy50.get_id(), sell50.get_id(), 50, 3, time_point(), Order::Side::BUY}
             },
             &buy50,
             "Partially filled 3 shares, 2 shares remaining"
@@ -41,7 +45,7 @@ TEST_CASE("Partial filling orders", "[order filling][partial filling]")
             sell55.get_id(),
             OrderResult::PARTIALLY_FILLED,
             std::vector<Trade>{
-                Trade{2, buy55.get_id(), sell55.get_id(), 55, 3, time_point(), Order::Side::SELL}
+                Trade{ptr, buy55.get_id(), sell55.get_id(), 55, 3, time_point(), Order::Side::SELL}
             },
             &sell55,
             "Partially filled 3 shares, 2 shares remaining"
@@ -60,7 +64,7 @@ TEST_CASE("Partial filling orders", "[order filling][partial filling]")
             buyMarket.get_id(),
             OrderResult::PARTIALLY_FILLED,
             std::vector<Trade>{
-                Trade{2, buyMarket.get_id(), sell50.get_id(), 50, 3, time_point(), Order::Side::BUY}
+                Trade{ptr, buyMarket.get_id(), sell50.get_id(), 50, 3, time_point(), Order::Side::BUY}
             },
             &buyMarket,
             "Partially filled 3 shares, remaining order cancelled"
@@ -79,7 +83,7 @@ TEST_CASE("Partial filling orders", "[order filling][partial filling]")
             sellMarket.get_id(),
             OrderResult::PARTIALLY_FILLED,
             std::vector<Trade>{
-                Trade{2, buy55.get_id(), sellMarket.get_id(), 55, 3, time_point(), Order::Side::SELL}
+                Trade{ptr, buy55.get_id(), sellMarket.get_id(), 55, 3, time_point(), Order::Side::SELL}
             },
             &sellMarket,
             "Partially filled 3 shares, remaining order cancelled"

@@ -34,14 +34,10 @@ struct Order
     bool operator==(const Order& other) const;
     const uuids::uuid* get_id();
 
+    const uuids::uuid* id;
     Side side;
     int volume;
     Type type;
     float price;
     std::chrono::time_point<std::chrono::system_clock> timestamp;
-
-private:
-    // id should be private since its represented internally
-    // as int instead of uuid
-    uint64_t id;
 };

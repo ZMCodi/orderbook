@@ -64,11 +64,11 @@ TEST_CASE("Order", "[order]")
         auto id{uuid_generator()};
         auto idstr{uuids::to_string(id)};
         uuids::uuid* idptr{&id};
-        std::cout << "sizeof(uuid)" << sizeof(uuids::uuid);
-        std::cout << "\nsizeof(uuid string)" << sizeof(idstr);
-        std::cout << "\nsizeof(uuid pointer)" << sizeof(idptr);
-        std::cout << "\nsizeof(uuid sv)" << sizeof(std::string_view(idstr));
-        std::cout << "\nsizeof(uint64_t)" << sizeof(uint64_t);
+        std::cout << "sizeof(uuid) " << sizeof(uuids::uuid);
+        std::cout << "\nsizeof(uuid string) " << sizeof(idstr);
+        std::cout << "\nsizeof(uuid pointer) " << sizeof(idptr);
+        std::cout << "\nsizeof(uuid sv) " << sizeof(std::string_view(idstr));
+        std::cout << "\nsizeof(uint64_t) " << sizeof(uint64_t);
 
         REQUIRE(ids.size() == 4);
     }
@@ -100,9 +100,10 @@ TEST_CASE("Order", "[order]")
             {55.0, PriceLevel{20, list55}}
         };
 
+
         id_map expID{
-            {0, OrderLocation{50.0, itr1, Order::Side::BUY}},
-            {1, OrderLocation{55.0, itr2, Order::Side::SELL}}
+            {order1.get_id(), OrderLocation{50.0, itr1, Order::Side::BUY}},
+            {order2.get_id(), OrderLocation{55.0, itr2, Order::Side::SELL}}
         };
 
         OrderBookState expState{

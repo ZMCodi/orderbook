@@ -28,6 +28,10 @@ TEST_CASE("Walking the book", "[order filling][walking the book]")
         sell50, sell51, sell52, sell53
     };
 
+    // dummy uid pointer to instantiate Trade
+    uuids::uuid uid{uuid_generator()};
+    const auto* ptr{&uid};
+
     SECTION("Walk the book limit buy")
     {
         for (auto sell : sells)
@@ -40,10 +44,10 @@ TEST_CASE("Walking the book", "[order filling][walking the book]")
             buyBig53.get_id(),
             OrderResult::FILLED,
             std::vector<Trade>{
-                Trade{5ULL, buyBig53.get_id(), sell50.get_id(), 50, 2, time_point(), Order::Side::BUY},
-                Trade{6, buyBig53.get_id(), sell51.get_id(), 51, 2, time_point(), Order::Side::BUY},
-                Trade{7, buyBig53.get_id(), sell52.get_id(), 52, 2, time_point(), Order::Side::BUY},
-                Trade{8, buyBig53.get_id(), sell53.get_id(), 53, 2, time_point(), Order::Side::BUY}
+                Trade{ptr, buyBig53.get_id(), sell50.get_id(), 50, 2, time_point(), Order::Side::BUY},
+                Trade{ptr, buyBig53.get_id(), sell51.get_id(), 51, 2, time_point(), Order::Side::BUY},
+                Trade{ptr, buyBig53.get_id(), sell52.get_id(), 52, 2, time_point(), Order::Side::BUY},
+                Trade{ptr, buyBig53.get_id(), sell53.get_id(), 53, 2, time_point(), Order::Side::BUY}
             },
             nullptr,
             ""
@@ -64,10 +68,10 @@ TEST_CASE("Walking the book", "[order filling][walking the book]")
             sellBig50.get_id(),
             OrderResult::FILLED,
             std::vector<Trade>{
-                Trade{5, sellBig50.get_id(), buy53.get_id(), 53, 2, time_point(), Order::Side::SELL},
-                Trade{6, sellBig50.get_id(), buy52.get_id(), 52, 2, time_point(), Order::Side::SELL},
-                Trade{7, sellBig50.get_id(), buy51.get_id(), 51, 2, time_point(), Order::Side::SELL},
-                Trade{8, sellBig50.get_id(), buy50.get_id(), 50, 2, time_point(), Order::Side::SELL}
+                Trade{ptr, sellBig50.get_id(), buy53.get_id(), 53, 2, time_point(), Order::Side::SELL},
+                Trade{ptr, sellBig50.get_id(), buy52.get_id(), 52, 2, time_point(), Order::Side::SELL},
+                Trade{ptr, sellBig50.get_id(), buy51.get_id(), 51, 2, time_point(), Order::Side::SELL},
+                Trade{ptr, sellBig50.get_id(), buy50.get_id(), 50, 2, time_point(), Order::Side::SELL}
             },
             nullptr,
             ""
@@ -87,9 +91,9 @@ TEST_CASE("Walking the book", "[order filling][walking the book]")
             buyBig53.get_id(),
             OrderResult::PARTIALLY_FILLED,
             std::vector<Trade>{
-                Trade{4, buyBig53.get_id(), sell50.get_id(), 50, 2, time_point(), Order::Side::BUY},
-                Trade{5, buyBig53.get_id(), sell51.get_id(), 51, 2, time_point(), Order::Side::BUY},
-                Trade{6, buyBig53.get_id(), sell52.get_id(), 52, 2, time_point(), Order::Side::BUY}
+                Trade{ptr, buyBig53.get_id(), sell50.get_id(), 50, 2, time_point(), Order::Side::BUY},
+                Trade{ptr, buyBig53.get_id(), sell51.get_id(), 51, 2, time_point(), Order::Side::BUY},
+                Trade{ptr, buyBig53.get_id(), sell52.get_id(), 52, 2, time_point(), Order::Side::BUY}
             },
             &buyBig53,
             "Partially filled 6 shares, 2 shares remaining"
@@ -110,9 +114,9 @@ TEST_CASE("Walking the book", "[order filling][walking the book]")
             sellBig50.get_id(),
             OrderResult::PARTIALLY_FILLED,
             std::vector<Trade>{
-                Trade{4, sellBig50.get_id(), buy53.get_id(), 53, 2, time_point(), Order::Side::SELL},
-                Trade{5, sellBig50.get_id(), buy52.get_id(), 52, 2, time_point(), Order::Side::SELL},
-                Trade{6, sellBig50.get_id(), buy51.get_id(), 51, 2, time_point(), Order::Side::SELL}            },
+                Trade{ptr, sellBig50.get_id(), buy53.get_id(), 53, 2, time_point(), Order::Side::SELL},
+                Trade{ptr, sellBig50.get_id(), buy52.get_id(), 52, 2, time_point(), Order::Side::SELL},
+                Trade{ptr, sellBig50.get_id(), buy51.get_id(), 51, 2, time_point(), Order::Side::SELL}            },
             &sellBig50,
             "Partially filled 6 shares, 2 shares remaining"
         };
@@ -133,10 +137,10 @@ TEST_CASE("Walking the book", "[order filling][walking the book]")
             buyMarket.get_id(),
             OrderResult::FILLED,
             std::vector<Trade>{
-                Trade{5, buyMarket.get_id(), sell50.get_id(), 50, 2, time_point(), Order::Side::BUY},
-                Trade{6, buyMarket.get_id(), sell51.get_id(), 51, 2, time_point(), Order::Side::BUY},
-                Trade{7, buyMarket.get_id(), sell52.get_id(), 52, 2, time_point(), Order::Side::BUY},
-                Trade{8, buyMarket.get_id(), sell53.get_id(), 53, 2, time_point(), Order::Side::BUY}
+                Trade{ptr, buyMarket.get_id(), sell50.get_id(), 50, 2, time_point(), Order::Side::BUY},
+                Trade{ptr, buyMarket.get_id(), sell51.get_id(), 51, 2, time_point(), Order::Side::BUY},
+                Trade{ptr, buyMarket.get_id(), sell52.get_id(), 52, 2, time_point(), Order::Side::BUY},
+                Trade{ptr, buyMarket.get_id(), sell53.get_id(), 53, 2, time_point(), Order::Side::BUY}
             },
             nullptr,
             ""
@@ -157,10 +161,10 @@ TEST_CASE("Walking the book", "[order filling][walking the book]")
             sellMarket.get_id(),
             OrderResult::FILLED,
             std::vector<Trade>{
-                Trade{5, sellMarket.get_id(), buy53.get_id(), 53, 2, time_point(), Order::Side::SELL},
-                Trade{6, sellMarket.get_id(), buy52.get_id(), 52, 2, time_point(), Order::Side::SELL},
-                Trade{7, sellMarket.get_id(), buy51.get_id(), 51, 2, time_point(), Order::Side::SELL},
-                Trade{8, sellMarket.get_id(), buy50.get_id(), 50, 2, time_point(), Order::Side::SELL}
+                Trade{ptr, sellMarket.get_id(), buy53.get_id(), 53, 2, time_point(), Order::Side::SELL},
+                Trade{ptr, sellMarket.get_id(), buy52.get_id(), 52, 2, time_point(), Order::Side::SELL},
+                Trade{ptr, sellMarket.get_id(), buy51.get_id(), 51, 2, time_point(), Order::Side::SELL},
+                Trade{ptr, sellMarket.get_id(), buy50.get_id(), 50, 2, time_point(), Order::Side::SELL}
             },
             nullptr,
             ""
@@ -180,9 +184,9 @@ TEST_CASE("Walking the book", "[order filling][walking the book]")
             buyMarket.get_id(),
             OrderResult::PARTIALLY_FILLED,
             std::vector<Trade>{
-                Trade{4, buyMarket.get_id(), sell50.get_id(), 50, 2, time_point(), Order::Side::BUY},
-                Trade{5, buyMarket.get_id(), sell51.get_id(), 51, 2, time_point(), Order::Side::BUY},
-                Trade{6, buyMarket.get_id(), sell52.get_id(), 52, 2, time_point(), Order::Side::BUY}
+                Trade{ptr, buyMarket.get_id(), sell50.get_id(), 50, 2, time_point(), Order::Side::BUY},
+                Trade{ptr, buyMarket.get_id(), sell51.get_id(), 51, 2, time_point(), Order::Side::BUY},
+                Trade{ptr, buyMarket.get_id(), sell52.get_id(), 52, 2, time_point(), Order::Side::BUY}
             },
             &buyMarket,
             "Partially filled 6 shares, remaining order cancelled"
@@ -203,9 +207,9 @@ TEST_CASE("Walking the book", "[order filling][walking the book]")
             sellMarket.get_id(),
             OrderResult::PARTIALLY_FILLED,
             std::vector<Trade>{
-                Trade{4, sellMarket.get_id(), buy53.get_id(), 53, 2, time_point(), Order::Side::SELL},
-                Trade{5, sellMarket.get_id(), buy52.get_id(), 52, 2, time_point(), Order::Side::SELL},
-                Trade{6, sellMarket.get_id(), buy51.get_id(), 51, 2, time_point(), Order::Side::SELL}            },
+                Trade{ptr, sellMarket.get_id(), buy53.get_id(), 53, 2, time_point(), Order::Side::SELL},
+                Trade{ptr, sellMarket.get_id(), buy52.get_id(), 52, 2, time_point(), Order::Side::SELL},
+                Trade{ptr, sellMarket.get_id(), buy51.get_id(), 51, 2, time_point(), Order::Side::SELL}            },
             &sellMarket,
             "Partially filled 6 shares, remaining order cancelled"
         };

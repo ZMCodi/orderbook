@@ -13,12 +13,16 @@ TEST_CASE("Order filling", "[order filling]")
     Order sell55{Order::Side::SELL, 5, Order::Type::LIMIT, 55};
     Order sellMarket{Order::Side::SELL, 5, Order::Type::MARKET};
 
+    // dummy uid pointer to instantiate Trade
+    uuids::uuid uid{uuid_generator()};
+    const auto* ptr{&uid};
+
     SECTION("Fill limit buy order")
     {
         ob.place_order(sell50);
         auto actual{ob.place_order(buy50)};
 
-        Trade expTrade{2ULL, buy50.get_id(), sell50.get_id(), 50, 5, time_point(), Order::Side::BUY};
+        Trade expTrade{ptr, buy50.get_id(), sell50.get_id(), 50, 5, time_point(), Order::Side::BUY};
         OrderResult expected{
             buy50.get_id(),
             OrderResult::FILLED,
@@ -43,7 +47,7 @@ TEST_CASE("Order filling", "[order filling]")
         ob.place_order(buy50);
         auto actual{ob.place_order(sell50)};
 
-        Trade expTrade{2, buy50.get_id(), sell50.get_id(), 50, 5, time_point(), Order::Side::SELL};
+        Trade expTrade{ptr, buy50.get_id(), sell50.get_id(), 50, 5, time_point(), Order::Side::SELL};
         OrderResult expected{
             sell50.get_id(), 
             OrderResult::FILLED, 
@@ -89,7 +93,7 @@ TEST_CASE("Order filling", "[order filling]")
         ob.place_order(sell50);
         auto actual{ob.place_order(buyMarket)};
 
-        Trade expTrade{2, buyMarket.get_id(), sell50.get_id(), 50, 5, time_point(), Order::Side::BUY};
+        Trade expTrade{ptr, buyMarket.get_id(), sell50.get_id(), 50, 5, time_point(), Order::Side::BUY};
         OrderResult expected{
             buyMarket.get_id(),
             OrderResult::FILLED,
@@ -113,7 +117,7 @@ TEST_CASE("Order filling", "[order filling]")
         ob.place_order(buy50);
         auto actual{ob.place_order(sellMarket)};
 
-        Trade expTrade{2, buy50.get_id(), sellMarket.get_id(), 50, 5, time_point(), Order::Side::SELL};
+        Trade expTrade{ptr, buy50.get_id(), sellMarket.get_id(), 50, 5, time_point(), Order::Side::SELL};
         OrderResult expected{
             sellMarket.get_id(),
             OrderResult::FILLED,

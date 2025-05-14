@@ -74,22 +74,3 @@ OrderBook::Depth OrderBook::getDepthInRange(float maxPrice, float minPrice)
     [[maybe_unused]] auto lol2 = minPrice * 2;
     return {std::vector<OrderBook::Level>(), std::vector<OrderBook::Level>(), 0, 0, 0, 0};
 }
-
-void OrderBook::setState(const OrderBookState& state)
-{
-    bidMap = state.bidMap;
-    askMap = state.askMap;
-    idMap = state.idMap;
-    bestBid = state.bestBid;
-    bestAsk = state.bestAsk;
-    marketPrice = state.marketPrice;
-    totalVolume = state.totalVolume;
-}
-
-OrderBookState OrderBook::getState()
-{
-    return {
-        bidMap, askMap, idMap, tradeList,
-        bestBid, bestAsk, marketPrice, totalVolume
-    };
-}
