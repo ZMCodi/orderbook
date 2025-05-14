@@ -26,7 +26,7 @@ TEST_CASE("Order filling", "[order filling]")
         OrderResult expected{
             buy50.get_id(),
             OrderResult::FILLED,
-            trade_list{expTrade},
+            trade_ptrs{&expTrade},
             nullptr,
             ""
         };
@@ -51,7 +51,7 @@ TEST_CASE("Order filling", "[order filling]")
         OrderResult expected{
             sell50.get_id(), 
             OrderResult::FILLED, 
-            trade_list{expTrade}, 
+            trade_ptrs{&expTrade}, 
             nullptr, 
             ""
         };
@@ -73,7 +73,7 @@ TEST_CASE("Order filling", "[order filling]")
         OrderResult expected{
             buyMarket.get_id(),
             OrderResult::REJECTED,
-            trade_list(), 
+            trade_ptrs(), 
             &buyMarket, 
             "Not enough liquidity"
         };
@@ -97,7 +97,7 @@ TEST_CASE("Order filling", "[order filling]")
         OrderResult expected{
             buyMarket.get_id(),
             OrderResult::FILLED,
-            std::vector<Trade>{expTrade},
+            trade_ptrs{&expTrade},
             nullptr,
             ""
         };
@@ -105,7 +105,7 @@ TEST_CASE("Order filling", "[order filling]")
         REQUIRE(actual.equals_to(expected));
 
         OrderBookState expState{
-            bid_map(), ask_map(), id_map(), std::vector{expTrade},
+            bid_map(), ask_map(), id_map(), trade_list{expTrade},
             -1, -1, 50, 0
         };
 
@@ -121,7 +121,7 @@ TEST_CASE("Order filling", "[order filling]")
         OrderResult expected{
             sellMarket.get_id(),
             OrderResult::FILLED,
-            std::vector<Trade>{expTrade},
+            trade_ptrs{&expTrade},
             nullptr,
             ""
         };
@@ -129,7 +129,7 @@ TEST_CASE("Order filling", "[order filling]")
         REQUIRE(actual.equals_to(expected));
 
         OrderBookState expState{
-            bid_map(), ask_map(), id_map(), std::vector{expTrade},
+            bid_map(), ask_map(), id_map(), trade_list{expTrade},
             -1, -1, 50, 0
         };
 

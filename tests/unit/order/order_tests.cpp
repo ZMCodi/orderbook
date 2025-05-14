@@ -66,9 +66,11 @@ TEST_CASE("Order", "[order]")
         uuids::uuid* idptr{&id};
         std::cout << "sizeof(uuid) " << sizeof(uuids::uuid);
         std::cout << "\nsizeof(uuid string) " << sizeof(idstr);
+        std::cout << "\nsizeof(char) " << sizeof(idstr[0]);
         std::cout << "\nsizeof(uuid pointer) " << sizeof(idptr);
         std::cout << "\nsizeof(uuid sv) " << sizeof(std::string_view(idstr));
         std::cout << "\nsizeof(uint64_t) " << sizeof(uint64_t);
+        std::cout << "\nuuid: " << idstr << " length: " << idstr.length();
 
         REQUIRE(ids.size() == 4);
     }

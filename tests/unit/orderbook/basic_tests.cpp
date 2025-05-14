@@ -27,7 +27,7 @@ TEST_CASE("OrderBook", "[orderbook][basic]")
         OrderResult expected{
             buy50.get_id(), 
             OrderResult::PLACED, 
-            std::vector<Trade>(), 
+            trade_ptrs(), 
             &buy50, 
             ""
         };
@@ -41,7 +41,7 @@ TEST_CASE("OrderBook", "[orderbook][basic]")
         OrderResult expected{
             sell50.get_id(), 
             OrderResult::PLACED, 
-            std::vector<Trade>(), 
+            trade_ptrs(), 
             &sell50, 
             ""
         };

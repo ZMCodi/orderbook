@@ -1,13 +1,13 @@
 #include "orderbook/OrderResult.h"
 
 // helper for comparing Trades
-bool compareTrades(const std::vector<Trade>& first, const std::vector<Trade>& second)
+bool compareTrades(const trade_ptrs& first, const trade_ptrs& second)
 {
     if (first.size() != second.size()) {return false;}
 
     for (size_t i{}; i < first.size(); ++i)
     {
-        if (!first[i].equals_to(second[i])) {return false;}
+        if (!first[i]->equals_to(*second[i])) {return false;}
 
     }
 
