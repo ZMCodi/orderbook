@@ -87,6 +87,11 @@ public:
     OrderBook() = default;
 
     OrderResult place_order(Order& order);
+    OrderResult cancel_order(const uuids::uuid* id);
+    OrderResult modify_order(const uuids::uuid* id, int volume, float price);
+    OrderResult modify_volume(const uuids::uuid* id, int volume);
+    OrderResult modify_price(const uuids::uuid* id, float price);
+
     const order_list& bidsAt(float priceLevel);
     const order_list& asksAt(float priceLevel);
     int volumeAt(float priceLevel);

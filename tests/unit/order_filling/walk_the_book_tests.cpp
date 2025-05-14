@@ -28,6 +28,8 @@ TEST_CASE("Walking the book", "[order filling][walking the book]")
         sell50, sell51, sell52, sell53
     };
 
+    const uuids::uuid* id;
+
     SECTION("Walk the book limit buy")
     {
         for (auto sell : sells)
@@ -94,28 +96,30 @@ TEST_CASE("Walking the book", "[order filling][walking the book]")
         ob.place_order(sell51);
         ob.place_order(sell52);
         auto actual{ob.place_order(buyBig53)};
+        id = buyBig53.get_id();
 
         Trade expTrade1{nullptr, buyBig53.get_id(), sell50.get_id(), 50, 2, time_point(), Order::Side::BUY};
         Trade expTrade2{nullptr, buyBig53.get_id(), sell51.get_id(), 51, 2, time_point(), Order::Side::BUY};
         Trade expTrade3{nullptr, buyBig53.get_id(), sell52.get_id(), 52, 2, time_point(), Order::Side::BUY};
 
         OrderResult expected{
-            buyBig53.get_id(),
+            id,
             OrderResult::PARTIALLY_FILLED,
             trade_ptrs{&expTrade1, &expTrade2, &expTrade3},
-            &buyBig53,
+            &ob.getOrderByID(id),
             "Partially filled 6 shares, 2 shares remaining"
         };
 
         REQUIRE(actual.equals_to(expected));
-        REQUIRE(buyBig53.volume == 2);
+        REQUIRE(ob.getOrderByID(id).volume == 2);
+        buyBig53.volume = 2; // ob doesnt modify original order so we have to do it manually
 
         bid_map expBM{
             {53.0, PriceLevel{2, order_list{buyBig53}}}
         };
 
         id_map expIDM{
-            {buyBig53.get_id(), OrderLocation{53, expBM.at(53.0).orders.begin(), Order::Side::BUY}}
+            {id, OrderLocation{53, expBM.at(53.0).orders.begin(), Order::Side::BUY}}
         };
 
         OrderBookState expState{
@@ -131,28 +135,30 @@ TEST_CASE("Walking the book", "[order filling][walking the book]")
         ob.place_order(buy52);
         ob.place_order(buy51);
         auto actual{ob.place_order(sellBig50)};
+        id = sellBig50.get_id();
 
         Trade expTrade1{nullptr, buy53.get_id(), sellBig50.get_id(), 53, 2, time_point(), Order::Side::SELL};
         Trade expTrade2{nullptr, buy52.get_id(), sellBig50.get_id(), 52, 2, time_point(), Order::Side::SELL};
         Trade expTrade3{nullptr, buy51.get_id(), sellBig50.get_id(), 51, 2, time_point(), Order::Side::SELL};
 
         OrderResult expected{
-            sellBig50.get_id(),
+            id,
             OrderResult::PARTIALLY_FILLED,
             trade_ptrs{&expTrade1, &expTrade2, &expTrade3},
-            &sellBig50,
+            &ob.getOrderByID(id),
             "Partially filled 6 shares, 2 shares remaining"
         };
 
         REQUIRE(actual.equals_to(expected));
-        REQUIRE(sellBig50.volume == 2);
+        REQUIRE(ob.getOrderByID(id).volume == 2);
+        sellBig50.volume = 2;
 
         ask_map expAM{
             {50.0, PriceLevel{2, order_list{sellBig50}}}
         };
 
         id_map expIDM{
-            {sellBig50.get_id(), OrderLocation{50, expAM.at(50.0).orders.begin(), Order::Side::SELL}}
+            {id, OrderLocation{50, expAM.at(50.0).orders.begin(), Order::Side::SELL}}
         };
 
         OrderBookState expState{

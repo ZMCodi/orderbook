@@ -12,7 +12,7 @@ inline auto time_point() {
 }
 
 // helper for comparing orderlists
-inline bool compareOrderLists(const std::list<Order>& first, const std::list<Order>& sec)
+inline bool compareOrderLists(const order_list& first, const order_list& sec)
 {
     if (first.size() != sec.size()) {return false;}
 

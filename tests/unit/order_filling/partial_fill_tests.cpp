@@ -13,29 +13,33 @@ TEST_CASE("Partial filling orders", "[order filling][partial filling]")
     Order sell55{Order::Side::SELL, 5, Order::Type::LIMIT, 55};
     Order sellMarket{Order::Side::SELL, 5, Order::Type::MARKET};
 
+    const uuids::uuid* id;
+
     SECTION("Partial fill limit buy")
     {
         ob.place_order(sell50);
         auto actual{ob.place_order(buy50)};
+        id = buy50.get_id();
 
-        Trade expTrade{nullptr, buy50.get_id(), sell50.get_id(), 50, 3, time_point(), Order::Side::BUY};
+        Trade expTrade{nullptr, id, sell50.get_id(), 50, 3, time_point(), Order::Side::BUY};
         OrderResult expected{
-            buy50.get_id(),
+            id,
             OrderResult::PARTIALLY_FILLED,
             trade_ptrs{&expTrade},
-            &buy50,
+            &ob.getOrderByID(id),
             "Partially filled 3 shares, 2 shares remaining"
         };
 
         REQUIRE(actual.equals_to(expected));
-        REQUIRE(buy50.volume == 2);
+        REQUIRE(ob.getOrderByID(id).volume == 2);
+        buy50.volume = 2; // ob doesnt change the original object so we have to do it manually
 
         bid_map expBM{
             {50.0, PriceLevel{2, order_list{buy50}}}
         };
 
         id_map expIDM{
-            {buy50.get_id(), OrderLocation{50, expBM.at(50.0).orders.begin(), Order::Side::BUY}}
+            {id, OrderLocation{50, expBM.at(50.0).orders.begin(), Order::Side::BUY}}
         };
 
         OrderBookState expState{
@@ -49,25 +53,27 @@ TEST_CASE("Partial filling orders", "[order filling][partial filling]")
     {
         ob.place_order(buy55);
         auto actual{ob.place_order(sell55)};
+        id = sell55.get_id();
 
         Trade expTrade{nullptr, buy55.get_id(), sell55.get_id(), 55, 3, time_point(), Order::Side::SELL};
         OrderResult expected{
-            sell55.get_id(),
+            id,
             OrderResult::PARTIALLY_FILLED,
             trade_ptrs{&expTrade},
-            &sell55,
+            &ob.getOrderByID(id),
             "Partially filled 3 shares, 2 shares remaining"
         };
 
         REQUIRE(actual.equals_to(expected));
-        REQUIRE(sell55.volume == 2);
+        REQUIRE(ob.getOrderByID(id).volume == 2);
+        sell55.volume = 2;
 
         ask_map expAM{
             {55.0, PriceLevel{2, order_list{sell55}}}
         };
 
         id_map expIDM{
-            {sell55.get_id(), OrderLocation{55, expAM.at(55.0).orders.begin(), Order::Side::SELL}}
+            {id, OrderLocation{55, expAM.at(55.0).orders.begin(), Order::Side::SELL}}
         };
 
         OrderBookState expState{
@@ -92,7 +98,7 @@ TEST_CASE("Partial filling orders", "[order filling][partial filling]")
         };
 
         REQUIRE(actual.equals_to(expected));
-        REQUIRE(buyMarket.volume == 2);
+        REQUIRE(buyMarket.volume == 2); // ob modifies in place for market orders
 
         OrderBookState expState{
             bid_map(), ask_map(), id_map(), trade_list{expTrade},

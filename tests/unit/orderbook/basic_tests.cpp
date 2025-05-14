@@ -22,13 +22,20 @@ TEST_CASE("OrderBook", "[orderbook][basic]")
         sell50, sell60, sell55, sell60_2, sell60_3
     };
 
+    SECTION("Gets order by ID")
+    {
+        auto id1{buy50.get_id()};
+        ob.place_order(buy50);
+        REQUIRE(ob.getOrderByID(id1).equals_to(buy50));
+    }
+
     SECTION("Place buy order")
     {
         OrderResult expected{
             buy50.get_id(), 
             OrderResult::PLACED, 
             trade_ptrs(), 
-            &buy50, 
+            &ob.getOrderByID(buy50.get_id()), 
             ""
         };
 
@@ -42,7 +49,7 @@ TEST_CASE("OrderBook", "[orderbook][basic]")
             sell50.get_id(), 
             OrderResult::PLACED, 
             trade_ptrs(), 
-            &sell50, 
+            &ob.getOrderByID(sell50.get_id()), 
             ""
         };
 
@@ -89,13 +96,6 @@ TEST_CASE("OrderBook", "[orderbook][basic]")
 
         REQUIRE(ob.getBestBid() == Catch::Approx(50.00));
         REQUIRE(ob.getBestAsk() == Catch::Approx(55.00));
-    }
-
-    SECTION("Gets order by ID")
-    {
-        auto id1{buy50.get_id()};
-        ob.place_order(buy50);
-        REQUIRE(ob.getOrderByID(id1).equals_to(buy50));
     }
 
     SECTION("Tracks volume at price level")

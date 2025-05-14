@@ -4,9 +4,30 @@
 
 TEST_CASE("Order cancellation/modification", "[orderbook][manipulation]")
 {
+    OrderBook ob{};
+    Order buy50{Order::Side::BUY, 3,  Order::Type::LIMIT, 50};
+    Order buy45{Order::Side::BUY, 5,  Order::Type::LIMIT, 45};
+    Order buyMarket{Order::Side::BUY, 10,  Order::Type::MARKET};
+
+    Order sell50{Order::Side::SELL, 3,  Order::Type::LIMIT, 50};
+    Order sell60{Order::Side::SELL, 10, Order::Type::LIMIT, 60};
+    Order sellMarket{Order::Side::SELL, 5,  Order::Type::MARKET};
+
+    const uuids::uuid* id;
+
     SECTION("Cancel full limit buy")
     {
+        ob.place_order(buy50);
+        id = buy50.get_id();
+        auto actual{ob.cancel_order(id)};
 
+        OrderResult expected{
+            id,
+            OrderResult::CANCELLED,
+            trade_ptrs(),
+            &ob.getOrderByID(id),
+            "Order cancelled"
+        };
     }
 
     SECTION("Cancel full limit sell")
@@ -24,22 +45,42 @@ TEST_CASE("Order cancellation/modification", "[orderbook][manipulation]")
 
     }
 
-    SECTION("Modify volume full limit buy")
+    SECTION("Increase volume full limit buy")
     {
 
     }
 
-    SECTION("Modify volume full limit sell")
+    SECTION("Increase volume full limit sell")
     {
 
     }
 
-    SECTION("Modify volume partial limit buy")
+    SECTION("Increase volume partial limit buy")
     {
 
     }
 
-    SECTION("Modify volume partial limit sell")
+    SECTION("Increase volume partial limit sell")
+    {
+
+    }
+
+    SECTION("Decrease volume full limit buy")
+    {
+
+    }
+
+    SECTION("Decrease volume full limit sell")
+    {
+
+    }
+
+    SECTION("Decrease volume partial limit buy")
+    {
+
+    }
+
+    SECTION("Decrease volume partial limit sell")
     {
 
     }

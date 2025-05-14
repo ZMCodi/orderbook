@@ -100,4 +100,23 @@ TEST_CASE("ID generation", "[orderbook][id]")
         REQUIRE(ids_pool.contains(*id3));
 
     }
+
+    SECTION("Live orders are stored in the ID Map and removed if filled or rejected")
+    {
+        // these orders are not filled
+        ob.place_order(buy50);
+        ob.place_order(sell60);
+
+        id_map idMap{ob.getState().idMap};
+        REQUIRE(idMap.contains(buy50.get_id()));
+        REQUIRE(idMap.contains(sell60.get_id()));
+
+        // buy50 will be filled
+        ob.place_order(sell50);
+        REQUIRE(!idMap.contains(buy50.get_id()));
+
+        // sellMarket will be rejected
+        ob.place_order(sellMarket);
+        REQUIRE(!idMap.contains(sellMarket.get_id()));
+    }
 }

@@ -22,13 +22,36 @@ OrderResult OrderBook::place_order(Order& order)
     return {order.get_id(), OrderResult::FILLED, trade_ptrs(), &order, ""};
 }
 
-const std::list<Order>& OrderBook::bidsAt(float priceLevel)
+OrderResult OrderBook::cancel_order(const uuids::uuid* id)
+{
+    return {id, OrderResult::FILLED, trade_ptrs(), nullptr, ""};
+}
+
+OrderResult OrderBook::modify_order(const uuids::uuid* id, int volume, float price)
+{
+    [[maybe_unused]] auto lol = volume * price;
+    return {id, OrderResult::FILLED, trade_ptrs(), nullptr, ""};
+}
+
+OrderResult OrderBook::modify_volume(const uuids::uuid* id, int volume)
+{
+    [[maybe_unused]] auto lol = volume * 2;
+    return {id, OrderResult::FILLED, trade_ptrs(), nullptr, ""};
+}
+
+OrderResult OrderBook::modify_price(const uuids::uuid* id, float price)
+{
+    [[maybe_unused]] auto lol = price * 2;
+    return {id, OrderResult::FILLED, trade_ptrs(), nullptr, ""};
+}
+
+const order_list& OrderBook::bidsAt(float priceLevel)
 {
     [[maybe_unused]] float lol = priceLevel * 2;
     return dummy;
 }
 
-const std::list<Order>& OrderBook::asksAt(float priceLevel)
+const order_list& OrderBook::asksAt(float priceLevel)
 {
     [[maybe_unused]] float lol = priceLevel * 2;
     return dummy;

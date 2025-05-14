@@ -22,7 +22,7 @@ struct OrderResult{
     const uuids::uuid* order_id;
     Status status;
     trade_ptrs trades;
-    Order* remainingOrder;
+    const Order* remainingOrder;
     std::string message;
 
     bool operator==(const OrderResult& other) const;
