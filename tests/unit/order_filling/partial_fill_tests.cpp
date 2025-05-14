@@ -15,81 +15,117 @@ TEST_CASE("Partial filling orders", "[order filling][partial filling]")
 
     // dummy uid pointer to instantiate Trade
     uuids::uuid uid{uuid_generator()};
-    [[maybe_unused]] const auto* ptr{&uid};
+    const auto* ptr{&uid};
 
-    // SECTION("Partial fill limit buy")
-    // {
-    //     ob.place_order(sell50);
-    //     auto actual{ob.place_order(buy50)};
+    SECTION("Partial fill limit buy")
+    {
+        ob.place_order(sell50);
+        auto actual{ob.place_order(buy50)};
 
-    //     OrderResult expected{
-    //         buy50.get_id(),
-    //         OrderResult::PARTIALLY_FILLED,
-    //         trade_ptrs{
-    //             Trade{ptr, buy50.get_id(), sell50.get_id(), 50, 3, time_point(), Order::Side::BUY}
-    //         },
-    //         &buy50,
-    //         "Partially filled 3 shares, 2 shares remaining"
-    //     };
+        Trade expTrade{ptr, buy50.get_id(), sell50.get_id(), 50, 3, time_point(), Order::Side::BUY};
+        OrderResult expected{
+            buy50.get_id(),
+            OrderResult::PARTIALLY_FILLED,
+            trade_ptrs{&expTrade},
+            &buy50,
+            "Partially filled 3 shares, 2 shares remaining"
+        };
 
-    //     REQUIRE(actual.equals_to(expected));
-    //     REQUIRE(buy50.volume == 2);
-    // }
+        REQUIRE(actual.equals_to(expected));
+        REQUIRE(buy50.volume == 2);
 
-    // SECTION("Partial fill limit sell")
-    // {
-    //     ob.place_order(buy55);
-    //     auto actual{ob.place_order(sell55)};
+        bid_map expBM{
+            {50.0, PriceLevel{2, order_list{buy50}}}
+        };
 
-    //     OrderResult expected{
-    //         sell55.get_id(),
-    //         OrderResult::PARTIALLY_FILLED,
-    //         trade_ptrs{
-    //             Trade{ptr, buy55.get_id(), sell55.get_id(), 55, 3, time_point(), Order::Side::SELL}
-    //         },
-    //         &sell55,
-    //         "Partially filled 3 shares, 2 shares remaining"
-    //     };
+        id_map expIDM{
+            {buy50.get_id(), OrderLocation{50, expBM.at(50.0).orders.begin(), Order::Side::BUY}}
+        };
 
-    //     REQUIRE(actual.equals_to(expected));
-    //     REQUIRE(sell55.volume == 2);
-    // }
+        OrderBookState expState{
+            expBM, ask_map(), expIDM, trade_list{expTrade},
+            50, -1, 50, 2
+        };
+        REQUIRE(checkOBState(ob, expState));
+    }
 
-    // SECTION("Partial fill market buy")
-    // {
-    //     ob.place_order(sell50);
-    //     auto actual{ob.place_order(buyMarket)};
+    SECTION("Partial fill limit sell")
+    {
+        ob.place_order(buy55);
+        auto actual{ob.place_order(sell55)};
 
-    //     OrderResult expected{
-    //         buyMarket.get_id(),
-    //         OrderResult::PARTIALLY_FILLED,
-    //         trade_ptrs{
-    //             Trade{ptr, buyMarket.get_id(), sell50.get_id(), 50, 3, time_point(), Order::Side::BUY}
-    //         },
-    //         &buyMarket,
-    //         "Partially filled 3 shares, remaining order cancelled"
-    //     };
+        Trade expTrade{ptr, buy55.get_id(), sell55.get_id(), 55, 3, time_point(), Order::Side::SELL};
+        OrderResult expected{
+            sell55.get_id(),
+            OrderResult::PARTIALLY_FILLED,
+            trade_ptrs{&expTrade},
+            &sell55,
+            "Partially filled 3 shares, 2 shares remaining"
+        };
 
-    //     REQUIRE(actual.equals_to(expected));
-    //     REQUIRE(buyMarket.volume == 2);
-    // }
+        REQUIRE(actual.equals_to(expected));
+        REQUIRE(sell55.volume == 2);
 
-    // SECTION("Partial fill market sell")
-    // {
-    //     ob.place_order(buy55);
-    //     auto actual{ob.place_order(sellMarket)};
+        ask_map expAM{
+            {55.0, PriceLevel{2, order_list{sell55}}}
+        };
 
-    //     OrderResult expected{
-    //         sellMarket.get_id(),
-    //         OrderResult::PARTIALLY_FILLED,
-    //         trade_ptrs{
-    //             Trade{ptr, buy55.get_id(), sellMarket.get_id(), 55, 3, time_point(), Order::Side::SELL}
-    //         },
-    //         &sellMarket,
-    //         "Partially filled 3 shares, remaining order cancelled"
-    //     };
+        id_map expIDM{
+            {sell55.get_id(), OrderLocation{55, expAM.at(55.0).orders.begin(), Order::Side::SELL}}
+        };
 
-    //     REQUIRE(actual.equals_to(expected));
-    //     REQUIRE(sellMarket.volume == 2);
-    // }
+        OrderBookState expState{
+            bid_map(), expAM, expIDM, trade_list{expTrade},
+            -1, 55, 55, 2
+        };
+        REQUIRE(checkOBState(ob, expState));
+    }
+
+    SECTION("Partial fill market buy")
+    {
+        ob.place_order(sell50);
+        auto actual{ob.place_order(buyMarket)};
+
+        Trade expTrade{ptr, buyMarket.get_id(), sell50.get_id(), 50, 3, time_point(), Order::Side::BUY};
+        OrderResult expected{
+            buyMarket.get_id(),
+            OrderResult::PARTIALLY_FILLED,
+            trade_ptrs{&expTrade},
+            &buyMarket,
+            "Partially filled 3 shares, remaining order cancelled"
+        };
+
+        REQUIRE(actual.equals_to(expected));
+        REQUIRE(buyMarket.volume == 2);
+
+        OrderBookState expState{
+            bid_map(), ask_map(), id_map(), trade_list{expTrade},
+            -1, -1, 50, 0
+        };
+        REQUIRE(checkOBState(ob, expState));
+    }
+
+    SECTION("Partial fill market sell")
+    {
+        ob.place_order(buy55);
+        auto actual{ob.place_order(sellMarket)};
+
+        Trade expTrade{ptr, buy55.get_id(), sellMarket.get_id(), 55, 3, time_point(), Order::Side::SELL};
+        OrderResult expected{
+            sellMarket.get_id(),
+            OrderResult::PARTIALLY_FILLED,
+            trade_ptrs{&expTrade},
+            &sellMarket,
+            "Partially filled 3 shares, remaining order cancelled"
+        };
+
+        REQUIRE(actual.equals_to(expected));
+        REQUIRE(sellMarket.volume == 2);
+
+        OrderBookState expState{
+            bid_map(), ask_map(), id_map(), trade_list{expTrade},
+            -1, -1, 55, 0
+        };
+        REQUIRE(checkOBState(ob, expState));
+    }
 }

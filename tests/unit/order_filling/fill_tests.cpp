@@ -39,7 +39,6 @@ TEST_CASE("Order filling", "[order filling]")
         };
 
         REQUIRE(checkOBState(ob, expState));
-
     }
 
     SECTION("Fill limit sell order")

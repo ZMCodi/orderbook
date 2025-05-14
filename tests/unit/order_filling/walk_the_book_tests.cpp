@@ -222,3 +222,4 @@ TEST_CASE("Walking the book", "[order filling][walking the book]")
 // TODO:
 // add tests for what happens when someone orders, placed and then later gets filled
 // add tests for ob state after each order fills
+// test the new idPool to check that order id and trade id persists
