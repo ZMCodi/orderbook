@@ -194,4 +194,80 @@ TEST_CASE("Depth", "[orderbook][depth]")
         auto actual = onlyBids.getDepth(5);
         REQUIRE(actual == expected);
     }
+
+    SECTION("Book with only asks returns correct depth")
+    {
+        OrderBook onlyAsks{};
+        onlyAsks.placeOrder(sellLow);
+        onlyAsks.placeOrder(sellMid);
+
+        // Create expected depth
+        OrderBook::Depth expected{
+            // bids should be empty
+            std::vector<OrderBook::Level>(),
+
+            // asks
+            std::vector<OrderBook::Level>{
+                {60.0f, 4, 1},
+                {65.0f, 6, 1}
+            },
+
+            10, // volume
+            -1, // best bid
+            60, // best ask
+            -1  // market price
+        };
+
+        auto actual = onlyAsks.getDepth(5);
+        REQUIRE(actual == expected);
+    }
+
+    SECTION("Depth with no levels returns empty depth")
+    {
+        // empty depth still captures the state of the orderbook
+        OrderBook::Depth expected{
+            std::vector<OrderBook::Level>(),
+            std::vector<OrderBook::Level>(),
+            60,  // volume
+            55, // best bid
+            60, // best ask
+            -1  // market price
+        };
+
+        auto actual = ob.getDepth(0);
+        REQUIRE(actual == expected);
+    }
+
+    SECTION("Stress testing the depth")
+    {
+        // Create large number of orders on both sides
+        // and fill in the expected levels
+        std::vector<OrderBook::Level> expectedBids;
+        std::vector<OrderBook::Level> expectedAsks;
+
+        // the buys would be at 59.95, 59.94, 59.93, ..., 49.96
+        // the sells would be at 60.05, 60.06, 60.07, ..., 70.04
+        // each level would have 1 order with 1 volume
+        for (int i = 0; i < 1000; ++i)
+        {
+            // make the price differences granular
+            ob.placeOrder(Order::makeLimitBuy(1, 59.95f - i * 0.01f));
+            ob.placeOrder(Order::makeLimitSell(1, 60.05f + i * 0.01f));
+
+            expectedBids.push_back({59.95f - i * 0.01f, 1, 1});
+            expectedAsks.push_back({60.05f + i * 0.01f, 1, 1});
+        }
+
+        OrderBook::Depth expected{
+            expectedBids,
+            expectedAsks,
+            2000, // volume
+            59.95f, // best bid
+            60.05f, // best ask
+            -1      // market price
+        };
+        // Get actual depth
+        auto actual = ob.getDepth(1000);
+        REQUIRE(actual == expected);
+    }
 }

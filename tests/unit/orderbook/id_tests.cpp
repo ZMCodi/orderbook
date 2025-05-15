@@ -176,7 +176,7 @@ TEST_CASE("ID generation", "[orderbook][id]")
         auto actual3{ob.placeOrder(sell50)};
 
         OrderResult expected3{
-            *&fakeID, // no new ID is generated
+            fakeID, // no new ID is generated
             OrderResult::REJECTED,
             trades(),
             &sell50,
