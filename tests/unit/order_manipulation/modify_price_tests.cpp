@@ -59,7 +59,8 @@ TEST_CASE("Price modification", "[order manipulation][price modification]")
         };
 
         OrderBookState expState{
-            expBM, ask_map(), expIDM, trade_list(),
+            expBM, ask_map(), expIDM,
+            trade_list(), orders{buy50, buy45, newOrder},
             45, -1, -1, 10
         };
 
@@ -102,7 +103,8 @@ TEST_CASE("Price modification", "[order manipulation][price modification]")
         };
 
         OrderBookState expState{
-            bid_map(), expAM, expIDM, trade_list(),
+            bid_map(), expAM, expIDM,
+            trade_list(), orders{sell50, sell60, newOrder},
             -1, 60, -1, 15
         };
 
@@ -147,7 +149,8 @@ TEST_CASE("Price modification", "[order manipulation][price modification]")
         };
 
         OrderBookState expState{
-            expBM, ask_map(), expIDM, trade_list{expTrade},
+            expBM, ask_map(), expIDM,
+            trade_list{expTrade}, orders{buy50, sell50_2, buy45, newOrder},
             45, -1, 50, 7
         };
 
@@ -192,7 +195,8 @@ TEST_CASE("Price modification", "[order manipulation][price modification]")
         };
 
         OrderBookState expState{
-            bid_map(), expAM, expIDM, trade_list{expTrade},
+            bid_map(), expAM, expIDM,
+            trade_list{expTrade}, orders{sell50, buy50_2, sell60, newOrder},
             -1, 60, 50, 12
         };
 

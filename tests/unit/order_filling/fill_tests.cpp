@@ -30,7 +30,8 @@ TEST_CASE("Order filling", "[order filling]")
         REQUIRE(actual.equals_to(expected));
 
         OrderBookState expState{
-            bid_map(), ask_map(), id_map(), trade_list{expTrade},
+            bid_map(), ask_map(), id_map(), 
+            trade_list{expTrade}, orders{sell50, buy50},
             -1, -1, 50, 0
         };
 
@@ -54,7 +55,8 @@ TEST_CASE("Order filling", "[order filling]")
         REQUIRE(actual.equals_to(expected));
 
         OrderBookState expState{
-            bid_map(), ask_map(), id_map(), trade_list{expTrade},
+            bid_map(), ask_map(), id_map(), 
+            trade_list{expTrade}, orders{buy50, sell50},
             -1, -1, 50, 0
         };
 
@@ -76,7 +78,8 @@ TEST_CASE("Order filling", "[order filling]")
         REQUIRE(actual.equals_to(expected));
 
         OrderBookState expState{
-            bid_map(), ask_map(), id_map(), trade_list(),
+            bid_map(), ask_map(), id_map(), 
+            trade_list(), orders{buyMarket}, // rejected orders are still stored
             -1, -1, -1, 0
         };
 
@@ -102,7 +105,8 @@ TEST_CASE("Order filling", "[order filling]")
         REQUIRE(actual.equals_to(expected));
 
         OrderBookState expState{
-            bid_map(), ask_map(), id_map(), trade_list{expTrade},
+            bid_map(), ask_map(), id_map(), 
+            trade_list{expTrade}, orders{sell50, buyMarket},
             -1, -1, 50, 0
         };
 
@@ -128,7 +132,8 @@ TEST_CASE("Order filling", "[order filling]")
         REQUIRE(actual.equals_to(expected));
 
         OrderBookState expState{
-            bid_map(), ask_map(), id_map(), trade_list{expTrade},
+            bid_map(), ask_map(), id_map(), 
+            trade_list{expTrade}, orders{buy50, sellMarket},
             -1, -1, 50, 0
         };
 

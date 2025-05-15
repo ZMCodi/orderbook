@@ -63,7 +63,6 @@ TEST_CASE("Depth", "[orderbook][depth]")
                 {65.0f, 12, 2},
                 {70.0f, 8,  1}
             },
-
             60, // volume
             55, // best bid
             60, // best ask
@@ -90,7 +89,6 @@ TEST_CASE("Depth", "[orderbook][depth]")
                 {60.0f, 12, 3},
                 {65.0f, 12, 2}
             },
-
             60, // volume
             55, // best bid
             60, // best ask
@@ -118,7 +116,6 @@ TEST_CASE("Depth", "[orderbook][depth]")
                 {60.0f, 12, 3},
                 {65.0f, 12, 2}
             },
-
             60, // volume
             55, // best bid
             60, // best ask
@@ -144,7 +141,6 @@ TEST_CASE("Depth", "[orderbook][depth]")
             std::vector<OrderBook::Level>{
                 {60.0f, 12, 3},
             },
-
             33, // volume
             55, // best bid
             60, // best ask
@@ -189,7 +185,7 @@ TEST_CASE("Depth", "[orderbook][depth]")
             // asks should be empty
             std::vector<OrderBook::Level>(),
 
-                8, // volume
+            8, // volume
             50, // best bid
             -1, // best ask
             -1  // market price

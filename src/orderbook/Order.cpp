@@ -36,6 +36,8 @@ Order Order::makeMarketSell(int volume)
 }
 
 // for testing
+// dont compare timestamp since copies cant possibly have the same timestamp
+// but id can be compared since we can get id from getOrderByID() or OrderResult
 bool Order::equals_to(const Order& other) const
 {
     return id == other.id

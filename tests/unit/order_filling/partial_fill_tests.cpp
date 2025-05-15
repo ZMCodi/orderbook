@@ -42,8 +42,10 @@ TEST_CASE("Partial filling orders", "[order filling][partial filling]")
             {id, OrderLocation{50, expBM.at(50.0).orders.begin(), Order::Side::BUY}}
         };
 
+        buy50.volume = 5; // reset for orderList
         OrderBookState expState{
-            expBM, ask_map(), expIDM, trade_list{expTrade},
+            expBM, ask_map(), expIDM,
+            trade_list{expTrade}, orders{sell50, buy50},
             50, -1, 50, 2
         };
         REQUIRE(checkOBState(ob, expState));
@@ -76,8 +78,10 @@ TEST_CASE("Partial filling orders", "[order filling][partial filling]")
             {id, OrderLocation{55, expAM.at(55.0).orders.begin(), Order::Side::SELL}}
         };
 
+        sell55.volume = 5; // reset for orderList
         OrderBookState expState{
-            bid_map(), expAM, expIDM, trade_list{expTrade},
+            bid_map(), expAM, expIDM,
+            trade_list{expTrade}, orders{buy55, sell55},
             -1, 55, 55, 2
         };
         REQUIRE(checkOBState(ob, expState));
@@ -100,8 +104,10 @@ TEST_CASE("Partial filling orders", "[order filling][partial filling]")
         REQUIRE(actual.equals_to(expected));
         REQUIRE(buyMarket.volume == 2); // ob modifies in place for market orders
 
+        buyMarket.volume = 5; // reset for orderList
         OrderBookState expState{
-            bid_map(), ask_map(), id_map(), trade_list{expTrade},
+            bid_map(), ask_map(), id_map(),
+            trade_list{expTrade}, orders{sell50, buyMarket},
             -1, -1, 50, 0
         };
         REQUIRE(checkOBState(ob, expState));
@@ -126,8 +132,10 @@ TEST_CASE("Partial filling orders", "[order filling][partial filling]")
         REQUIRE(actual.equals_to(expected));
         REQUIRE(sellMarket.volume == 2);
 
+        sellMarket.volume = 5; // reset for orderList
         OrderBookState expState{
-            bid_map(), ask_map(), id_map(), trade_list{expTrade},
+            bid_map(), ask_map(), id_map(),
+            trade_list{expTrade}, orders{buy55, sellMarket},
             -1, -1, 55, 0
         };
         REQUIRE(checkOBState(ob, expState));

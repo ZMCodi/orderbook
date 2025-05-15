@@ -18,6 +18,7 @@ using order_list = std::list<Order>;
 // this would ideally be a container that flushes to a database
 // these are used for bookkeeping
 using trade_list = std::vector<Trade>;
+using orders = std::vector<Order>;
 
 // persists the uuid instances for Trade and Order to point to
 using id_pool = std::unordered_set<uuids::uuid>;
@@ -51,6 +52,7 @@ struct OrderBookState
     ask_map askMap{};
     id_map idMap{};
     trade_list tradeList{};
+    orders orderList{};
 
     float bestBid{-1};
     float bestAsk{-1};
@@ -135,6 +137,7 @@ private:
     ask_map askMap{};
     id_map idMap{};
     trade_list tradeList{};
+    orders orderList{};
     id_pool idPool{};
 
     float bestBid{-1};

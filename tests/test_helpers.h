@@ -31,7 +31,7 @@ inline bool compareOrderLists(const order_list& first, const order_list& sec)
 inline OrderBookState OrderBook::getState()
 {
     return {
-        bidMap, askMap, idMap, tradeList,
+        bidMap, askMap, idMap, tradeList, orderList,
         bestBid, bestAsk, marketPrice, totalVolume
     };
 }
@@ -97,9 +97,15 @@ inline bool checkOBState(const OrderBook& ob, const OrderBookState& state)
         {
             if (!state.tradeList[i].equals_to(ob.tradeList[i])) {return false;}
         }
-        
+        // std::cout << "Pass trade list\n";
 
         // compare order list
+        if (ob.orderList.size() != state.orderList.size()) {return false;}
+        for (size_t i{}; i < state.orderList.size(); ++i)
+        {
+            if (!state.orderList[i].equals_to(ob.orderList[i])) {return false;}
+        }
+        // std::cout << "Pass order list\n";
 
     } catch (const std::exception& e) 
     {

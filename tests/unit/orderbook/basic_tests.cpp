@@ -26,7 +26,8 @@ TEST_CASE("OrderBook", "[orderbook][basic]")
     SECTION("Empty orderbook state")
     {
         OrderBookState expected{
-            bid_map(), ask_map(), id_map(), trade_list(),
+            bid_map(), ask_map(), id_map(),
+            trade_list(), std::vector<Order>(), // orders is already taken
             -1, -1, -1, 0
         };
         REQUIRE(checkOBState(ob, expected));

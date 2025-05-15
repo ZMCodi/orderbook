@@ -54,7 +54,9 @@ TEST_CASE("Walking the book", "[order filling][walking the book]")
         REQUIRE(actual.equals_to(expected));
 
         OrderBookState expState{
-            bid_map(), ask_map(), id_map(), trade_list{expTrade1, expTrade2, expTrade3, expTrade4},
+            bid_map(), ask_map(), id_map(),
+            trade_list{expTrade1, expTrade2, expTrade3, expTrade4},
+            orders{sell50, sell51, sell52, sell53, buyBig53},
             -1, -1, 53, 0
         };
         REQUIRE(checkOBState(ob, expState));
@@ -84,7 +86,9 @@ TEST_CASE("Walking the book", "[order filling][walking the book]")
         REQUIRE(actual.equals_to(expected));
 
         OrderBookState expState{
-            bid_map(), ask_map(), id_map(), trade_list{expTrade1, expTrade2, expTrade3, expTrade4},
+            bid_map(), ask_map(), id_map(),
+            trade_list{expTrade1, expTrade2, expTrade3, expTrade4},
+            orders{buy50, buy51, buy52, buy53, sellBig50},
             -1, -1, 50, 0
         };
         REQUIRE(checkOBState(ob, expState));
@@ -103,7 +107,7 @@ TEST_CASE("Walking the book", "[order filling][walking the book]")
         Trade expTrade3{nullptr, buyBig53.get_id(), sell52.get_id(), 52, 2, time_point(), Order::Side::BUY};
 
         OrderResult expected{
-  *          id,
+            *id,
             OrderResult::PARTIALLY_FILLED,
             trades{expTrade1, expTrade2, expTrade3},
             &ob.getOrderByID(id),
@@ -122,8 +126,11 @@ TEST_CASE("Walking the book", "[order filling][walking the book]")
             {id, OrderLocation{53, expBM.at(53.0).orders.begin(), Order::Side::BUY}}
         };
 
+        buyBig53.volume = 8; // reset for orderList
         OrderBookState expState{
-            expBM, ask_map(), expIDM, trade_list{expTrade1, expTrade2, expTrade3},
+            expBM, ask_map(), expIDM,
+            trade_list{expTrade1, expTrade2, expTrade3},
+            orders{sell50, sell51, sell52, buyBig53},
             53, -1, 52, 2
         };
         REQUIRE(checkOBState(ob, expState));
@@ -142,7 +149,7 @@ TEST_CASE("Walking the book", "[order filling][walking the book]")
         Trade expTrade3{nullptr, buy51.get_id(), sellBig50.get_id(), 51, 2, time_point(), Order::Side::SELL};
 
         OrderResult expected{
-  *          id,
+            *id,
             OrderResult::PARTIALLY_FILLED,
             trades{expTrade1, expTrade2, expTrade3},
             &ob.getOrderByID(id),
@@ -161,8 +168,11 @@ TEST_CASE("Walking the book", "[order filling][walking the book]")
             {id, OrderLocation{50, expAM.at(50.0).orders.begin(), Order::Side::SELL}}
         };
 
+        sellBig50.volume = 8; // reset for orderList
         OrderBookState expState{
-            bid_map(), expAM, expIDM, trade_list{expTrade1, expTrade2, expTrade3},
+            bid_map(), expAM, expIDM,
+            trade_list{expTrade1, expTrade2, expTrade3},
+            orders{buy53, buy52, buy51, sellBig50},
             -1, 50, 51, 2
         };
         REQUIRE(checkOBState(ob, expState));
@@ -191,8 +201,11 @@ TEST_CASE("Walking the book", "[order filling][walking the book]")
 
         REQUIRE(actual.equals_to(expected));
 
+        buyMarket.volume = 8; // reset for orderList
         OrderBookState expState{
-            bid_map(), ask_map(), id_map(), trade_list{expTrade1, expTrade2, expTrade3, expTrade4},
+            bid_map(), ask_map(), id_map(),
+            trade_list{expTrade1, expTrade2, expTrade3, expTrade4},
+            orders{sell50, sell51, sell52, sell53, buyMarket},
             -1, -1, 53, 0
         };
         REQUIRE(checkOBState(ob, expState));
@@ -221,8 +234,11 @@ TEST_CASE("Walking the book", "[order filling][walking the book]")
 
         REQUIRE(actual.equals_to(expected));
 
+        sellMarket.volume = 8; // reset for orderList
         OrderBookState expState{
-            bid_map(), ask_map(), id_map(), trade_list{expTrade1, expTrade2, expTrade3, expTrade4},
+            bid_map(), ask_map(), id_map(),
+            trade_list{expTrade1, expTrade2, expTrade3, expTrade4},
+            orders{buy50, buy51, buy52, buy53, sellMarket},
             -1, -1, 50, 0
         };
         REQUIRE(checkOBState(ob, expState));
@@ -250,8 +266,11 @@ TEST_CASE("Walking the book", "[order filling][walking the book]")
         REQUIRE(actual.equals_to(expected));
         REQUIRE(buyMarket.volume == 2);
 
+        buyMarket.volume = 8; // reset for orderList
         OrderBookState expState{
-            bid_map(), ask_map(), id_map(), trade_list{expTrade1, expTrade2, expTrade3},
+            bid_map(), ask_map(), id_map(),
+            trade_list{expTrade1, expTrade2, expTrade3},
+            orders{sell50, sell51, sell52, buyMarket},
             -1, -1, 52, 0
         };
         REQUIRE(checkOBState(ob, expState));
@@ -279,8 +298,11 @@ TEST_CASE("Walking the book", "[order filling][walking the book]")
         REQUIRE(actual.equals_to(expected));
         REQUIRE(sellMarket.volume == 2);
 
+        sellMarket.volume = 8; // reset for orderList
         OrderBookState expState{
-            bid_map(), ask_map(), id_map(), trade_list{expTrade1, expTrade2, expTrade3},
+            bid_map(), ask_map(), id_map(),
+            trade_list{expTrade1, expTrade2, expTrade3},
+            orders{buy53, buy52, buy51, sellMarket},
             -1, -1, 51, 0
         };
         REQUIRE(checkOBState(ob, expState));
