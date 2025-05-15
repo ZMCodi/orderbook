@@ -35,16 +35,23 @@ struct Order
     };
 
     Order(Side side, int volume, Type type, float price = -1);
+
+    // factory functions
+    static Order makeLimitBuy(int volume, float price);
+    static Order makeLimitSell(int volume, float price);
+    static Order makeMarketBuy(int volume);
+    static Order makeMarketSell(int volume);
+
     bool equals_to(const Order& other) const; // for testing
     bool operator==(const Order& other) const;
-    const uuids::uuid* get_id();
+    const uuids::uuid* get_id() const;
     void notify(const Trade& trade);
 
     const uuids::uuid* id;
-    Side side;
+    const Side side;
     int volume;
-    Type type;
-    float price;
+    const Type type;
+    const float price;
     std::chrono::time_point<std::chrono::system_clock> timestamp;
     callback callbackFn;
 };

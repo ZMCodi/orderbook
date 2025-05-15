@@ -15,6 +15,26 @@ Order::Order(Side side, int volume, Type type, float price)
     }
 }
 
+Order Order::makeLimitBuy(int volume, float price)
+{
+    return {Order::Side::BUY, volume, Order::Type::LIMIT, price};
+}
+
+Order Order::makeLimitSell(int volume, float price)
+{
+    return {Order::Side::SELL, volume, Order::Type::LIMIT, price};
+}
+
+Order Order::makeMarketBuy(int volume)
+{
+    return {Order::Side::BUY, volume, Order::Type::MARKET};
+}
+
+Order Order::makeMarketSell(int volume)
+{
+    return {Order::Side::SELL, volume, Order::Type::MARKET};
+}
+
 // for testing
 bool Order::equals_to(const Order& other) const
 {
@@ -30,7 +50,7 @@ bool Order::operator==(const Order& other) const
     return id == other.id;
 }
 
-const uuids::uuid* Order::get_id()
+const uuids::uuid* Order::get_id() const
 {
     return nullptr;
 }
