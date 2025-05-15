@@ -22,12 +22,12 @@ TEST_CASE("Depth", "[orderbook][depth]")
     Order sellHigh{Order::Side::SELL, 8, Order::Type::LIMIT, 70};
 
     // Place orders to populate the book
-    ob.place_order(buyLow);
-    ob.place_order(buyMid);
-    ob.place_order(buyHigh);
-    ob.place_order(sellLow);
-    ob.place_order(sellMid);
-    ob.place_order(sellHigh);
+    ob.placeOrder(buyLow);
+    ob.placeOrder(buyMid);
+    ob.placeOrder(buyHigh);
+    ob.placeOrder(sellLow);
+    ob.placeOrder(sellMid);
+    ob.placeOrder(sellHigh);
 
 // +----------+---------------+---------------+
 // | LEVEL    | BID           | ASK           |
@@ -175,8 +175,8 @@ TEST_CASE("Depth", "[orderbook][depth]")
     SECTION("Book with only bids returns correct depth")
     {
         OrderBook onlyBids{};
-        onlyBids.place_order(buyLow);
-        onlyBids.place_order(buyMid);
+        onlyBids.placeOrder(buyLow);
+        onlyBids.placeOrder(buyMid);
 
         // Create expected depth
         OrderBook::Depth expected{

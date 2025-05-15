@@ -16,9 +16,9 @@ TEST_CASE("Decrease order volume", "[order manipulation][increase volume]")
     // increase volume cancels the order and creates new one at the back
     SECTION("Increase volume full limit buy")
     {
-        ob.place_order(buy50);
-        ob.place_order(buy50_2);
-        auto actual{ob.modify_volume(buy50.get_id(), 10)};
+        ob.placeOrder(buy50);
+        ob.placeOrder(buy50_2);
+        auto actual{ob.modifyVolume(buy50.get_id(), 10)};
         id = actual.order_id;
         REQUIRE(*id != *buy50.get_id()); // ensure its a new order
         const Order& newOrder{ob.getOrderByID(id)};
@@ -59,9 +59,9 @@ TEST_CASE("Decrease order volume", "[order manipulation][increase volume]")
 
     SECTION("Increase volume full limit sell")
     {
-        ob.place_order(sell50);
-        ob.place_order(sell50_2);
-        auto actual{ob.modify_volume(sell50.get_id(), 10)};
+        ob.placeOrder(sell50);
+        ob.placeOrder(sell50_2);
+        auto actual{ob.modifyVolume(sell50.get_id(), 10)};
         id = actual.order_id;
         REQUIRE(*id != *sell50.get_id()); // ensure its a new order
         const Order& newOrder{ob.getOrderByID(id)};
@@ -102,11 +102,11 @@ TEST_CASE("Decrease order volume", "[order manipulation][increase volume]")
 
     SECTION("Increase volume partial limit buy")
     {
-        ob.place_order(buy50);
+        ob.placeOrder(buy50);
         // this fills 3/5 of buy50's volume
-        Trade expTrade{*ob.place_order(sell50_2).trades[0]};
-        ob.place_order(buy50_2);
-        auto actual{ob.modify_volume(buy50.get_id(), 10)};
+        Trade expTrade{*ob.placeOrder(sell50_2).trades[0]};
+        ob.placeOrder(buy50_2);
+        auto actual{ob.modifyVolume(buy50.get_id(), 10)};
         id = actual.order_id;
         REQUIRE(*id != *buy50.get_id()); // ensure its a new order
         const Order& newOrder{ob.getOrderByID(id)};
@@ -147,11 +147,11 @@ TEST_CASE("Decrease order volume", "[order manipulation][increase volume]")
 
     SECTION("Increase volume partial limit sell")
     {
-        ob.place_order(sell50);
+        ob.placeOrder(sell50);
         // this fills 3/5 of sell50's volume
-        Trade expTrade{*ob.place_order(buy50_2).trades[0]};
-        ob.place_order(sell50_2);
-        auto actual{ob.modify_volume(sell50.get_id(), 10)};
+        Trade expTrade{*ob.placeOrder(buy50_2).trades[0]};
+        ob.placeOrder(sell50_2);
+        auto actual{ob.modifyVolume(sell50.get_id(), 10)};
         id = actual.order_id;
         REQUIRE(*id != *sell50.get_id()); // ensure its a new order
         const Order& newOrder{ob.getOrderByID(id)};

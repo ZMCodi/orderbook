@@ -38,6 +38,7 @@ struct Order
     bool equals_to(const Order& other) const; // for testing
     bool operator==(const Order& other) const;
     const uuids::uuid* get_id();
+    void notify(const Trade& trade);
 
     const uuids::uuid* id;
     Side side;
@@ -45,5 +46,5 @@ struct Order
     Type type;
     float price;
     std::chrono::time_point<std::chrono::system_clock> timestamp;
-    callback callback;
+    callback callbackFn;
 };

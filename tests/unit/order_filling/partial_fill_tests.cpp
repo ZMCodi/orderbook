@@ -17,8 +17,8 @@ TEST_CASE("Partial filling orders", "[order filling][partial filling]")
 
     SECTION("Partial fill limit buy")
     {
-        ob.place_order(sell50);
-        auto actual{ob.place_order(buy50)};
+        ob.placeOrder(sell50);
+        auto actual{ob.placeOrder(buy50)};
         id = buy50.get_id();
 
         Trade expTrade{nullptr, id, sell50.get_id(), 50, 3, time_point(), Order::Side::BUY};
@@ -51,8 +51,8 @@ TEST_CASE("Partial filling orders", "[order filling][partial filling]")
 
     SECTION("Partial fill limit sell")
     {
-        ob.place_order(buy55);
-        auto actual{ob.place_order(sell55)};
+        ob.placeOrder(buy55);
+        auto actual{ob.placeOrder(sell55)};
         id = sell55.get_id();
 
         Trade expTrade{nullptr, buy55.get_id(), sell55.get_id(), 55, 3, time_point(), Order::Side::SELL};
@@ -85,8 +85,8 @@ TEST_CASE("Partial filling orders", "[order filling][partial filling]")
 
     SECTION("Partial fill market buy")
     {
-        ob.place_order(sell50);
-        auto actual{ob.place_order(buyMarket)};
+        ob.placeOrder(sell50);
+        auto actual{ob.placeOrder(buyMarket)};
 
         Trade expTrade{nullptr, buyMarket.get_id(), sell50.get_id(), 50, 3, time_point(), Order::Side::BUY};
         OrderResult expected{
@@ -109,8 +109,8 @@ TEST_CASE("Partial filling orders", "[order filling][partial filling]")
 
     SECTION("Partial fill market sell")
     {
-        ob.place_order(buy55);
-        auto actual{ob.place_order(sellMarket)};
+        ob.placeOrder(buy55);
+        auto actual{ob.placeOrder(sellMarket)};
 
         Trade expTrade{nullptr, buy55.get_id(), sellMarket.get_id(), 55, 3, time_point(), Order::Side::SELL};
         OrderResult expected{

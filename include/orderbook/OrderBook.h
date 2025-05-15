@@ -86,11 +86,15 @@ public:
 
     OrderBook() = default;
 
-    OrderResult place_order(Order& order);
-    OrderResult cancel_order(const uuids::uuid* id);
-    OrderResult modify_order(const uuids::uuid* id, int volume, float price);
-    OrderResult modify_volume(const uuids::uuid* id, int volume);
-    OrderResult modify_price(const uuids::uuid* id, float price);
+    OrderResult placeOrder(Order& order);
+    OrderResult placeOrder(Order& order, callback callbackFn);
+    OrderResult cancelOrder(const uuids::uuid* id);
+    OrderResult modifyOrder(const uuids::uuid* id, int volume, float price);
+    OrderResult modifyVolume(const uuids::uuid* id, int volume);
+    OrderResult modifyPrice(const uuids::uuid* id, float price);
+
+    bool registerCallback(const uuids::uuid* id, callback callbackFn);
+    bool removeCallback(const uuids::uuid* id);
 
     const order_list& bidsAt(float priceLevel);
     const order_list& asksAt(float priceLevel);

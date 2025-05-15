@@ -54,8 +54,8 @@ TEST_CASE("Order", "[order]")
         Order order1{Order::Side::BUY, 20, Order::Type::LIMIT, 50};
         Order order2{Order::Side::SELL, 20, Order::Type::LIMIT, 55};
 
-        ob.place_order(order1);
-        ob.place_order(order2);
+        ob.placeOrder(order1);
+        ob.placeOrder(order2);
 
         order_list list50{order1};
         auto itr1{list50.begin()};

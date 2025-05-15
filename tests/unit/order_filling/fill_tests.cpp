@@ -15,8 +15,8 @@ TEST_CASE("Order filling", "[order filling]")
 
     SECTION("Fill limit buy order")
     {
-        ob.place_order(sell50);
-        auto actual{ob.place_order(buy50)};
+        ob.placeOrder(sell50);
+        auto actual{ob.placeOrder(buy50)};
 
         Trade expTrade{nullptr, buy50.get_id(), sell50.get_id(), 50, 5, time_point(), Order::Side::BUY};
         OrderResult expected{
@@ -39,8 +39,8 @@ TEST_CASE("Order filling", "[order filling]")
 
     SECTION("Fill limit sell order")
     {
-        ob.place_order(buy50);
-        auto actual{ob.place_order(sell50)};
+        ob.placeOrder(buy50);
+        auto actual{ob.placeOrder(sell50)};
 
         Trade expTrade{nullptr, buy50.get_id(), sell50.get_id(), 50, 5, time_point(), Order::Side::SELL};
         OrderResult expected{
@@ -63,7 +63,7 @@ TEST_CASE("Order filling", "[order filling]")
 
     SECTION("Reject market order when there is not enough liquidity")
     {
-        auto actual{ob.place_order(buyMarket)};
+        auto actual{ob.placeOrder(buyMarket)};
 
         OrderResult expected{
             buyMarket.get_id(),
@@ -85,8 +85,8 @@ TEST_CASE("Order filling", "[order filling]")
 
     SECTION("Fill market buy order")
     {
-        ob.place_order(sell50);
-        auto actual{ob.place_order(buyMarket)};
+        ob.placeOrder(sell50);
+        auto actual{ob.placeOrder(buyMarket)};
 
         Trade expTrade{nullptr, buyMarket.get_id(), sell50.get_id(), 50, 5, time_point(), Order::Side::BUY};
         OrderResult expected{
@@ -109,8 +109,8 @@ TEST_CASE("Order filling", "[order filling]")
 
     SECTION("Fill market sell order")
     {
-        ob.place_order(buy50);
-        auto actual{ob.place_order(sellMarket)};
+        ob.placeOrder(buy50);
+        auto actual{ob.placeOrder(sellMarket)};
 
         Trade expTrade{nullptr, buy50.get_id(), sellMarket.get_id(), 50, 5, time_point(), Order::Side::SELL};
         OrderResult expected{

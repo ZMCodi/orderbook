@@ -34,9 +34,9 @@ TEST_CASE("Walking the book", "[order filling][walking the book]")
     {
         for (auto sell : sells)
         {
-            ob.place_order(sell);
+            ob.placeOrder(sell);
         }
-        auto actual{ob.place_order(buyBig53)};
+        auto actual{ob.placeOrder(buyBig53)};
 
         Trade expTrade1{nullptr, buyBig53.get_id(), sell50.get_id(), 50, 2, time_point(), Order::Side::BUY};
         Trade expTrade2{nullptr, buyBig53.get_id(), sell51.get_id(), 51, 2, time_point(), Order::Side::BUY};
@@ -64,9 +64,9 @@ TEST_CASE("Walking the book", "[order filling][walking the book]")
     {
         for (auto buy : buys)
         {
-            ob.place_order(buy);
+            ob.placeOrder(buy);
         }
-        auto actual{ob.place_order(sellBig50)};
+        auto actual{ob.placeOrder(sellBig50)};
 
         Trade expTrade1{nullptr, buy53.get_id(), sellBig50.get_id(), 53, 2, time_point(), Order::Side::SELL};
         Trade expTrade2{nullptr, buy52.get_id(), sellBig50.get_id(), 52, 2, time_point(), Order::Side::SELL};
@@ -92,10 +92,10 @@ TEST_CASE("Walking the book", "[order filling][walking the book]")
 
     SECTION("Walk the book limit buy partial fill")
     {
-        ob.place_order(sell50);
-        ob.place_order(sell51);
-        ob.place_order(sell52);
-        auto actual{ob.place_order(buyBig53)};
+        ob.placeOrder(sell50);
+        ob.placeOrder(sell51);
+        ob.placeOrder(sell52);
+        auto actual{ob.placeOrder(buyBig53)};
         id = buyBig53.get_id();
 
         Trade expTrade1{nullptr, buyBig53.get_id(), sell50.get_id(), 50, 2, time_point(), Order::Side::BUY};
@@ -131,10 +131,10 @@ TEST_CASE("Walking the book", "[order filling][walking the book]")
 
     SECTION("Walk the book limit sell partial fill")
     {
-        ob.place_order(buy53);
-        ob.place_order(buy52);
-        ob.place_order(buy51);
-        auto actual{ob.place_order(sellBig50)};
+        ob.placeOrder(buy53);
+        ob.placeOrder(buy52);
+        ob.placeOrder(buy51);
+        auto actual{ob.placeOrder(sellBig50)};
         id = sellBig50.get_id();
 
         Trade expTrade1{nullptr, buy53.get_id(), sellBig50.get_id(), 53, 2, time_point(), Order::Side::SELL};
@@ -172,9 +172,9 @@ TEST_CASE("Walking the book", "[order filling][walking the book]")
     {
         for (auto sell : sells)
         {
-            ob.place_order(sell);
+            ob.placeOrder(sell);
         }
-        auto actual{ob.place_order(buyMarket)};
+        auto actual{ob.placeOrder(buyMarket)};
 
         Trade expTrade1{nullptr, buyMarket.get_id(), sell50.get_id(), 50, 2, time_point(), Order::Side::BUY};
         Trade expTrade2{nullptr, buyMarket.get_id(), sell51.get_id(), 51, 2, time_point(), Order::Side::BUY};
@@ -202,9 +202,9 @@ TEST_CASE("Walking the book", "[order filling][walking the book]")
     {
         for (auto buy : buys)
         {
-            ob.place_order(buy);
+            ob.placeOrder(buy);
         }
-        auto actual{ob.place_order(sellMarket)};
+        auto actual{ob.placeOrder(sellMarket)};
 
         Trade expTrade1{nullptr, buy53.get_id(), sellMarket.get_id(), 53, 2, time_point(), Order::Side::SELL};
         Trade expTrade2{nullptr, buy52.get_id(), sellMarket.get_id(), 52, 2, time_point(), Order::Side::SELL};
@@ -230,10 +230,10 @@ TEST_CASE("Walking the book", "[order filling][walking the book]")
 
     SECTION("Walk the book market buy partial fill")
     {
-        ob.place_order(sell50);
-        ob.place_order(sell51);
-        ob.place_order(sell52);
-        auto actual{ob.place_order(buyMarket)};
+        ob.placeOrder(sell50);
+        ob.placeOrder(sell51);
+        ob.placeOrder(sell52);
+        auto actual{ob.placeOrder(buyMarket)};
 
         Trade expTrade1{nullptr, buyMarket.get_id(), sell50.get_id(), 50, 2, time_point(), Order::Side::BUY};
         Trade expTrade2{nullptr, buyMarket.get_id(), sell51.get_id(), 51, 2, time_point(), Order::Side::BUY};
@@ -259,10 +259,10 @@ TEST_CASE("Walking the book", "[order filling][walking the book]")
 
     SECTION("Walk the book market sell partial fill")
     {
-        ob.place_order(buy53);
-        ob.place_order(buy52);
-        ob.place_order(buy51);
-        auto actual{ob.place_order(sellMarket)};
+        ob.placeOrder(buy53);
+        ob.placeOrder(buy52);
+        ob.placeOrder(buy51);
+        auto actual{ob.placeOrder(sellMarket)};
 
         Trade expTrade1{nullptr, buy53.get_id(), sellMarket.get_id(), 53, 2, time_point(), Order::Side::SELL};
         Trade expTrade2{nullptr, buy52.get_id(), sellMarket.get_id(), 52, 2, time_point(), Order::Side::SELL};

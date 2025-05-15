@@ -19,15 +19,15 @@ TEST_CASE("Price modification", "[order manipulation][price modification]")
 
     SECTION("Decreasing price to negative throws error")
     {
-        ob.place_order(sell50);
-        REQUIRE_THROWS(ob.modify_price(sell50.get_id(), -1));
+        ob.placeOrder(sell50);
+        REQUIRE_THROWS(ob.modifyPrice(sell50.get_id(), -1));
     }
 
     SECTION("Modify price full limit buy")
     {
-        ob.place_order(buy50);
-        ob.place_order(buy45);
-        auto actual{ob.modify_price(buy50.get_id(), 45)};
+        ob.placeOrder(buy50);
+        ob.placeOrder(buy45);
+        auto actual{ob.modifyPrice(buy50.get_id(), 45)};
         id = actual.order_id;
         REQUIRE(*id != *buy50.get_id()); // ensure new order
         const Order& newOrder{ob.getOrderByID(id)};
@@ -68,9 +68,9 @@ TEST_CASE("Price modification", "[order manipulation][price modification]")
 
     SECTION("Modify price full limit sell")
     {
-        ob.place_order(sell50);
-        ob.place_order(sell60);
-        auto actual{ob.modify_price(sell50.get_id(), 60)};
+        ob.placeOrder(sell50);
+        ob.placeOrder(sell60);
+        auto actual{ob.modifyPrice(sell50.get_id(), 60)};
         id = actual.order_id;
         REQUIRE(*id != *sell50.get_id()); // ensure new order
         const Order& newOrder{ob.getOrderByID(id)};
@@ -111,11 +111,11 @@ TEST_CASE("Price modification", "[order manipulation][price modification]")
 
     SECTION("Modify price partial limit buy")
     {
-        ob.place_order(buy50);
+        ob.placeOrder(buy50);
         // this fills 3/5 of buy50's volume
-        Trade expTrade{*ob.place_order(sell50_2).trades[0]};
-        ob.place_order(buy45);
-        auto actual{ob.modify_price(buy50.get_id(), 45)};
+        Trade expTrade{*ob.placeOrder(sell50_2).trades[0]};
+        ob.placeOrder(buy45);
+        auto actual{ob.modifyPrice(buy50.get_id(), 45)};
         id = actual.order_id;
         REQUIRE(*id != *buy50.get_id()); // ensure new order
         const Order& newOrder{ob.getOrderByID(id)};
@@ -156,11 +156,11 @@ TEST_CASE("Price modification", "[order manipulation][price modification]")
 
     SECTION("Modify price partial limit sell")
     {
-        ob.place_order(sell50);
+        ob.placeOrder(sell50);
         // this fills 3/5 of sell50's volume
-        Trade expTrade{*ob.place_order(buy50_2).trades[0]};
-        ob.place_order(sell60);
-        auto actual{ob.modify_price(sell50.get_id(), 60)};
+        Trade expTrade{*ob.placeOrder(buy50_2).trades[0]};
+        ob.placeOrder(sell60);
+        auto actual{ob.modifyPrice(sell50.get_id(), 60)};
         id = actual.order_id;
         REQUIRE(*id != *sell50.get_id()); // ensure new order
         const Order& newOrder{ob.getOrderByID(id)};

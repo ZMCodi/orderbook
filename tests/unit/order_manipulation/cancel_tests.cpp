@@ -15,9 +15,9 @@ TEST_CASE("Order cancellation", "[order manipulation][cancellation]")
 
     SECTION("Cancel full limit buy")
     {
-        ob.place_order(buy50);
+        ob.placeOrder(buy50);
         id = buy50.get_id();
-        auto actual{ob.cancel_order(id)};
+        auto actual{ob.cancelOrder(id)};
 
         OrderResult expected{
             id,
@@ -39,9 +39,9 @@ TEST_CASE("Order cancellation", "[order manipulation][cancellation]")
 
     SECTION("Cancel full limit sell")
     {
-        ob.place_order(sell50);
+        ob.placeOrder(sell50);
         id = sell50.get_id();
-        auto actual{ob.cancel_order(id)};
+        auto actual{ob.cancelOrder(id)};
 
         OrderResult expected{
             id,
@@ -63,10 +63,10 @@ TEST_CASE("Order cancellation", "[order manipulation][cancellation]")
 
     SECTION("Cancel partial limit buy")
     {
-        ob.place_order(buy50);
+        ob.placeOrder(buy50);
         id = buy50.get_id();
-        ob.place_order(sell50_2); // this will partially fill buy50
-        auto actual{ob.cancel_order(id)};
+        ob.placeOrder(sell50_2); // this will partially fill buy50
+        auto actual{ob.cancelOrder(id)};
 
         OrderResult expected{
             id,
@@ -89,10 +89,10 @@ TEST_CASE("Order cancellation", "[order manipulation][cancellation]")
 
     SECTION("Cancel partial limit sell")
     {
-        ob.place_order(sell50);
+        ob.placeOrder(sell50);
         id = sell50.get_id();
-        ob.place_order(buy50_2);
-        auto actual{ob.cancel_order(id)};
+        ob.placeOrder(buy50_2);
+        auto actual{ob.cancelOrder(id)};
 
         OrderResult expected{
             id,

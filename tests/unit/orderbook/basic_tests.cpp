@@ -25,7 +25,7 @@ TEST_CASE("OrderBook", "[orderbook][basic]")
     SECTION("Gets order by ID")
     {
         auto id1{buy50.get_id()};
-        ob.place_order(buy50);
+        ob.placeOrder(buy50);
         REQUIRE(ob.getOrderByID(id1).equals_to(buy50));
     }
 
@@ -39,7 +39,7 @@ TEST_CASE("OrderBook", "[orderbook][basic]")
             ""
         };
 
-        auto actual{ob.place_order(buy50)};
+        auto actual{ob.placeOrder(buy50)};
         REQUIRE(actual.equals_to(expected));
     }
 
@@ -53,16 +53,16 @@ TEST_CASE("OrderBook", "[orderbook][basic]")
             ""
         };
 
-        auto actual{ob.place_order(sell50)};
+        auto actual{ob.placeOrder(sell50)};
         REQUIRE(actual.equals_to(expected));
     }
 
     SECTION("Takes limit orders and puts them at their price level")
     {
-        ob.place_order(buy50);
-        ob.place_order(buy45);
-        ob.place_order(sell55);
-        ob.place_order(sell60);
+        ob.placeOrder(buy50);
+        ob.placeOrder(buy45);
+        ob.placeOrder(sell55);
+        ob.placeOrder(sell60);
 
         REQUIRE(compareOrderLists(ob.bidsAt(50.00), order_list{buy50}));
         REQUIRE(compareOrderLists(ob.bidsAt(45.00), order_list{buy45}));
@@ -77,7 +77,7 @@ TEST_CASE("OrderBook", "[orderbook][basic]")
 
         for (auto order : orders)
         {
-            ob.place_order(order);
+            ob.placeOrder(order);
         }
 
         REQUIRE(ob.getMarketPrice() == Catch::Approx(50.00));
@@ -91,7 +91,7 @@ TEST_CASE("OrderBook", "[orderbook][basic]")
 
         for (auto order: orders)
         {
-            ob.place_order(order);
+            ob.placeOrder(order);
         }
 
         REQUIRE(ob.getBestBid() == Catch::Approx(50.00));
@@ -105,7 +105,7 @@ TEST_CASE("OrderBook", "[orderbook][basic]")
 
         for (auto order: orders)
         {
-            ob.place_order(order);
+            ob.placeOrder(order);
         }
 
         REQUIRE(ob.volumeAt(60.00) == 67);
@@ -121,7 +121,7 @@ TEST_CASE("OrderBook", "[orderbook][basic]")
 
         for (auto order: orders)
         {
-            ob.place_order(order);
+            ob.placeOrder(order);
         }
 
         REQUIRE(ob.getTotalVolume() == 100);
@@ -131,10 +131,10 @@ TEST_CASE("OrderBook", "[orderbook][basic]")
     {
         REQUIRE_THROWS(ob.getSpread());
 
-        ob.place_order(buy50);
+        ob.placeOrder(buy50);
         REQUIRE_THROWS(ob.getSpread());
 
-        ob.place_order(sell55);
+        ob.placeOrder(sell55);
 
         REQUIRE(ob.getSpread() == Catch::Approx(5.00f));
     }

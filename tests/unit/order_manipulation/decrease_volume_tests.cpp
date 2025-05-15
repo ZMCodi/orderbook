@@ -15,17 +15,17 @@ TEST_CASE("Decrease order volume", "[order manipulation][decrease volume]")
 
     SECTION("Decreasing volume to negative throws error")
     {
-        ob.place_order(buy50);
-        REQUIRE_THROWS(ob.modify_volume(buy50.get_id(), -1));
+        ob.placeOrder(buy50);
+        REQUIRE_THROWS(ob.modifyVolume(buy50.get_id(), -1));
     }
 
     // decreasing volume should maintain time priority
     SECTION("Decrease volume full limit buy")
     {
-        ob.place_order(buy50);
+        ob.placeOrder(buy50);
         id = buy50.get_id();
-        ob.place_order(buy50_2);
-        auto actual{ob.modify_volume(id, 2)};
+        ob.placeOrder(buy50_2);
+        auto actual{ob.modifyVolume(id, 2)};
 
         OrderResult expected{
             id,
@@ -58,10 +58,10 @@ TEST_CASE("Decrease order volume", "[order manipulation][decrease volume]")
 
     SECTION("Decrease volume full limit sell")
     {
-        ob.place_order(sell50);
+        ob.placeOrder(sell50);
         id = sell50.get_id();
-        ob.place_order(sell50_2);
-        auto actual{ob.modify_volume(id, 2)};
+        ob.placeOrder(sell50_2);
+        auto actual{ob.modifyVolume(id, 2)};
 
         OrderResult expected{
             id,
@@ -94,12 +94,12 @@ TEST_CASE("Decrease order volume", "[order manipulation][decrease volume]")
 
     SECTION("Decrease volume partial limit buy")
     {
-        ob.place_order(buy50);
+        ob.placeOrder(buy50);
         id = buy50.get_id();
         // this fills 3/5 of buy50's volume
-        Trade expTrade{*ob.place_order(sell50_2).trades[0]};
-        ob.place_order(buy50_2);
-        auto actual{ob.modify_volume(id, 1)};
+        Trade expTrade{*ob.placeOrder(sell50_2).trades[0]};
+        ob.placeOrder(buy50_2);
+        auto actual{ob.modifyVolume(id, 1)};
 
         OrderResult expected{
             id,
@@ -132,12 +132,12 @@ TEST_CASE("Decrease order volume", "[order manipulation][decrease volume]")
 
     SECTION("Decrease volume partial limit sell")
     {
-        ob.place_order(sell50);
+        ob.placeOrder(sell50);
         id = sell50.get_id();
         // this fills 3/5 of sell50's volume
-        Trade expTrade{*ob.place_order(buy50_2).trades[0]};
-        ob.place_order(sell50_2);
-        auto actual{ob.modify_volume(id, 1)};
+        Trade expTrade{*ob.placeOrder(buy50_2).trades[0]};
+        ob.placeOrder(sell50_2);
+        auto actual{ob.modifyVolume(id, 1)};
 
         OrderResult expected{
             id,
