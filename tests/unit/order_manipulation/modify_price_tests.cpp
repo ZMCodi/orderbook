@@ -17,6 +17,7 @@ TEST_CASE("Price modification", "[order manipulation][price modification]")
 
     const uuids::uuid* id;
 
+    // price modification is implemented as a cancel and new order
     SECTION("Decreasing price to negative throws error")
     {
         ob.placeOrder(sell50);
@@ -65,6 +66,13 @@ TEST_CASE("Price modification", "[order manipulation][price modification]")
         };
 
         REQUIRE(checkOBState(ob, expState));
+
+        // internally represented as a buy50 cancel and new order
+        OrderAudit expAudit{
+            buy50.get_id(), time_point(), -1
+        };
+        REQUIRE(ob.getAuditList().size() == 1);
+        REQUIRE(ob.getAuditList()[0].equals_to(expAudit));
     }
 
     SECTION("Modify price full limit sell")
@@ -109,6 +117,12 @@ TEST_CASE("Price modification", "[order manipulation][price modification]")
         };
 
         REQUIRE(checkOBState(ob, expState));
+
+        OrderAudit expAudit{
+            sell50.get_id(), time_point(), -1
+        };
+        REQUIRE(ob.getAuditList().size() == 1);
+        REQUIRE(ob.getAuditList()[0].equals_to(expAudit));
     }
 
     SECTION("Modify price partial limit buy")
@@ -155,6 +169,12 @@ TEST_CASE("Price modification", "[order manipulation][price modification]")
         };
 
         REQUIRE(checkOBState(ob, expState));
+
+        OrderAudit expAudit{
+            buy50.get_id(), time_point(), -1
+        };
+        REQUIRE(ob.getAuditList().size() == 1);
+        REQUIRE(ob.getAuditList()[0].equals_to(expAudit));
     }
 
     SECTION("Modify price partial limit sell")
@@ -201,5 +221,11 @@ TEST_CASE("Price modification", "[order manipulation][price modification]")
         };
 
         REQUIRE(checkOBState(ob, expState));
+
+        OrderAudit expAudit{
+            sell50.get_id(), time_point(), -1
+        };
+        REQUIRE(ob.getAuditList().size() == 1);
+        REQUIRE(ob.getAuditList()[0].equals_to(expAudit));
     }
 }

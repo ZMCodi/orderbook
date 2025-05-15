@@ -15,10 +15,23 @@ inline static uuids::uuid_random_generator uuid_generator(engine);
 // linked list of orders where the tail is the newest order
 using order_list = std::list<Order>;
 
-// this would ideally be a container that flushes to a database
+// keeps track of modified/cancelled orders
+struct OrderAudit
+{
+    const uuids::uuid* id;
+    time_ timestamp;
+    int volume_delta; // positive for decrease, -1 for cancellation
+    // we can skip tracking price change and volume increase
+    // since they are implemented as cancellation + new order
+    // hence cancellation is tracked here and new order in OrderList
+    bool equals_to(const OrderAudit& other) const;
+};
+
+// these would ideally be containers that flush to a database
 // these are used for bookkeeping
 using trade_list = std::vector<Trade>;
 using orders = std::vector<Order>;
+using audit_list = std::vector<OrderAudit>;
 
 // persists the uuid instances for Trade and Order to point to
 using id_pool = std::unordered_set<uuids::uuid>;
@@ -128,6 +141,7 @@ public:
     friend bool checkOBState(const OrderBook& ob, const OrderBookState& state); // for testing
     OrderBookState getState();
     id_pool getIDPool() {return idPool;}
+    audit_list getAuditList() {return auditList;}
     void clear();
 
     std::list<Order> dummy{{Order::Side::BUY, 3, Order::Type::LIMIT, 50}};
@@ -139,6 +153,7 @@ private:
     trade_list tradeList{};
     orders orderList{};
     id_pool idPool{};
+    audit_list auditList{};
 
     float bestBid{-1};
     float bestAsk{-1};

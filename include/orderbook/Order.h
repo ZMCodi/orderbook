@@ -13,6 +13,7 @@
 struct Trade;
 
 using callback = std::function<void(const Trade&)>;
+using time_ = std::chrono::time_point<std::chrono::system_clock>;
 
 struct Order
 {
@@ -52,6 +53,6 @@ struct Order
     int volume;
     const Type type;
     const float price;
-    std::chrono::time_point<std::chrono::system_clock> timestamp;
+    time_ timestamp;
     callback callbackFn;
 };

@@ -12,7 +12,7 @@ TEST_CASE("Order", "[order]")
         Order order3{Order::Side::BUY, 1, Order::Type::MARKET};
         Order order4{Order::Side::SELL, 1, Order::Type::MARKET};
 
-        std::chrono::time_point<std::chrono::system_clock> epoch{};
+        time_ epoch{};
 
         REQUIRE(!order1.id);
         REQUIRE(order1.side == Order::Side::BUY);

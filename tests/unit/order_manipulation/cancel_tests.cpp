@@ -36,6 +36,12 @@ TEST_CASE("Order cancellation", "[order manipulation][cancellation]")
         };
 
         REQUIRE(checkOBState(ob, expState));
+
+        OrderAudit expAudit{
+            id, time_point(), -1
+        };
+        REQUIRE(ob.getAuditList().size() == 1);
+        REQUIRE(ob.getAuditList()[0].equals_to(expAudit));
     }
 
     SECTION("Cancel full limit sell")
@@ -61,6 +67,12 @@ TEST_CASE("Order cancellation", "[order manipulation][cancellation]")
         };
 
         REQUIRE(checkOBState(ob, expState));
+
+        OrderAudit expAudit{
+            id, time_point(), -1
+        };
+        REQUIRE(ob.getAuditList().size() == 1);
+        REQUIRE(ob.getAuditList()[0].equals_to(expAudit));
     }
 
     SECTION("Cancel partial limit buy")
@@ -88,6 +100,12 @@ TEST_CASE("Order cancellation", "[order manipulation][cancellation]")
         };
 
         REQUIRE(checkOBState(ob, expState));
+
+        OrderAudit expAudit{
+            id, time_point(), -1
+        };
+        REQUIRE(ob.getAuditList().size() == 1);
+        REQUIRE(ob.getAuditList()[0].equals_to(expAudit));
     }
 
     SECTION("Cancel partial limit sell")
@@ -115,5 +133,11 @@ TEST_CASE("Order cancellation", "[order manipulation][cancellation]")
         };
 
         REQUIRE(checkOBState(ob, expState));
+
+        OrderAudit expAudit{
+            id, time_point(), -1
+        };
+        REQUIRE(ob.getAuditList().size() == 1);
+        REQUIRE(ob.getAuditList()[0].equals_to(expAudit));
     }
 }

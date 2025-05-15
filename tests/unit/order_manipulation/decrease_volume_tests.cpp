@@ -13,10 +13,14 @@ TEST_CASE("Decrease order volume", "[order manipulation][decrease volume]")
 
     const uuids::uuid* id;
 
-    SECTION("Decreasing volume to negative throws error")
+    SECTION("Decreasing volume to zero or negative throws error")
     {
         ob.placeOrder(buy50);
         REQUIRE_THROWS(ob.modifyVolume(buy50.get_id(), -1));
+        REQUIRE_THROWS(ob.modifyVolume(buy50.get_id(), 0));
+
+        // check that order is unchanged
+        REQUIRE(ob.getOrderByID(buy50.get_id()).volume == 5);
     }
 
     // decreasing volume should maintain time priority
@@ -56,6 +60,12 @@ TEST_CASE("Decrease order volume", "[order manipulation][decrease volume]")
         };
 
         REQUIRE(checkOBState(ob, expState));
+
+        OrderAudit expAudit{
+            id, time_point(), 3
+        };
+        REQUIRE(ob.getAuditList().size() == 1);
+        REQUIRE(ob.getAuditList()[0].equals_to(expAudit));
     }
 
     SECTION("Decrease volume full limit sell")
@@ -94,6 +104,12 @@ TEST_CASE("Decrease order volume", "[order manipulation][decrease volume]")
         };
 
         REQUIRE(checkOBState(ob, expState));
+
+        OrderAudit expAudit{
+            id, time_point(), 3
+        };
+        REQUIRE(ob.getAuditList().size() == 1);
+        REQUIRE(ob.getAuditList()[0].equals_to(expAudit));
     }
 
     SECTION("Decrease volume partial limit buy")
@@ -134,6 +150,11 @@ TEST_CASE("Decrease order volume", "[order manipulation][decrease volume]")
         };
 
         REQUIRE(checkOBState(ob, expState));
+
+        OrderAudit expAudit{
+            id, time_point(), 1
+        };
+        REQUIRE(ob.getAuditList().size() == 1);
     }
 
     SECTION("Decrease volume partial limit sell")
@@ -174,5 +195,11 @@ TEST_CASE("Decrease order volume", "[order manipulation][decrease volume]")
         };
 
         REQUIRE(checkOBState(ob, expState));
+
+        OrderAudit expAudit{
+            id, time_point(), 1
+        };
+        REQUIRE(ob.getAuditList().size() == 1);
+        REQUIRE(ob.getAuditList()[0].equals_to(expAudit));
     }
 }

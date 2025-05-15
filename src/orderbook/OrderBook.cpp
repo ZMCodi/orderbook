@@ -1,5 +1,11 @@
 #include "orderbook/OrderBook.h"
 
+bool OrderAudit::equals_to(const OrderAudit& other) const
+{
+    return id == other.id
+    && volume_delta == other.volume_delta;
+}
+
 bool OrderBook::Level::operator==(const Level& other) const
 {
     return price == other.price

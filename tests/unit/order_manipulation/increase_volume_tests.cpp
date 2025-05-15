@@ -2,7 +2,7 @@
 
 #include "test_helpers.h"
 
-TEST_CASE("Decrease order volume", "[order manipulation][increase volume]")
+TEST_CASE("Increase order volume", "[order manipulation][increase volume]")
 {
     OrderBook ob{};
     Order buy50{Order::Side::BUY, 5,  Order::Type::LIMIT, 50};
@@ -56,6 +56,13 @@ TEST_CASE("Decrease order volume", "[order manipulation][increase volume]")
         };
 
         REQUIRE(checkOBState(ob, expState));
+
+        // internally represented as a buy50 cancel and new order
+        OrderAudit expAudit{
+            buy50.get_id(), time_point(), -1
+        };
+        REQUIRE(ob.getAuditList().size() == 1);
+        REQUIRE(ob.getAuditList()[0].equals_to(expAudit));
     }
 
     SECTION("Increase volume full limit sell")
@@ -100,6 +107,12 @@ TEST_CASE("Decrease order volume", "[order manipulation][increase volume]")
         };
 
         REQUIRE(checkOBState(ob, expState));
+
+        OrderAudit expAudit{
+            sell50.get_id(), time_point(), -1
+        };
+        REQUIRE(ob.getAuditList().size() == 1);
+        REQUIRE(ob.getAuditList()[0].equals_to(expAudit));
     }
 
     SECTION("Increase volume partial limit buy")
@@ -146,6 +159,12 @@ TEST_CASE("Decrease order volume", "[order manipulation][increase volume]")
         };
 
         REQUIRE(checkOBState(ob, expState));
+
+        OrderAudit expAudit{
+            buy50.get_id(), time_point(), -1
+        };
+        REQUIRE(ob.getAuditList().size() == 1);
+        REQUIRE(ob.getAuditList()[0].equals_to(expAudit));
     }
 
     SECTION("Increase volume partial limit sell")
@@ -192,5 +211,11 @@ TEST_CASE("Decrease order volume", "[order manipulation][increase volume]")
         };
 
         REQUIRE(checkOBState(ob, expState));
+
+        OrderAudit expAudit{
+            sell50.get_id(), time_point(), -1
+        };
+        REQUIRE(ob.getAuditList().size() == 1);
+        REQUIRE(ob.getAuditList()[0].equals_to(expAudit));
     }
 }
