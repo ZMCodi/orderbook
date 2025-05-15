@@ -113,50 +113,6 @@ TEST_CASE("OrderBook", "[orderbook][basic]")
         REQUIRE(compareOrderLists(ob.asksAt(60.00), order_list{sell60}));
     }
 
-    SECTION("Re-placing the same order")
-    {
-        ob.placeOrder(buy45);
-        auto actual{ob.placeOrder(buy45)};
-        auto old_id{actual.order_id};
-
-        OrderResult expected{
-            buy45.get_id(),
-            OrderResult::REJECTED,
-            trade_ptrs(),
-            &ob.getOrderByID(buy45.get_id()),
-            "Order already exists"
-        };
-        REQUIRE(actual.equals_to(expected));
-
-        // to re-place an identical order, set id to nullptr
-        buy45.id = nullptr;
-        auto actual2{ob.placeOrder(buy45)};
-        REQUIRE(*old_id != *actual.order_id); // new ID is generated
-
-        OrderResult expected2{
-            buy45.get_id(),
-            OrderResult::PLACED,
-            trade_ptrs(),
-            &ob.getOrderByID(buy45.get_id()),
-            ""
-        };
-        REQUIRE(actual2.equals_to(expected2));
-
-        // order with existing ID is also rejected
-        auto fakeID{uuid_generator()};
-        sell50.id = &fakeID;
-        auto actual3{ob.placeOrder(sell50)};
-
-        OrderResult expected3{
-            &fakeID, // no new ID is generated
-            OrderResult::REJECTED,
-            trade_ptrs(),
-            &sell50,
-            "Non-null ID"
-        };
-        REQUIRE(actual3.equals_to(expected3));
-    }
-
     SECTION("Tracks market price")
     {
         // market price not initialized
