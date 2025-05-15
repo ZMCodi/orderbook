@@ -145,7 +145,7 @@ TEST_CASE("ID generation", "[orderbook][id]")
             OrderResult::PLACED,
             trade_ptrs(),
             &ob.getOrderByID(buy45.get_id()),
-            ""
+            "Order placed"
         };
         REQUIRE(actual2.equals_to(expected2));
 

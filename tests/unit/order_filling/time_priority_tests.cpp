@@ -78,7 +78,7 @@ TEST_CASE("Check time priority", "[order filling][time priority checking]")
             OrderResult::FILLED,
             trade_ptrs{&expTrade1, &expTrade2, &expTrade3},
             nullptr,
-            ""
+            "Order filled"
         };
         REQUIRE(actual.equals_to(expected));
 
@@ -106,7 +106,7 @@ TEST_CASE("Check time priority", "[order filling][time priority checking]")
             OrderResult::FILLED,
             trade_ptrs{&expTrade1, &expTrade2, &expTrade3},
             nullptr,
-            ""
+            "Order filled"
         };
         REQUIRE(actual.equals_to(expected));
 
@@ -134,7 +134,7 @@ TEST_CASE("Check time priority", "[order filling][time priority checking]")
             OrderResult::FILLED,
             trade_ptrs{&expTrade1, &expTrade2, &expTrade3},
             nullptr,
-            ""
+            "Order filled"
         };
         REQUIRE(actual.equals_to(expected));
 
@@ -162,7 +162,7 @@ TEST_CASE("Check time priority", "[order filling][time priority checking]")
             OrderResult::FILLED,
             trade_ptrs{&expTrade1, &expTrade2, &expTrade3},
             nullptr,
-            ""
+            "Order filled"
         };
         REQUIRE(actual.equals_to(expected));
 

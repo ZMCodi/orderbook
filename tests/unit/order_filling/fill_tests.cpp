@@ -24,7 +24,7 @@ TEST_CASE("Order filling", "[order filling]")
             OrderResult::FILLED,
             trade_ptrs{&expTrade},
             nullptr,
-            ""
+            "Order filled"
         };
 
         REQUIRE(actual.equals_to(expected));
@@ -48,7 +48,7 @@ TEST_CASE("Order filling", "[order filling]")
             OrderResult::FILLED, 
             trade_ptrs{&expTrade}, 
             nullptr, 
-            ""
+            "Order filled"
         };
 
         REQUIRE(actual.equals_to(expected));
@@ -94,7 +94,7 @@ TEST_CASE("Order filling", "[order filling]")
             OrderResult::FILLED,
             trade_ptrs{&expTrade},
             nullptr,
-            ""
+            "Order filled"
         };
 
         REQUIRE(actual.equals_to(expected));
@@ -118,7 +118,7 @@ TEST_CASE("Order filling", "[order filling]")
             OrderResult::FILLED,
             trade_ptrs{&expTrade},
             nullptr,
-            ""
+            "Order filled"
         };
 
         REQUIRE(actual.equals_to(expected));

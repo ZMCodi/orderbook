@@ -48,7 +48,7 @@ TEST_CASE("Walking the book", "[order filling][walking the book]")
             OrderResult::FILLED,
             trade_ptrs{&expTrade1, &expTrade2, &expTrade3, &expTrade4},
             nullptr,
-            ""
+            "Order filled"
         };
 
         REQUIRE(actual.equals_to(expected));
@@ -78,7 +78,7 @@ TEST_CASE("Walking the book", "[order filling][walking the book]")
             OrderResult::FILLED,
             trade_ptrs{&expTrade1, &expTrade2, &expTrade3, &expTrade4},
             nullptr,
-            ""
+            "Order filled"
         };
 
         REQUIRE(actual.equals_to(expected));
@@ -186,7 +186,7 @@ TEST_CASE("Walking the book", "[order filling][walking the book]")
             OrderResult::FILLED,
             trade_ptrs{&expTrade1, &expTrade2, &expTrade3, &expTrade4},
             nullptr,
-            ""
+            "Order filled"
         };
 
         REQUIRE(actual.equals_to(expected));
@@ -216,7 +216,7 @@ TEST_CASE("Walking the book", "[order filling][walking the book]")
             OrderResult::FILLED,
             trade_ptrs{&expTrade1, &expTrade2, &expTrade3, &expTrade4},
             nullptr,
-            ""
+            "Order filled"
         };
 
         REQUIRE(actual.equals_to(expected));

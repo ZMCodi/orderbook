@@ -52,7 +52,7 @@ TEST_CASE("OrderBook", "[orderbook][basic]")
             OrderResult::PLACED, 
             trade_ptrs(), 
             &ob.getOrderByID(buy50.get_id()), 
-            ""
+            "Order placed"
         };
 
         REQUIRE(actual.equals_to(expected));
@@ -66,7 +66,7 @@ TEST_CASE("OrderBook", "[orderbook][basic]")
             OrderResult::PLACED, 
             trade_ptrs(), 
             &ob.getOrderByID(sell50.get_id()), 
-            ""
+            "Order placed"
         };
 
         REQUIRE(actual.equals_to(expected));
@@ -80,7 +80,7 @@ TEST_CASE("OrderBook", "[orderbook][basic]")
             OrderResult::PLACED, 
             trade_ptrs(), 
             actual.remainingOrder, 
-            ""
+            "Order placed"
         };
 
         REQUIRE(actual.equals_to(expected));
@@ -94,7 +94,7 @@ TEST_CASE("OrderBook", "[orderbook][basic]")
             OrderResult::PLACED, 
             trade_ptrs(), 
             actual.remainingOrder, 
-            ""
+            "Order placed"
         };
 
         REQUIRE(actual.equals_to(expected));

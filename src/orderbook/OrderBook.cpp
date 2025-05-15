@@ -68,7 +68,7 @@ bool OrderBook::registerCallback(const uuids::uuid* id, callback callbackFn)
     return false;
 }
 
-bool removeCallback(const uuids::uuid* id)
+bool OrderBook::removeCallback(const uuids::uuid* id)
 {
     [[maybe_unused]] auto lol = id;
     return false;
