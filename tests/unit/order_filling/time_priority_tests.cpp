@@ -174,7 +174,7 @@ TEST_CASE("Check time priority", "[order filling][time priority checking]")
         REQUIRE(checkOBState(ob, expState));
     }
 
-    SECTION("Time priority is maintained after buy partial fill")
+    SECTION("Time priority is maintained after limit buy partial fill")
     {
         ob.place_order(sell51_1);
         ob.place_order(sell51_2);
@@ -187,7 +187,7 @@ TEST_CASE("Check time priority", "[order filling][time priority checking]")
         REQUIRE(sell51_3.volume == 2);
     }
 
-    SECTION("Time priority is maintained after sell partial fill")
+    SECTION("Time priority is maintained after limit sell partial fill")
     {
         ob.place_order(buy50_1);
         ob.place_order(buy50_2);
@@ -224,5 +224,21 @@ TEST_CASE("Check time priority", "[order filling][time priority checking]")
         REQUIRE(compareOrderLists(ob.bidsAt(50.0), order_list{buy50_2, buy50_3}));
         REQUIRE(buy50_2.volume == 5);
         REQUIRE(buy50_3.volume == 2);
+    }
+
+    SECTION("Cancelling orders maintain time priority")
+    {
+        ob.place_order(buy50_1);
+        ob.place_order(buy50_2);
+        ob.place_order(buy50_3);
+        ob.place_order(sell51_1);
+        ob.place_order(sell51_2);
+        ob.place_order(sell51_3);
+
+        ob.cancel_order(buy50_2.get_id());
+        ob.cancel_order(sell51_2.get_id());
+
+        REQUIRE(compareOrderLists(ob.bidsAt(50.0), order_list{buy50_1, buy50_3}));
+        REQUIRE(compareOrderLists(ob.asksAt(51.0), order_list{sell51_1, sell51_3}));
     }
 }
