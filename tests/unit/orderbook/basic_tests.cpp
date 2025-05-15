@@ -23,6 +23,16 @@ TEST_CASE("OrderBook", "[orderbook][basic]")
         sell50, sell60, sell55, sell60_2, sell60_3
     };
 
+    SECTION("Empty orderbook state")
+    {
+        OrderBookState expected{
+            bid_map(), ask_map(), id_map(), trade_list(),
+            -1, -1, -1, 0
+        };
+        REQUIRE(checkOBState(ob, expected));
+        REQUIRE(ob.getIDPool().empty());
+    }
+
     SECTION("Gets order by ID")
     {
         ob.placeOrder(buy50);
@@ -112,6 +122,11 @@ TEST_CASE("OrderBook", "[orderbook][basic]")
 
     SECTION("Takes limit orders and puts them at their price level")
     {
+        REQUIRE(compareOrderLists(ob.bidsAt(50.00), order_list()));
+        REQUIRE(compareOrderLists(ob.bidsAt(45.00), order_list()));
+        REQUIRE(compareOrderLists(ob.asksAt(55.00), order_list()));
+        REQUIRE(compareOrderLists(ob.asksAt(60.00), order_list()));
+
         ob.placeOrder(buy50);
         ob.placeOrder(buy45);
         ob.placeOrder(sell55);
@@ -121,6 +136,67 @@ TEST_CASE("OrderBook", "[orderbook][basic]")
         REQUIRE(compareOrderLists(ob.bidsAt(45.00), order_list{buy45}));
         REQUIRE(compareOrderLists(ob.asksAt(55.00), order_list{sell55}));
         REQUIRE(compareOrderLists(ob.asksAt(60.00), order_list{sell60}));
+    }
+
+    SECTION("Price level precision")
+    {
+        // these should be on different price levels
+        auto order5001_1{Order::makeLimitBuy(5, 50.01f)};
+        auto order5002_1{Order::makeLimitBuy(5, 50.02f)};
+        ob.placeOrder(order5001_1);
+        ob.placeOrder(order5002_1);
+
+        // but these should be on 50.01
+        auto order5001_2{Order::makeLimitBuy(5, 50.0101f)};
+        auto order5001_3{Order::makeLimitBuy(5, 50.0132f)};
+        ob.placeOrder(order5001_2);
+        ob.placeOrder(order5001_3);
+
+        // check that they are rounded
+        REQUIRE(ob.getOrderByID(order5001_1.get_id()).price == Catch::Approx(50.01f).epsilon(0.01f));
+        REQUIRE(ob.getOrderByID(order5001_2.get_id()).price == Catch::Approx(50.01f).epsilon(0.01f));
+        REQUIRE(ob.getOrderByID(order5001_3.get_id()).price == Catch::Approx(50.01f).epsilon(0.01f));
+
+        REQUIRE(compareOrderLists(ob.bidsAt(50.00f), order_list()));
+        REQUIRE(compareOrderLists(ob.bidsAt(50.01f), order_list{order5001_1, order5001_2, order5001_3}));
+        REQUIRE(compareOrderLists(ob.bidsAt(50.02f), order_list{order5002_1}));
+
+        // now for an ob with a different precision
+        OrderBook ob2{0.001f};
+
+        // these should be the same price level (50.010)
+        ob2.placeOrder(order5001_1);
+        ob2.placeOrder(order5001_2);
+
+        // but this is a different price level (50.013)
+        ob2.placeOrder(order5001_3);
+
+        // check that they are rounded
+        REQUIRE(ob2.getOrderByID(order5001_1.get_id()).price == Catch::Approx(50.010f).epsilon(0.001f));
+        REQUIRE(ob2.getOrderByID(order5001_2.get_id()).price == Catch::Approx(50.010f).epsilon(0.001f));
+        REQUIRE(ob2.getOrderByID(order5001_3.get_id()).price == Catch::Approx(50.013f).epsilon(0.001f));
+
+        REQUIRE(compareOrderLists(ob2.bidsAt(50.01f), order_list{order5001_1, order5001_2}));
+        REQUIRE(compareOrderLists(ob2.bidsAt(50.010f), order_list{order5001_1, order5001_2}));
+        REQUIRE(compareOrderLists(ob2.bidsAt(50.013f), order_list{order5001_3}));
+    }
+
+    SECTION("Small and large prices")
+    {
+        float max_price{std::numeric_limits<float>::max()};
+
+        auto order1{Order::makeLimitBuy(5, max_price)};
+        auto order2{Order::makeLimitBuy(5, 0.0001f)};
+
+        ob.placeOrder(order1);
+        ob.placeOrder(order2);
+
+        REQUIRE(compareOrderLists(ob.bidsAt(max_price), order_list{order1}));
+        REQUIRE(ob.getOrderByID(order1.get_id()).price == Catch::Approx(max_price).epsilon(0.01f));
+
+        // this would actually get rounded to 0.01
+        REQUIRE(compareOrderLists(ob.bidsAt(0.0001f), order_list{order2}));
+        REQUIRE(ob.getOrderByID(order2.get_id()).price == Catch::Approx(0.01f).epsilon(0.01f));
     }
 
     SECTION("Tracks market price")

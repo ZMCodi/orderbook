@@ -85,6 +85,11 @@ public:
     };
 
     OrderBook() = default;
+    OrderBook(float tickSize) : tickSize(tickSize) {}
+    OrderBook(const OrderBook&) = delete;
+    OrderBook& operator=(const OrderBook&) = delete;
+    OrderBook(OrderBook&&) = delete;
+    OrderBook& operator=(OrderBook&&) = delete;
 
     OrderResult placeOrder(Order& order);
     OrderResult placeOrder(Order& order, callback callbackFn);
@@ -118,7 +123,6 @@ public:
 
     // helpers for testing
     friend bool checkOBState(const OrderBook& ob, const OrderBookState& state); // for testing
-    void setState(const OrderBookState& state);
     OrderBookState getState();
     id_pool getIDPool() {return idPool;}
 
@@ -135,4 +139,6 @@ private:
     float bestAsk{-1};
     float marketPrice{-1};
     int totalVolume{};
+
+    const float tickSize{0.01f};
 };

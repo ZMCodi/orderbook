@@ -112,8 +112,8 @@ TEST_CASE("Order", "[order]")
 
     SECTION("Check price precision")
     {
-        Order order1{Order::Side::BUY, 1, Order::Type::LIMIT, 0.123456789};
-        Order order2{Order::Side::BUY, 1, Order::Type::LIMIT, 0.1234567890123456789};
+        Order order1{Order::Side::BUY, 1, Order::Type::LIMIT, 0.123456789f};
+        Order order2{Order::Side::BUY, 1, Order::Type::LIMIT, 0.1234567890123456789f};
 
         REQUIRE(!order1.equals_to(order2));
         REQUIRE(order1.price == Catch::Approx(0.123456789).epsilon(0.000000001));
