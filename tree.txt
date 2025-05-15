@@ -1,4 +1,5 @@
 .
+├── CHANGELOG.md
 ├── CMakeLists.txt
 ├── include
 │   ├── libraries
@@ -19,17 +20,21 @@
     ├── test_helpers.h
     ├── test_main.cpp
     └── unit
-        ├── order
-        │   └── order_tests.cpp
         ├── order_filling
+        │   ├── callback_tests.cpp
         │   ├── fill_tests.cpp
         │   ├── partial_fill_tests.cpp
-        │   ├── placing_tests.cpp
         │   ├── time_priority_tests.cpp
         │   └── walk_the_book_tests.cpp
+        ├── order_manipulation
+        │   ├── cancel_tests.cpp
+        │   ├── decrease_volume_tests.cpp
+        │   ├── increase_volume_tests.cpp
+        │   └── modify_price_tests.cpp
         └── orderbook
             ├── basic_tests.cpp
             ├── depth_tests.cpp
-            └── order_manipulation_tests.cpp
+            ├── id_tests.cpp
+            └── order_tests.cpp
 
-11 directories, 22 files
+11 directories, 27 files
