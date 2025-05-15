@@ -44,6 +44,16 @@ TEST_CASE("OrderBook", "[orderbook][basic]")
         REQUIRE_NOTHROW(ob.placeOrder({Order::Side::BUY, 5, Order::Type::LIMIT, 40}));
     }
 
+    SECTION("Reject invalid orders")
+    {
+        // change manually since order constructor will not allow this
+        buy50.volume = sell60.volume = buyMarket.volume = sellMarket.volume = 0;
+        REQUIRE_THROWS(ob.placeOrder(buy50));
+        REQUIRE_THROWS(ob.placeOrder(sell60));
+        REQUIRE_THROWS(ob.placeOrder(buyMarket));
+        REQUIRE_THROWS(ob.placeOrder(sellMarket));
+    }
+
     SECTION("Place buy order")
     {
         auto actual{ob.placeOrder(buy50)};

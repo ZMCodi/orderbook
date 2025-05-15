@@ -5,6 +5,48 @@
 
 TEST_CASE("Order", "[order]")
 {
+    SECTION("Basic order initialization checks")
+    {
+        Order order1{Order::Side::BUY, 1, Order::Type::LIMIT, 20};
+        Order order2{Order::Side::SELL, 1, Order::Type::LIMIT, 20};
+        Order order3{Order::Side::BUY, 1, Order::Type::MARKET};
+        Order order4{Order::Side::SELL, 1, Order::Type::MARKET};
+
+        std::chrono::time_point<std::chrono::system_clock> epoch{};
+
+        REQUIRE(!order1.id);
+        REQUIRE(order1.side == Order::Side::BUY);
+        REQUIRE(order1.volume == 1);
+        REQUIRE(order1.type == Order::Type::LIMIT);
+        REQUIRE(order1.price == Catch::Approx(20.0));
+        REQUIRE(order1.timestamp == epoch);
+        REQUIRE(!order1.callbackFn);
+
+        REQUIRE(!order2.id);
+        REQUIRE(order2.side == Order::Side::SELL);
+        REQUIRE(order2.volume == 1);
+        REQUIRE(order2.type == Order::Type::LIMIT);
+        REQUIRE(order2.price == Catch::Approx(20.0));
+        REQUIRE(order2.timestamp == epoch);
+        REQUIRE(!order2.callbackFn);
+
+        REQUIRE(!order3.id);
+        REQUIRE(order3.side == Order::Side::BUY);
+        REQUIRE(order3.volume == 1);
+        REQUIRE(order3.type == Order::Type::MARKET);
+        REQUIRE(order3.price == Catch::Approx(-1.0));
+        REQUIRE(order3.timestamp == epoch);
+        REQUIRE(!order3.callbackFn);
+
+        REQUIRE(!order4.id);
+        REQUIRE(order4.side == Order::Side::SELL);
+        REQUIRE(order4.volume == 1);
+        REQUIRE(order4.type == Order::Type::MARKET);
+        REQUIRE(order4.price == Catch::Approx(-1.0));
+        REQUIRE(order4.timestamp == epoch);
+        REQUIRE(order4.callbackFn == nullptr);
+    }
+
     SECTION("Market order with a price throws an error")
     {
         REQUIRE_THROWS(Order{Order::Side::BUY, 3, Order::Type::MARKET, 50});
@@ -66,5 +108,15 @@ TEST_CASE("Order", "[order]")
         REQUIRE(Order::makeLimitSell(1, 50).equals_to(limitSell));
         REQUIRE(Order::makeMarketBuy(1).equals_to(marketBuy));
         REQUIRE(Order::makeMarketSell(1).equals_to(marketSell));
+    }
+
+    SECTION("Check price precision")
+    {
+        Order order1{Order::Side::BUY, 1, Order::Type::LIMIT, 0.123456789};
+        Order order2{Order::Side::BUY, 1, Order::Type::LIMIT, 0.1234567890123456789};
+
+        REQUIRE(!order1.equals_to(order2));
+        REQUIRE(order1.price == Catch::Approx(0.123456789).epsilon(0.000000001));
+        REQUIRE(order2.price == Catch::Approx(0.1234567890123456789).epsilon(0.000000001));
     }
 }
