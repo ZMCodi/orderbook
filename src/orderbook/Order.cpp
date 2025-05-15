@@ -56,8 +56,3 @@ const uuids::uuid* Order::get_id() const
 {
     return nullptr;
 }
-
-void Order::notify(const Trade& trade)
-{
-    if (callbackFn) {callbackFn(trade);}
-}

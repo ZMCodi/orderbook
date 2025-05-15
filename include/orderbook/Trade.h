@@ -17,3 +17,9 @@ public:
     bool operator==(const Trade& other) const;
     const uuids::uuid* get_id() const;
 };
+
+// this has to be put here because Trade has to be defined
+inline void Order::notify(Trade trade)
+{
+    if (callbackFn) {callbackFn(trade);}
+}
