@@ -5,9 +5,14 @@
 #include <string_view>
 #include <chrono>
 #include <exception>
+#include <functional>
 
 #include "libraries/uuid.h"
 #include "libraries/Random.h"
+
+struct Trade;
+
+using callback = std::function<void(const Trade&)>;
 
 struct Order
 {
@@ -40,4 +45,5 @@ struct Order
     Type type;
     float price;
     std::chrono::time_point<std::chrono::system_clock> timestamp;
+    callback callback;
 };
