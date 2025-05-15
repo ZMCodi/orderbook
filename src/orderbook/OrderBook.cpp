@@ -28,6 +28,16 @@ OrderResult OrderBook::placeOrder(Order& order, callback callbackFn)
     return {order.get_id(), OrderResult::FILLED, trade_ptrs(), &order, ""};
 }
 
+OrderResult OrderBook::placeOrder(Order&& order)
+{
+    return placeOrder(order);
+}
+
+OrderResult OrderBook::placeOrder(Order&& order, callback callbackFn)
+{
+    return placeOrder(order, callbackFn);
+}
+
 OrderResult OrderBook::cancelOrder(const uuids::uuid* id)
 {
     return {id, OrderResult::FILLED, trade_ptrs(), nullptr, ""};

@@ -88,6 +88,9 @@ public:
 
     OrderResult placeOrder(Order& order);
     OrderResult placeOrder(Order& order, callback callbackFn);
+    OrderResult placeOrder(Order&& order);
+    OrderResult placeOrder(Order&& order, callback callbackFn);
+
     OrderResult cancelOrder(const uuids::uuid* id);
     OrderResult modifyOrder(const uuids::uuid* id, int volume, float price);
     OrderResult modifyVolume(const uuids::uuid* id, int volume);
