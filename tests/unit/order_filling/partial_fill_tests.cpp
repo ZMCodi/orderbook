@@ -113,6 +113,30 @@ TEST_CASE("Partial filling orders", "[order filling][partial filling]")
         REQUIRE(checkOBState(ob, expState));
 
         // test with rvalue
+        ob.clear();
+        sell50.id = nullptr; // reset id to add again
+        ob.placeOrder(sell50);
+        auto actual2{ob.placeOrder(Order::makeMarketBuy(5))};
+
+        Trade expTrade2{nullptr, &actual2.order_id, sell50.get_id(), 50, 3, time_point(), Order::Side::BUY};
+        OrderResult expected2{
+            actual2.order_id,
+            OrderResult::PARTIALLY_FILLED,
+            trades{expTrade2},
+            nullptr,
+            "Partially filled 3 shares, remaining order cancelled"
+        };
+        buyMarket.id = &actual2.order_id;
+        buyMarket.volume = 5; // reset for orderList
+        REQUIRE(actual2.equals_to(expected2));
+
+        OrderBookState expState2{
+            bid_map(), ask_map(), id_map(),
+            trade_list{expTrade2}, orders{sell50, buyMarket},
+            -1, -1, 50, 0
+        };
+        REQUIRE(checkOBState(ob, expState2));
+
     }
 
     SECTION("Partial fill market sell")
@@ -141,5 +165,28 @@ TEST_CASE("Partial filling orders", "[order filling][partial filling]")
         REQUIRE(checkOBState(ob, expState));
 
         // test with rvalue
+        ob.clear();
+        buy55.id = nullptr; // reset id to add again
+        ob.placeOrder(buy55);
+        auto actual2{ob.placeOrder(Order::makeMarketSell(5))};
+
+        Trade expTrade2{nullptr, &actual2.order_id, buy55.get_id(), 55, 3, time_point(), Order::Side::SELL};
+        OrderResult expected2{
+            actual2.order_id,
+            OrderResult::PARTIALLY_FILLED,
+            trades{expTrade2},
+            nullptr,
+            "Partially filled 3 shares, remaining order cancelled"
+        };
+        sellMarket.id = &actual2.order_id;
+        sellMarket.volume = 5; // reset for orderList
+        REQUIRE(actual2.equals_to(expected2));
+
+        OrderBookState expState2{
+            bid_map(), ask_map(), id_map(),
+            trade_list{expTrade2}, orders{buy55, sellMarket},
+            -1, -1, 55, 0
+        };
+        REQUIRE(checkOBState(ob, expState2));
     }
 }

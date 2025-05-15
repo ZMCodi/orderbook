@@ -70,10 +70,10 @@ TEST_CASE("ID generation", "[orderbook][id]")
     
         // check trade ID and order ID are different
         REQUIRE(std::unordered_set{
-            id1, id2, id3,
-            buy50.get_id(), sell50.get_id(),
-            sell60.get_id(), buyMarket.get_id(),
-            sellMarket.get_id(), buy45.get_id()
+            *id1, *id2, *id3,
+            *buy50.get_id(), *sell50.get_id(),
+            *sell60.get_id(), *buyMarket.get_id(),
+            *sellMarket.get_id(), *buy45.get_id()
         }.size() == 8);
 
 
@@ -92,7 +92,14 @@ TEST_CASE("ID generation", "[orderbook][id]")
 
     SECTION("Invalid orders don't have ID")
     {
+        // do this manually since order constructor will throw
+        buy50.volume = -1;
+        try {ob.placeOrder(buy50);}
+        catch (std::exception&) {}
 
+        // id is uninitialized
+        REQUIRE(*buy50.get_id() == uuids::uuid{});
+        REQUIRE(ob.getIDPool().empty());
     }
 
     SECTION("IDs persist in the orderbook after order is filled or rejected")

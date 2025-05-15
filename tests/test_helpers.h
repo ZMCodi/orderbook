@@ -122,7 +122,9 @@ inline void OrderBook::clear()
     askMap.clear();
     idMap.clear();
     tradeList.clear();
+    orderList.clear();
     idPool.clear();
+    auditList.clear();
     bestBid = -1;
     bestAsk = -1;
     marketPrice = -1;

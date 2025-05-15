@@ -155,6 +155,7 @@ TEST_CASE("Decrease order volume", "[order manipulation][decrease volume]")
             id, time_point(), 1
         };
         REQUIRE(ob.getAuditList().size() == 1);
+        REQUIRE(ob.getAuditList()[0].equals_to(expAudit));
     }
 
     SECTION("Decrease volume partial limit sell")
