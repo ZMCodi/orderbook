@@ -47,7 +47,7 @@ target_include_directories(orderbook PUBLIC ${PROJECT_SOURCE_DIR}/include)
 # Test source files
 set(TEST_SOURCES
     tests/test_main.cpp
-    tests/unit/order/order_tests.cpp
+    tests/unit/order_filling/callback_tests.cpp
     tests/unit/order_filling/fill_tests.cpp
     tests/unit/order_filling/partial_fill_tests.cpp
     tests/unit/order_filling/time_priority_tests.cpp
@@ -59,6 +59,7 @@ set(TEST_SOURCES
     tests/unit/orderbook/basic_tests.cpp
     tests/unit/orderbook/depth_tests.cpp
     tests/unit/orderbook/id_tests.cpp
+    tests/unit/orderbook/order_tests.cpp
 )
 
 # Create the test executable

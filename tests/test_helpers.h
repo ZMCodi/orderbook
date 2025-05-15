@@ -28,17 +28,6 @@ inline bool compareOrderLists(const order_list& first, const order_list& sec)
     return true;
 }
 
-inline void OrderBook::setState(const OrderBookState& state)
-{
-    bidMap = state.bidMap;
-    askMap = state.askMap;
-    idMap = state.idMap;
-    bestBid = state.bestBid;
-    bestAsk = state.bestAsk;
-    marketPrice = state.marketPrice;
-    totalVolume = state.totalVolume;
-}
-
 inline OrderBookState OrderBook::getState()
 {
     return {

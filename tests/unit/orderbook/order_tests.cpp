@@ -48,47 +48,23 @@ TEST_CASE("Order", "[order]")
         REQUIRE_NOTHROW(Order{Order::Side::BUY, 1, Order::Type::MARKET});
     }
 
-    SECTION("Test state testing")
-    {
-        OrderBook ob{};
-        Order order1{Order::Side::BUY, 20, Order::Type::LIMIT, 50};
-        Order order2{Order::Side::SELL, 20, Order::Type::LIMIT, 55};
-
-        ob.placeOrder(order1);
-        ob.placeOrder(order2);
-
-        order_list list50{order1};
-        auto itr1{list50.begin()};
-        bid_map expBids{
-            {50.0, PriceLevel{20, list50}}
-        };
-
-        order_list list55{order2};
-        auto itr2{list55.begin()};
-        ask_map expAsks{
-            {55.0, PriceLevel{20, list55}}
-        };
-
-
-        id_map expID{
-            {order1.get_id(), OrderLocation{50.0, itr1, Order::Side::BUY}},
-            {order2.get_id(), OrderLocation{55.0, itr2, Order::Side::SELL}}
-        };
-
-        OrderBookState expState{
-            expBids, expAsks, expID, trade_list(),
-            50.0, 55.0, -1, 40
-        };
-
-        ob.setState(expState);
-
-        REQUIRE(checkOBState(ob, expState));
-    }
-
     SECTION("Order handles large and small prices")
     {
         float max_price{std::numeric_limits<float>::max()};
         REQUIRE_NOTHROW(Order{Order::Side::BUY, 1, Order::Type::LIMIT, max_price});
         REQUIRE_NOTHROW(Order{Order::Side::BUY, 1, Order::Type::LIMIT, 0.01f});
+    }
+
+    SECTION("Create orders using factory function")
+    {
+        Order limitBuy{Order{Order::Side::BUY, 1, Order::Type::LIMIT, 50}};
+        Order limitSell{Order{Order::Side::SELL, 1, Order::Type::LIMIT, 50}};
+        Order marketBuy{Order{Order::Side::BUY, 1, Order::Type::MARKET}};
+        Order marketSell{Order{Order::Side::SELL, 1, Order::Type::MARKET}};
+
+        REQUIRE(Order::makeLimitBuy(1, 50).equals_to(limitBuy));
+        REQUIRE(Order::makeLimitSell(1, 50).equals_to(limitSell));
+        REQUIRE(Order::makeMarketBuy(1).equals_to(marketBuy));
+        REQUIRE(Order::makeMarketSell(1).equals_to(marketSell));
     }
 }

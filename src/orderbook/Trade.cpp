@@ -14,7 +14,7 @@ bool Trade::operator==(const Trade& other) const
     return id == other.id;
 }
 
-const uuids::uuid* Trade::get_id()
+const uuids::uuid* Trade::get_id() const
 {
     return nullptr;
 }

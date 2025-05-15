@@ -16,6 +16,7 @@ TEST_CASE("OrderBook", "[orderbook][basic]")
     Order sell55{Order::Side::SELL, 3,  Order::Type::LIMIT, 55};
     Order sell60_2{Order::Side::SELL, 30, Order::Type::LIMIT, 60};
     Order sell60_3{Order::Side::SELL, 27, Order::Type::LIMIT, 60};
+    Order sellMarket{Order::Side::SELL, 5,  Order::Type::MARKET};
 
     std::vector orders{
         buy50,  buy45,  buyMarket,  buy50_2,  buy50_3,
@@ -24,13 +25,23 @@ TEST_CASE("OrderBook", "[orderbook][basic]")
 
     SECTION("Gets order by ID")
     {
-        auto id1{buy50.get_id()};
         ob.placeOrder(buy50);
+        auto id1{buy50.get_id()};
         REQUIRE(ob.getOrderByID(id1).equals_to(buy50));
+    }
+
+    SECTION("Placing orders")
+    {
+        REQUIRE_NOTHROW(ob.placeOrder(buy50));
+        REQUIRE_NOTHROW(ob.placeOrder(sell60));
+        REQUIRE_NOTHROW(ob.placeOrder(buyMarket));
+        REQUIRE_NOTHROW(ob.placeOrder(sellMarket));
+        REQUIRE_NOTHROW(ob.placeOrder({Order::Side::BUY, 5, Order::Type::LIMIT, 40}));
     }
 
     SECTION("Place buy order")
     {
+        auto actual{ob.placeOrder(buy50)};
         OrderResult expected{
             buy50.get_id(), 
             OrderResult::PLACED, 
@@ -39,12 +50,12 @@ TEST_CASE("OrderBook", "[orderbook][basic]")
             ""
         };
 
-        auto actual{ob.placeOrder(buy50)};
         REQUIRE(actual.equals_to(expected));
     }
 
     SECTION("Place sell order")
     {
+        auto actual{ob.placeOrder(sell50)};
         OrderResult expected{
             sell50.get_id(), 
             OrderResult::PLACED, 
@@ -53,7 +64,34 @@ TEST_CASE("OrderBook", "[orderbook][basic]")
             ""
         };
 
-        auto actual{ob.placeOrder(sell50)};
+        REQUIRE(actual.equals_to(expected));
+    }
+
+    SECTION("Place buy order with rvalue")
+    {
+        auto actual{ob.placeOrder(Order::makeLimitBuy(5, 50))};
+        OrderResult expected{
+            actual.order_id, // hack here since we cant get the actual id
+            OrderResult::PLACED, 
+            trade_ptrs(), 
+            actual.remainingOrder, 
+            ""
+        };
+
+        REQUIRE(actual.equals_to(expected));
+    }
+
+    SECTION("Place sell order with rvalue")
+    {
+        auto actual{ob.placeOrder(Order::makeLimitSell(5, 50))};
+        OrderResult expected{
+            actual.order_id, // hack here since we cant get the actual id
+            OrderResult::PLACED, 
+            trade_ptrs(), 
+            actual.remainingOrder, 
+            ""
+        };
+
         REQUIRE(actual.equals_to(expected));
     }
 
