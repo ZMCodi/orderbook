@@ -51,6 +51,7 @@ set(TEST_SOURCES
     tests/unit/orderbook/basic_tests.cpp
     tests/unit/orderbook/depth_tests.cpp
     tests/unit/orderbook/order_manipulation_tests.cpp
+    tests/unit/orderbook/id_tests.cpp
     tests/unit/order_filling/fill_tests.cpp
     tests/unit/order_filling/partial_fill_tests.cpp
     tests/unit/order_filling/time_priority_tests.cpp
