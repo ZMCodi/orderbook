@@ -77,9 +77,9 @@ TEST_CASE("OrderBook", "[orderbook][basic]")
     {
         auto actual{ob.placeOrder(buy50)};
         OrderResult expected{
-            buy50.get_id(), 
+            *buy50.get_id(), 
             OrderResult::PLACED, 
-            trade_ptrs(), 
+            trades(), 
             &ob.getOrderByID(buy50.get_id()), 
             "Order placed"
         };
@@ -91,9 +91,9 @@ TEST_CASE("OrderBook", "[orderbook][basic]")
     {
         auto actual{ob.placeOrder(sell50)};
         OrderResult expected{
-            sell50.get_id(), 
+            *sell50.get_id(), 
             OrderResult::PLACED, 
-            trade_ptrs(), 
+            trades(), 
             &ob.getOrderByID(sell50.get_id()), 
             "Order placed"
         };
@@ -107,7 +107,7 @@ TEST_CASE("OrderBook", "[orderbook][basic]")
         OrderResult expected{
             actual.order_id, // hack here since we cant get the actual id
             OrderResult::PLACED, 
-            trade_ptrs(), 
+            trades(), 
             actual.remainingOrder, 
             "Order placed"
         };
@@ -121,7 +121,7 @@ TEST_CASE("OrderBook", "[orderbook][basic]")
         OrderResult expected{
             actual.order_id, // hack here since we cant get the actual id
             OrderResult::PLACED, 
-            trade_ptrs(), 
+            trades(), 
             actual.remainingOrder, 
             "Order placed"
         };

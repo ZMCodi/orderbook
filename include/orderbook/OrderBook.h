@@ -16,6 +16,7 @@ inline static uuids::uuid_random_generator uuid_generator(engine);
 using order_list = std::list<Order>;
 
 // this would ideally be a container that flushes to a database
+// these are used for bookkeeping
 using trade_list = std::vector<Trade>;
 
 // persists the uuid instances for Trade and Order to point to

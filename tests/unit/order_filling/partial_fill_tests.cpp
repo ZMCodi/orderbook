@@ -23,9 +23,9 @@ TEST_CASE("Partial filling orders", "[order filling][partial filling]")
 
         Trade expTrade{nullptr, id, sell50.get_id(), 50, 3, time_point(), Order::Side::BUY};
         OrderResult expected{
-            id,
+            *id,
             OrderResult::PARTIALLY_FILLED,
-            trade_ptrs{&expTrade},
+            trades{expTrade},
             &ob.getOrderByID(id),
             "Partially filled 3 shares, 2 shares remaining"
         };
@@ -57,9 +57,9 @@ TEST_CASE("Partial filling orders", "[order filling][partial filling]")
 
         Trade expTrade{nullptr, buy55.get_id(), sell55.get_id(), 55, 3, time_point(), Order::Side::SELL};
         OrderResult expected{
-            id,
+            *id,
             OrderResult::PARTIALLY_FILLED,
-            trade_ptrs{&expTrade},
+            trades{expTrade},
             &ob.getOrderByID(id),
             "Partially filled 3 shares, 2 shares remaining"
         };
@@ -90,9 +90,9 @@ TEST_CASE("Partial filling orders", "[order filling][partial filling]")
 
         Trade expTrade{nullptr, buyMarket.get_id(), sell50.get_id(), 50, 3, time_point(), Order::Side::BUY};
         OrderResult expected{
-            buyMarket.get_id(),
+            *buyMarket.get_id(),
             OrderResult::PARTIALLY_FILLED,
-            trade_ptrs{&expTrade},
+            trades{expTrade},
             &buyMarket,
             "Partially filled 3 shares, remaining order cancelled"
         };
@@ -116,9 +116,9 @@ TEST_CASE("Partial filling orders", "[order filling][partial filling]")
 
         Trade expTrade{nullptr, buy55.get_id(), sellMarket.get_id(), 55, 3, time_point(), Order::Side::SELL};
         OrderResult expected{
-            sellMarket.get_id(),
+            *sellMarket.get_id(),
             OrderResult::PARTIALLY_FILLED,
-            trade_ptrs{&expTrade},
+            trades{expTrade},
             &sellMarket,
             "Partially filled 3 shares, remaining order cancelled"
         };

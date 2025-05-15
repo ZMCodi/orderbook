@@ -3,11 +3,13 @@
 #include "Trade.h"
 #include "Order.h"
 
-using trade_ptrs = std::vector<const Trade*>;
+using trades = std::vector<Trade>;
 
 // helper for comparing Trades
-bool compareTrades(const trade_ptrs& first, const trade_ptrs& second);
+bool compareTrades(const trades& first, const trades& second);
 
+// order results should store copies
+// and are fully managed and owned by the user
 struct OrderResult{
     enum Status
     {
@@ -19,9 +21,9 @@ struct OrderResult{
         CANCELLED,
     };
 
-    const uuids::uuid* order_id;
+    uuids::uuid order_id;
     Status status;
-    trade_ptrs trades;
+    trades trades;
     const Order* remainingOrder;
     std::string message;
 

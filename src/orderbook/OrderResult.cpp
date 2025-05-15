@@ -1,13 +1,13 @@
 #include "orderbook/OrderResult.h"
 
-// helper for comparing trade_ptrs
-bool compareTrades(const trade_ptrs& first, const trade_ptrs& second)
+// helper for comparing trades
+bool compareTrades(const trades& first, const trades& second)
 {
     if (first.size() != second.size()) {return false;}
 
     for (size_t i{}; i < first.size(); ++i)
     {
-        if (!first[i]->equals_to(*second[i])) {return false;}
+        if (!first[i].equals_to(second[i])) {return false;}
     }
 
     return true;

@@ -19,14 +19,14 @@ TEST_CASE("Decrease order volume", "[order manipulation][increase volume]")
         ob.placeOrder(buy50);
         ob.placeOrder(buy50_2);
         auto actual{ob.modifyVolume(buy50.get_id(), 10)};
-        id = actual.order_id;
+        id = &actual.order_id;
         REQUIRE(*id != *buy50.get_id()); // ensure its a new order
         const Order& newOrder{ob.getOrderByID(id)};
 
         OrderResult expected{
-            id,
+            *id,
             OrderResult::MODIFIED,
-            trade_ptrs(),
+            trades(),
             &newOrder,
             "Volume increased from 5 to 10. New ID generated."
         };
@@ -62,14 +62,14 @@ TEST_CASE("Decrease order volume", "[order manipulation][increase volume]")
         ob.placeOrder(sell50);
         ob.placeOrder(sell50_2);
         auto actual{ob.modifyVolume(sell50.get_id(), 10)};
-        id = actual.order_id;
+        id = &actual.order_id;
         REQUIRE(*id != *sell50.get_id()); // ensure its a new order
         const Order& newOrder{ob.getOrderByID(id)};
 
         OrderResult expected{
-            id,
+            *id,
             OrderResult::MODIFIED,
-            trade_ptrs(),
+            trades(),
             &newOrder,
             "Volume increased from 5 to 10. New ID generated."
         };
@@ -104,17 +104,17 @@ TEST_CASE("Decrease order volume", "[order manipulation][increase volume]")
     {
         ob.placeOrder(buy50);
         // this fills 3/5 of buy50's volume
-        Trade expTrade{*ob.placeOrder(sell50_2).trades[0]};
+        Trade expTrade{ob.placeOrder(sell50_2).trades[0]};
         ob.placeOrder(buy50_2);
         auto actual{ob.modifyVolume(buy50.get_id(), 10)};
-        id = actual.order_id;
+        id = &actual.order_id;
         REQUIRE(*id != *buy50.get_id()); // ensure its a new order
         const Order& newOrder{ob.getOrderByID(id)};
 
         OrderResult expected{
-            id,
+            *id,
             OrderResult::MODIFIED,
-            trade_ptrs(),
+            trades(),
             &newOrder,
             "Volume increased from 2 to 10. New ID generated."
         };
@@ -149,17 +149,17 @@ TEST_CASE("Decrease order volume", "[order manipulation][increase volume]")
     {
         ob.placeOrder(sell50);
         // this fills 3/5 of sell50's volume
-        Trade expTrade{*ob.placeOrder(buy50_2).trades[0]};
+        Trade expTrade{ob.placeOrder(buy50_2).trades[0]};
         ob.placeOrder(sell50_2);
         auto actual{ob.modifyVolume(sell50.get_id(), 10)};
-        id = actual.order_id;
+        id = &actual.order_id;
         REQUIRE(*id != *sell50.get_id()); // ensure its a new order
         const Order& newOrder{ob.getOrderByID(id)};
 
         OrderResult expected{
-            id,
+            *id,
             OrderResult::MODIFIED,
-            trade_ptrs(),
+            trades(),
             &newOrder,
             "Volume increased from 2 to 10. New ID generated."
         };

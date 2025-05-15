@@ -28,3 +28,12 @@ Could have called it a day there but we can do better. One thing I realized afte
 I soon came to realize there was an unnecessary level of indirection and internal mapping here. Why should I use an internal int mapping when I can just store pointers to the `uuids::uuid` objects instead? So instead of going to `idPool` and finding the UUID that corresponds to the int id, just dereference the pointer. Eureka!
 
 So I removed all internal int id implementation, and make everyone just store pointers to their `uuids::uuid` in `idPool` which is now an `unordered_set` instead of an `unordered_map` since we don't need the int keys anymore and we all lived happily ever after (hopefully)
+
+### v5
+Oh how I thought I wouldn't have to update this section anymore. Something I just realized is that order books should store a list of their orders somewhere for bookkeeping. Then, somehow along the train of thought I clocked that the returned `OrderResult` after placing an order should probably be self-containing instead of holding references to the `OrderBook`'s copies of stuff.
+
+The reason is because `OrderResult`s are not managed by the `OrderBook` and exists solely to report the result of the order (aha!). Hence, if it contains references to stuff inside the `OrderBook` like `Trade`s in `trade_list` and UUID in `idPool`, the pointers would be invalid if the `OrderBook` were to, say, flush the storage into a database. The only thing it should point to is the `remainingOrder` which is actually still in the `OrderBook` and managed by it.
+
+Also, it is up to the user to store the `OrderResult` and they could very much not store them if they don't want to. So, they can fuss over the memory managements of those copies. Hence, a large scale change to change `OrderResult` to store copies instead of pointers are done and an `orderList` is maintained in the `OrderBook`
+
+P.S. Now I realize this isn't really related to UUID handling but whatever

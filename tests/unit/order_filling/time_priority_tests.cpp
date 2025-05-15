@@ -74,9 +74,9 @@ TEST_CASE("Check time priority", "[order filling][time priority checking]")
         Trade expTrade3{nullptr, buy51.get_id(), sell51_3.get_id(), 51, 2, time_point(), Order::Side::BUY};
 
         OrderResult expected{
-            buy51.get_id(),
+            *buy51.get_id(),
             OrderResult::FILLED,
-            trade_ptrs{&expTrade1, &expTrade2, &expTrade3},
+            trades{expTrade1, expTrade2, expTrade3},
             nullptr,
             "Order filled"
         };
@@ -102,9 +102,9 @@ TEST_CASE("Check time priority", "[order filling][time priority checking]")
         Trade expTrade3{nullptr, buy50_3.get_id(), sell50.get_id(), 50, 2, time_point(), Order::Side::SELL};
 
         OrderResult expected{
-            sell50.get_id(),
+            *sell50.get_id(),
             OrderResult::FILLED,
-            trade_ptrs{&expTrade1, &expTrade2, &expTrade3},
+            trades{expTrade1, expTrade2, expTrade3},
             nullptr,
             "Order filled"
         };
@@ -130,9 +130,9 @@ TEST_CASE("Check time priority", "[order filling][time priority checking]")
         Trade expTrade3{nullptr, buyMarket.get_id(), sell51_3.get_id(), 51, 2, time_point(), Order::Side::BUY};
 
         OrderResult expected{
-            buyMarket.get_id(),
+            *buyMarket.get_id(),
             OrderResult::FILLED,
-            trade_ptrs{&expTrade1, &expTrade2, &expTrade3},
+            trades{expTrade1, expTrade2, expTrade3},
             nullptr,
             "Order filled"
         };
@@ -158,9 +158,9 @@ TEST_CASE("Check time priority", "[order filling][time priority checking]")
         Trade expTrade3{nullptr, buy50_3.get_id(), sellMarket.get_id(), 50, 2, time_point(), Order::Side::SELL};
 
         OrderResult expected{
-            sellMarket.get_id(),
+            *sellMarket.get_id(),
             OrderResult::FILLED,
-            trade_ptrs{&expTrade1, &expTrade2, &expTrade3},
+            trades{expTrade1, expTrade2, expTrade3},
             nullptr,
             "Order filled"
         };

@@ -19,13 +19,13 @@ bool OrderBook::Depth::operator==(const Depth& other) const
 
 OrderResult OrderBook::placeOrder(Order& order)
 {
-    return {order.get_id(), OrderResult::FILLED, trade_ptrs(), &order, ""};
+    return {*order.get_id(), OrderResult::FILLED, trades(), &order, ""};
 }
 
 OrderResult OrderBook::placeOrder(Order& order, callback callbackFn)
 {
     [[maybe_unused]] auto lol = callbackFn;
-    return {order.get_id(), OrderResult::FILLED, trade_ptrs(), &order, ""};
+    return {*order.get_id(), OrderResult::FILLED, trades(), &order, ""};
 }
 
 OrderResult OrderBook::placeOrder(Order&& order)
@@ -40,25 +40,25 @@ OrderResult OrderBook::placeOrder(Order&& order, callback callbackFn)
 
 OrderResult OrderBook::cancelOrder(const uuids::uuid* id)
 {
-    return {id, OrderResult::FILLED, trade_ptrs(), nullptr, ""};
+    return {*id, OrderResult::FILLED, trades(), nullptr, ""};
 }
 
 OrderResult OrderBook::modifyOrder(const uuids::uuid* id, int volume, float price)
 {
     [[maybe_unused]] auto lol = volume * price;
-    return {id, OrderResult::FILLED, trade_ptrs(), nullptr, ""};
+    return {*id, OrderResult::FILLED, trades(), nullptr, ""};
 }
 
 OrderResult OrderBook::modifyVolume(const uuids::uuid* id, int volume)
 {
     [[maybe_unused]] auto lol = volume * 2;
-    return {id, OrderResult::FILLED, trade_ptrs(), nullptr, ""};
+    return {*id, OrderResult::FILLED, trades(), nullptr, ""};
 }
 
 OrderResult OrderBook::modifyPrice(const uuids::uuid* id, float price)
 {
     [[maybe_unused]] auto lol = price * 2;
-    return {id, OrderResult::FILLED, trade_ptrs(), nullptr, ""};
+    return {*id, OrderResult::FILLED, trades(), nullptr, ""};
 }
 
 bool OrderBook::registerCallback(const uuids::uuid* id, callback callbackFn)

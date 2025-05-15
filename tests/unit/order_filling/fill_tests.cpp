@@ -20,9 +20,9 @@ TEST_CASE("Order filling", "[order filling]")
 
         Trade expTrade{nullptr, buy50.get_id(), sell50.get_id(), 50, 5, time_point(), Order::Side::BUY};
         OrderResult expected{
-            buy50.get_id(),
+            *buy50.get_id(),
             OrderResult::FILLED,
-            trade_ptrs{&expTrade},
+            trades{expTrade},
             nullptr,
             "Order filled"
         };
@@ -44,9 +44,9 @@ TEST_CASE("Order filling", "[order filling]")
 
         Trade expTrade{nullptr, buy50.get_id(), sell50.get_id(), 50, 5, time_point(), Order::Side::SELL};
         OrderResult expected{
-            sell50.get_id(), 
+            *sell50.get_id(), 
             OrderResult::FILLED, 
-            trade_ptrs{&expTrade}, 
+            trades{expTrade}, 
             nullptr, 
             "Order filled"
         };
@@ -66,9 +66,9 @@ TEST_CASE("Order filling", "[order filling]")
         auto actual{ob.placeOrder(buyMarket)};
 
         OrderResult expected{
-            buyMarket.get_id(),
+            *buyMarket.get_id(),
             OrderResult::REJECTED,
-            trade_ptrs(), 
+            trades(), 
             &buyMarket, 
             "Not enough liquidity"
         };
@@ -92,9 +92,9 @@ TEST_CASE("Order filling", "[order filling]")
 
         Trade expTrade{nullptr, buyMarket.get_id(), sell50.get_id(), 50, 5, time_point(), Order::Side::BUY};
         OrderResult expected{
-            buyMarket.get_id(),
+            *buyMarket.get_id(),
             OrderResult::FILLED,
-            trade_ptrs{&expTrade},
+            trades{expTrade},
             nullptr,
             "Order filled"
         };
@@ -118,9 +118,9 @@ TEST_CASE("Order filling", "[order filling]")
 
         Trade expTrade{nullptr, buy50.get_id(), sellMarket.get_id(), 50, 5, time_point(), Order::Side::SELL};
         OrderResult expected{
-            sellMarket.get_id(),
+            *sellMarket.get_id(),
             OrderResult::FILLED,
-            trade_ptrs{&expTrade},
+            trades{expTrade},
             nullptr,
             "Order filled"
         };

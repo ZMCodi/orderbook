@@ -28,9 +28,9 @@ TEST_CASE("Decrease order volume", "[order manipulation][decrease volume]")
         auto actual{ob.modifyVolume(id, 2)};
 
         OrderResult expected{
-            id,
+            *id,
             OrderResult::MODIFIED,
-            trade_ptrs(),
+            trades(),
             &ob.getOrderByID(id),
             "Volume decreased from 5 to 2"
         };
@@ -64,9 +64,9 @@ TEST_CASE("Decrease order volume", "[order manipulation][decrease volume]")
         auto actual{ob.modifyVolume(id, 2)};
 
         OrderResult expected{
-            id,
+            *id,
             OrderResult::MODIFIED,
-            trade_ptrs(),
+            trades(),
             &ob.getOrderByID(id),
             "Volume decreased from 5 to 2"
         };
@@ -97,14 +97,14 @@ TEST_CASE("Decrease order volume", "[order manipulation][decrease volume]")
         ob.placeOrder(buy50);
         id = buy50.get_id();
         // this fills 3/5 of buy50's volume
-        Trade expTrade{*ob.placeOrder(sell50_2).trades[0]};
+        Trade expTrade{ob.placeOrder(sell50_2).trades[0]};
         ob.placeOrder(buy50_2);
         auto actual{ob.modifyVolume(id, 1)};
 
         OrderResult expected{
-            id,
+            *id,
             OrderResult::MODIFIED,
-            trade_ptrs(),
+            trades(),
             &ob.getOrderByID(id),
             "Volume decreased from 2 to 1"
         };
@@ -135,14 +135,14 @@ TEST_CASE("Decrease order volume", "[order manipulation][decrease volume]")
         ob.placeOrder(sell50);
         id = sell50.get_id();
         // this fills 3/5 of sell50's volume
-        Trade expTrade{*ob.placeOrder(buy50_2).trades[0]};
+        Trade expTrade{ob.placeOrder(buy50_2).trades[0]};
         ob.placeOrder(sell50_2);
         auto actual{ob.modifyVolume(id, 1)};
 
         OrderResult expected{
-            id,
+            *id,
             OrderResult::MODIFIED,
-            trade_ptrs(),
+            trades(),
             &ob.getOrderByID(id),
             "Volume decreased from 2 to 1"
         };

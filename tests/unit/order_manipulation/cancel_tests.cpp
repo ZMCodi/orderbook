@@ -20,9 +20,9 @@ TEST_CASE("Order cancellation", "[order manipulation][cancellation]")
         auto actual{ob.cancelOrder(id)};
 
         OrderResult expected{
-            id,
+            *id,
             OrderResult::CANCELLED,
-            trade_ptrs(),
+            trades(),
             nullptr,
             "Order cancelled"
         };
@@ -44,9 +44,9 @@ TEST_CASE("Order cancellation", "[order manipulation][cancellation]")
         auto actual{ob.cancelOrder(id)};
 
         OrderResult expected{
-            id,
+            *id,
             OrderResult::CANCELLED,
-            trade_ptrs(),
+            trades(),
             nullptr,
             "Order cancelled"
         };
@@ -69,9 +69,9 @@ TEST_CASE("Order cancellation", "[order manipulation][cancellation]")
         auto actual{ob.cancelOrder(id)};
 
         OrderResult expected{
-            id,
+            *id,
             OrderResult::CANCELLED,
-            trade_ptrs(),
+            trades(),
             nullptr,
             "Order cancelled with 2 unfilled shares"
         };
@@ -95,9 +95,9 @@ TEST_CASE("Order cancellation", "[order manipulation][cancellation]")
         auto actual{ob.cancelOrder(id)};
 
         OrderResult expected{
-            id,
+            *id,
             OrderResult::CANCELLED,
-            trade_ptrs(),
+            trades(),
             nullptr,
             "Order cancelled with 2 unfilled shares"
         };

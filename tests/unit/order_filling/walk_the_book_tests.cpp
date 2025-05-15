@@ -44,9 +44,9 @@ TEST_CASE("Walking the book", "[order filling][walking the book]")
         Trade expTrade4{nullptr, buyBig53.get_id(), sell53.get_id(), 53, 2, time_point(), Order::Side::BUY};
 
         OrderResult expected{
-            buyBig53.get_id(),
+            *buyBig53.get_id(),
             OrderResult::FILLED,
-            trade_ptrs{&expTrade1, &expTrade2, &expTrade3, &expTrade4},
+            trades{expTrade1, expTrade2, expTrade3, expTrade4},
             nullptr,
             "Order filled"
         };
@@ -74,9 +74,9 @@ TEST_CASE("Walking the book", "[order filling][walking the book]")
         Trade expTrade4{nullptr, buy50.get_id(), sellBig50.get_id(), 50, 2, time_point(), Order::Side::SELL};
 
         OrderResult expected{
-            sellBig50.get_id(),
+            *sellBig50.get_id(),
             OrderResult::FILLED,
-            trade_ptrs{&expTrade1, &expTrade2, &expTrade3, &expTrade4},
+            trades{expTrade1, expTrade2, expTrade3, expTrade4},
             nullptr,
             "Order filled"
         };
@@ -103,9 +103,9 @@ TEST_CASE("Walking the book", "[order filling][walking the book]")
         Trade expTrade3{nullptr, buyBig53.get_id(), sell52.get_id(), 52, 2, time_point(), Order::Side::BUY};
 
         OrderResult expected{
-            id,
+  *          id,
             OrderResult::PARTIALLY_FILLED,
-            trade_ptrs{&expTrade1, &expTrade2, &expTrade3},
+            trades{expTrade1, expTrade2, expTrade3},
             &ob.getOrderByID(id),
             "Partially filled 6 shares, 2 shares remaining"
         };
@@ -142,9 +142,9 @@ TEST_CASE("Walking the book", "[order filling][walking the book]")
         Trade expTrade3{nullptr, buy51.get_id(), sellBig50.get_id(), 51, 2, time_point(), Order::Side::SELL};
 
         OrderResult expected{
-            id,
+  *          id,
             OrderResult::PARTIALLY_FILLED,
-            trade_ptrs{&expTrade1, &expTrade2, &expTrade3},
+            trades{expTrade1, expTrade2, expTrade3},
             &ob.getOrderByID(id),
             "Partially filled 6 shares, 2 shares remaining"
         };
@@ -182,9 +182,9 @@ TEST_CASE("Walking the book", "[order filling][walking the book]")
         Trade expTrade4{nullptr, buyMarket.get_id(), sell53.get_id(), 53, 2, time_point(), Order::Side::BUY};
 
         OrderResult expected{
-            buyMarket.get_id(),
+            *buyMarket.get_id(),
             OrderResult::FILLED,
-            trade_ptrs{&expTrade1, &expTrade2, &expTrade3, &expTrade4},
+            trades{expTrade1, expTrade2, expTrade3, expTrade4},
             nullptr,
             "Order filled"
         };
@@ -212,9 +212,9 @@ TEST_CASE("Walking the book", "[order filling][walking the book]")
         Trade expTrade4{nullptr, buy50.get_id(), sellMarket.get_id(), 50, 2, time_point(), Order::Side::SELL};
 
         OrderResult expected{
-            sellMarket.get_id(),
+            *sellMarket.get_id(),
             OrderResult::FILLED,
-            trade_ptrs{&expTrade1, &expTrade2, &expTrade3, &expTrade4},
+            trades{expTrade1, expTrade2, expTrade3, expTrade4},
             nullptr,
             "Order filled"
         };
@@ -240,9 +240,9 @@ TEST_CASE("Walking the book", "[order filling][walking the book]")
         Trade expTrade3{nullptr, buyMarket.get_id(), sell52.get_id(), 52, 2, time_point(), Order::Side::BUY};
 
         OrderResult expected{
-            buyMarket.get_id(),
+            *buyMarket.get_id(),
             OrderResult::PARTIALLY_FILLED,
-            trade_ptrs{&expTrade1, &expTrade2, &expTrade3},
+            trades{expTrade1, expTrade2, expTrade3},
             &buyMarket,
             "Partially filled 6 shares, remaining order cancelled"
         };
@@ -269,9 +269,9 @@ TEST_CASE("Walking the book", "[order filling][walking the book]")
         Trade expTrade3{nullptr, buy51.get_id(), sellMarket.get_id(), 51, 2, time_point(), Order::Side::SELL};
 
         OrderResult expected{
-            sellMarket.get_id(),
+            *sellMarket.get_id(),
             OrderResult::PARTIALLY_FILLED,
-            trade_ptrs{&expTrade1, &expTrade2, &expTrade3},
+            trades{expTrade1, expTrade2, expTrade3},
             &sellMarket,
             "Partially filled 6 shares, remaining order cancelled"
         };

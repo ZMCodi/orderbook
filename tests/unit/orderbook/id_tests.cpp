@@ -58,13 +58,13 @@ TEST_CASE("ID generation", "[orderbook][id]")
     SECTION("Generate unique Trade IDs and store them")
     {
         ob.placeOrder(buy50);
-        auto *id1{ob.placeOrder(sell50).trades[0]->id};
+        auto *id1{ob.placeOrder(sell50).trades[0].id};
 
         ob.placeOrder(sell60);
-        auto *id2{ob.placeOrder(buyMarket).trades[0]->id};
+        auto *id2{ob.placeOrder(buyMarket).trades[0].id};
 
         ob.placeOrder(sellMarket);
-        auto *id3{ob.placeOrder(buy45).trades[0]->id};
+        auto *id3{ob.placeOrder(buy45).trades[0].id};
 
         REQUIRE(std::unordered_set{id1, id2, id3}.size() == 3);
     
@@ -141,9 +141,9 @@ TEST_CASE("ID generation", "[orderbook][id]")
         auto old_id{actual.order_id};
 
         OrderResult expected{
-            buy45.get_id(),
+            *buy45.get_id(),
             OrderResult::REJECTED,
-            trade_ptrs(),
+            trades(),
             &ob.getOrderByID(buy45.get_id()),
             "Order already exists"
         };
@@ -152,12 +152,12 @@ TEST_CASE("ID generation", "[orderbook][id]")
         // to re-place an identical order, set id to nullptr
         buy45.id = nullptr;
         auto actual2{ob.placeOrder(buy45)};
-        REQUIRE(*old_id != *actual.order_id); // new ID is generated
+        REQUIRE(old_id != actual.order_id); // new ID is generated
 
         OrderResult expected2{
-            buy45.get_id(),
+            *buy45.get_id(),
             OrderResult::PLACED,
-            trade_ptrs(),
+            trades(),
             &ob.getOrderByID(buy45.get_id()),
             "Order placed"
         };
@@ -169,9 +169,9 @@ TEST_CASE("ID generation", "[orderbook][id]")
         auto actual3{ob.placeOrder(sell50)};
 
         OrderResult expected3{
-            &fakeID, // no new ID is generated
+            *&fakeID, // no new ID is generated
             OrderResult::REJECTED,
-            trade_ptrs(),
+            trades(),
             &sell50,
             "Non-null ID"
         };

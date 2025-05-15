@@ -97,6 +97,9 @@ inline bool checkOBState(const OrderBook& ob, const OrderBookState& state)
         {
             if (!state.tradeList[i].equals_to(ob.tradeList[i])) {return false;}
         }
+        
+
+        // compare order list
 
     } catch (const std::exception& e) 
     {
