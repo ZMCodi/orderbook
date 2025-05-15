@@ -49,12 +49,6 @@ OrderResult OrderBook::cancelOrder(const uuids::uuid* id)
     return {*id, OrderResult::FILLED, trades(), nullptr, ""};
 }
 
-OrderResult OrderBook::modifyOrder(const uuids::uuid* id, int volume, float price)
-{
-    [[maybe_unused]] auto lol = volume * price;
-    return {*id, OrderResult::FILLED, trades(), nullptr, ""};
-}
-
 OrderResult OrderBook::modifyVolume(const uuids::uuid* id, int volume)
 {
     [[maybe_unused]] auto lol = volume * 2;

@@ -113,7 +113,6 @@ public:
     OrderResult placeOrder(Order&& order, callback callbackFn);
 
     OrderResult cancelOrder(const uuids::uuid* id);
-    OrderResult modifyOrder(const uuids::uuid* id, int volume, float price);
     OrderResult modifyVolume(const uuids::uuid* id, int volume);
     OrderResult modifyPrice(const uuids::uuid* id, float price);
 

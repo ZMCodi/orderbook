@@ -13,6 +13,34 @@ TEST_CASE("Order cancellation", "[order manipulation][cancellation]")
 
     const uuids::uuid* id;
 
+    SECTION("Modifications only work on orders in the book")
+    {
+        // nonexistent order
+        auto fakeID(uuid_generator());
+        REQUIRE_THROWS(ob.cancelOrder(&fakeID));
+        REQUIRE_THROWS(ob.cancelOrder(nullptr));
+        REQUIRE_THROWS(ob.modifyPrice(&fakeID, 50));
+        REQUIRE_THROWS(ob.modifyPrice(nullptr, 50));
+        REQUIRE_THROWS(ob.modifyVolume(&fakeID, 50));
+        REQUIRE_THROWS(ob.modifyVolume(nullptr, 50));
+
+        // order exists but not in the book
+        ob.placeOrder(buy50);
+        ob.placeOrder(sell50); // this will fill buy50 and remove it from the book
+        id = buy50.get_id();
+
+        REQUIRE_THROWS(ob.cancelOrder(id));
+        REQUIRE_THROWS(ob.modifyPrice(id, 50));
+        REQUIRE_THROWS(ob.modifyVolume(id, 50));
+
+        // order exists and in the book
+        ob.placeOrder(buy50_2);
+        id = buy50_2.get_id();
+        REQUIRE_NOTHROW(ob.cancelOrder(id));
+        REQUIRE_NOTHROW(ob.modifyPrice(id, 50));
+        REQUIRE_NOTHROW(ob.modifyVolume(id, 50));
+    }
+
     SECTION("Cancel full limit buy")
     {
         ob.placeOrder(buy50);
