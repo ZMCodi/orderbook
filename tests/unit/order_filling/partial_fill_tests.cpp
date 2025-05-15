@@ -105,6 +105,8 @@ TEST_CASE("Partial filling orders", "[order filling][partial filling]")
             -1, -1, 50, 0
         };
         REQUIRE(checkOBState(ob, expState));
+
+        // test with rvalue
     }
 
     SECTION("Partial fill market sell")
@@ -129,5 +131,7 @@ TEST_CASE("Partial filling orders", "[order filling][partial filling]")
             -1, -1, 55, 0
         };
         REQUIRE(checkOBState(ob, expState));
+
+        // test with rvalue
     }
 }

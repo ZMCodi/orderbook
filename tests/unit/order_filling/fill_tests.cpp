@@ -81,6 +81,8 @@ TEST_CASE("Order filling", "[order filling]")
         };
 
         REQUIRE(checkOBState(ob, expState));
+
+        // test with rvalue
     }
 
     SECTION("Fill market buy order")
@@ -105,6 +107,8 @@ TEST_CASE("Order filling", "[order filling]")
         };
 
         REQUIRE(checkOBState(ob, expState));
+
+        // test with rvalue
     }
 
     SECTION("Fill market sell order")
@@ -129,5 +133,7 @@ TEST_CASE("Order filling", "[order filling]")
         };
 
         REQUIRE(checkOBState(ob, expState));
+
+        // test with rvalue
     }
 }

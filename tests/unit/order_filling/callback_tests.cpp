@@ -3,7 +3,7 @@
 
 #include "test_helpers.h"
 
-TEST_CASE("Callback function notification", "[order][callbacks]")
+TEST_CASE("Callback function notification", "[order filling][callbacks]")
 {
     OrderBook ob{};
 

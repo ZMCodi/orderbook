@@ -106,3 +106,16 @@ inline bool checkOBState(const OrderBook& ob, const OrderBookState& state)
 
     return true;
 }
+
+inline void OrderBook::clear()
+{
+    bidMap.clear();
+    askMap.clear();
+    idMap.clear();
+    tradeList.clear();
+    idPool.clear();
+    bestBid = -1;
+    bestAsk = -1;
+    marketPrice = -1;
+    totalVolume = 0;
+}

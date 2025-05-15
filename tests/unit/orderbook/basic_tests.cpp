@@ -31,6 +31,15 @@ TEST_CASE("OrderBook", "[orderbook][basic]")
         };
         REQUIRE(checkOBState(ob, expected));
         REQUIRE(ob.getIDPool().empty());
+
+        // check clear method
+        for (auto order : orders)
+        {
+            ob.placeOrder(order);
+        }
+        ob.clear();
+        REQUIRE(checkOBState(ob, expected));
+        REQUIRE(ob.getIDPool().empty());
     }
 
     SECTION("Gets order by ID")

@@ -67,6 +67,15 @@ TEST_CASE("ID generation", "[orderbook][id]")
         auto *id3{ob.placeOrder(buy45).trades[0]->id};
 
         REQUIRE(std::unordered_set{id1, id2, id3}.size() == 3);
+    
+        // check trade ID and order ID are different
+        REQUIRE(std::unordered_set{
+            id1, id2, id3,
+            buy50.get_id(), sell50.get_id(),
+            sell60.get_id(), buyMarket.get_id(),
+            sellMarket.get_id(), buy45.get_id()
+        }.size() == 8);
+
 
         id_pool ids_pool{ob.getIDPool()};
         REQUIRE(ids_pool.contains(*id1));
@@ -79,6 +88,11 @@ TEST_CASE("ID generation", "[orderbook][id]")
         // this would be rejected since there is no liquidity
         ob.placeOrder(buyMarket);
         REQUIRE(*buyMarket.get_id() != uuids::uuid{});
+    }
+
+    SECTION("Invalid orders don't have ID")
+    {
+
     }
 
     SECTION("IDs persist in the orderbook after order is filled or rejected")
@@ -149,7 +163,7 @@ TEST_CASE("ID generation", "[orderbook][id]")
         };
         REQUIRE(actual2.equals_to(expected2));
 
-        // order with existing ID is also rejected
+        // order with garbage ID is also rejected
         auto fakeID{uuid_generator()};
         sell50.id = &fakeID;
         auto actual3{ob.placeOrder(sell50)};
