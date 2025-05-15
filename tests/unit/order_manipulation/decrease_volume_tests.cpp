@@ -23,6 +23,27 @@ TEST_CASE("Decrease order volume", "[order manipulation][decrease volume]")
         REQUIRE(ob.getOrderByID(buy50.get_id()).volume == 5);
     }
 
+    SECTION("Decreasing volume to same value does nothing")
+    {
+        ob.placeOrder(buy50);
+        id = buy50.get_id();
+        auto actual{ob.modifyVolume(id, 5)};
+
+        // could also change all throwing cases to return REJECTED
+        // but im too lazy. mayber later
+        OrderResult expected{
+            *id,
+            OrderResult::REJECTED, // modification rejected
+            trades(),
+            &ob.getOrderByID(id),
+            "Volume unchanged"
+        };
+
+        REQUIRE(actual.equals_to(expected));
+        REQUIRE(ob.getOrderByID(id).volume == 5);
+        REQUIRE(ob.getAuditList().empty());
+    }
+
     // decreasing volume should maintain time priority
     SECTION("Decrease volume full limit buy")
     {
