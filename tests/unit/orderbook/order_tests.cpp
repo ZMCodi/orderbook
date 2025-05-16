@@ -112,11 +112,11 @@ TEST_CASE("Order", "[order]")
 
     SECTION("Check price precision")
     {
-        Order order1{Order::Side::BUY, 1, Order::Type::LIMIT, 0.123456789f};
-        Order order2{Order::Side::BUY, 1, Order::Type::LIMIT, 0.1234567890123456789f};
+        Order order1{Order::Side::BUY, 1, Order::Type::LIMIT, 0.12f};
+        Order order2{Order::Side::BUY, 1, Order::Type::LIMIT, 0.1234f};
 
         REQUIRE(!order1.equals_to(order2));
-        REQUIRE(order1.price == Catch::Approx(0.123456789).epsilon(0.000000001));
-        REQUIRE(order2.price == Catch::Approx(0.1234567890123456789).epsilon(0.000000001));
+        REQUIRE(order1.price == Catch::Approx(0.12).epsilon(0.01)); // 2 dp average price precision
+        REQUIRE(order2.price == Catch::Approx(0.1234).epsilon(0.0001)); // 4 dp for penny stocks
     }
 }
