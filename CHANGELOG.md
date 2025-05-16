@@ -32,8 +32,17 @@ So I removed all internal int id implementation, and make everyone just store po
 ### v5
 Oh how I thought I wouldn't have to update this section anymore. Something I just realized is that order books should store a list of their orders somewhere for bookkeeping. Then, somehow along the train of thought I clocked that the returned `OrderResult` after placing an order should probably be self-containing instead of holding references to the `OrderBook`'s copies of stuff.
 
-The reason is because `OrderResult`s are not managed by the `OrderBook` and exists solely to report the result of the order (aha!). Hence, if it contains references to stuff inside the `OrderBook` like `Trade`s in `trade_list` and UUID in `idPool`, the pointers would be invalid if the `OrderBook` were to, say, flush the storage into a database. The only thing it should point to is the `remainingOrder` which is actually still in the `OrderBook` and managed by it.
+The reason is because `OrderResult`s are not managed by the `OrderBook` and exists solely to report the result of the order (aha!). Hence, if it contains references to stuff inside the `OrderBook` like `Trade`s in `tradeList` and UUID in `idPool`, the pointers would be invalid if the `OrderBook` were to, say, flush the storage into a database. The only thing it should point to is the `remainingOrder` which is actually still in the `OrderBook` and managed by it.
 
-Also, it is up to the user to store the `OrderResult` and they could very much not store them if they don't want to. So, they can fuss over the memory managements of those copies. Hence, a large scale change to change `OrderResult` to store copies instead of pointers are done and an `orderList` is maintained in the `OrderBook`
+Also, it is up to the user to store the `OrderResult` and they could very much not store them if they don't want to. So, they can fuss over the memory management of those copies. Hence, a large scale change to change `OrderResult` to store copies instead of pointers are done and an `orderList` is maintained in the `OrderBook`
 
 P.S. Now I realize this isn't really related to UUID handling but whatever
+
+## Thoughts
+
+### Cache alignment
+Started fussing over cache alignment here. `Order` objects are already 64 bytes (perfect!) but `Trade`s are 48 bytes but their corresponding id's are 16 bytes. Thing is, there's no reason to store the trade id's in `idPool` since no other objects point to them except the `Trade`s themselves which persists in the `tradeList`. There are two approaches I considered here
+- Store `uuid` directly in `Trade` instead of a pointer. Pros: Pads up to 56 bytes, doesn't require dereferencing to get `id`. Cons: Have to change current implementation and tests
+- When I get to the memory allocator part, make sure each `Trade` objects are stored next to their id in memory. Pros: Pads up exactly to 64 bytes, no need to change implementation except maybe change tests that check trade id is stored in `idPool`. Cons: Way more complicated and probably wouldn't be worth it
+
+As I thought about the second approach more, I started to think would optimizing the `Trade` placement in memory for cache alignment be worth it? After all, `Trade`s aren't a big part of the `OrderBook` operations anyways. They are created once when `Order`s match, stored in `tradeList` for bookkeeping and sent as copies to users. After that, no further references to them are made except probably when they are flushed into a database. I'll take a look again once I've got the basic implementation done and get some benchmarks setup but this thought process is good to document so I don't have to think about it all over again in case `Trade` memory alignment do become a bottleneck for some reason.
