@@ -116,8 +116,17 @@ public:
     OrderResult modifyVolume(const uuids::uuid* id, int volume);
     OrderResult modifyPrice(const uuids::uuid* id, float price);
 
+    // reference overload
+    OrderResult cancelOrder(const uuids::uuid& id);
+    OrderResult modifyVolume(const uuids::uuid& id, int volume);
+    OrderResult modifyPrice(const uuids::uuid& id, float price);
+
     bool registerCallback(const uuids::uuid* id, callback callbackFn);
     bool removeCallback(const uuids::uuid* id);
+
+    // reference overload
+    bool registerCallback(const uuids::uuid& id, callback callbackFn);
+    bool removeCallback(const uuids::uuid& id);
 
     const order_list& bidsAt(float priceLevel);
     const order_list& asksAt(float priceLevel);

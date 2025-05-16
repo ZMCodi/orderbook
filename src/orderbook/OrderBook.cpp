@@ -61,6 +61,23 @@ OrderResult OrderBook::modifyPrice(const uuids::uuid* id, float price)
     return {*id, OrderResult::FILLED, trades(), nullptr, ""};
 }
 
+OrderResult OrderBook::cancelOrder(const uuids::uuid& id)
+{
+    return {id, OrderResult::FILLED, trades(), nullptr, ""};
+}
+
+OrderResult OrderBook::modifyVolume(const uuids::uuid& id, int volume)
+{
+    [[maybe_unused]] auto lol = volume * 2;
+    return {id, OrderResult::FILLED, trades(), nullptr, ""};
+}
+
+OrderResult OrderBook::modifyPrice(const uuids::uuid& id, float price)
+{
+    [[maybe_unused]] auto lol = price * 2;
+    return {id, OrderResult::FILLED, trades(), nullptr, ""};
+}
+
 bool OrderBook::registerCallback(const uuids::uuid* id, callback callbackFn)
 {
     [[maybe_unused]] auto lol = id;
@@ -69,6 +86,19 @@ bool OrderBook::registerCallback(const uuids::uuid* id, callback callbackFn)
 }
 
 bool OrderBook::removeCallback(const uuids::uuid* id)
+{
+    [[maybe_unused]] auto lol = id;
+    return false;
+}
+
+bool OrderBook::registerCallback(const uuids::uuid& id, callback callbackFn)
+{
+    [[maybe_unused]] auto lol = id;
+    [[maybe_unused]] auto lol2 = callbackFn;
+    return false;
+}
+
+bool OrderBook::removeCallback(const uuids::uuid& id)
 {
     [[maybe_unused]] auto lol = id;
     return false;
