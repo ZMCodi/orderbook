@@ -58,5 +58,5 @@ bool Order::operator==(const Order& other) const
 
 const uuids::uuid* Order::get_id() const
 {
-    return nullptr;
+    return id;
 }

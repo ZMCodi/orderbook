@@ -155,13 +155,18 @@ public:
     std::list<Order> dummy{{Order::Side::BUY, 3, Order::Type::LIMIT, 50}};
 
 private:
-    bid_map bidMap{};
-    ask_map askMap{};
-    id_map idMap{};
-    trade_list tradeList{};
-    orders orderList{};
-    id_pool idPool{};
-    audit_list auditList{};
+
+    // internal processing logic
+    OrderResult matchOrder(Order& order);
+
+    // internal data structures
+    bid_map bidMap{}; // store active bids
+    ask_map askMap{}; // store active asks
+    id_map idMap{}; // store map of id : order to get query by id
+    trade_list tradeList{}; // store all executed trades
+    orders orderList{}; // store a list of orders for bookkeeping
+    id_pool idPool{}; // store uuids for ptr persistence and mem efficiency
+    audit_list auditList{}; // store record of order modification/cancellation
 
     float bestBid{-1};
     float bestAsk{-1};

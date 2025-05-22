@@ -23,20 +23,76 @@ bool OrderBook::Depth::operator==(const Depth& other) const
     && marketPrice == other.marketPrice;
 }
 
+auto now() {return std::chrono::system_clock::now();}
+
 OrderResult OrderBook::placeOrder(Order& order)
 {
-    return {*order.get_id(), OrderResult::FILLED, trades(), &order, ""};
+    // generate a unique id and timestamp for the order
+    auto id{uuid_generator()};
+    time_ ts{now()};
+
+    // store in id pool for persistent storage and get pointer
+    auto [it, _] = idPool.insert(id);
+
+    // stamp the original order object first
+    // OPTIMIZE: can skip stamping for rvalues since user wont keep
+    order.id = &(*it);
+    order.timestamp = ts;
+
+    // bookkeeping
+    orderList.push_back(order);
+
+    // local active copy that is actually processed
+    auto activeCopy{order};
+
+    // match with existing orders and return result
+    auto result{matchOrder(activeCopy)};
+
+    // if order remains unfilled
+    if (activeCopy.volume > 0)
+    {
+        // put in bid/ask map
+        order_list::iterator activeItr;
+
+        // some code duplication here since bid_map and ask_map are diff types
+        if (activeCopy.side == Order::Side::BUY)
+        {
+            // add the order to the end of the orderlist
+            // and update volume at PriceLevel
+            auto& pLevel{bidMap[activeCopy.price]};
+            pLevel.volume += activeCopy.volume;
+            pLevel.orders.push_back(std::move(activeCopy));
+            activeItr = std::prev(pLevel.orders.end());
+        } else
+        {
+            auto& pLevel{askMap[activeCopy.price]};
+            pLevel.volume += activeCopy.volume;
+            pLevel.orders.push_back(std::move(activeCopy));
+            activeItr = std::prev(pLevel.orders.end());
+        }
+
+        // add to idMap
+        idMap[order.id] = OrderLocation{order.price, activeItr, order.side};
+        result.remainingOrder = &(*activeItr); // result points to remaining order
+    }
+
+    return result;
+}
+
+OrderResult OrderBook::placeOrder(Order&& order)
+{
+    return placeOrder(order);
+}
+
+OrderResult OrderBook::matchOrder(Order& order)
+{
+    return {*order.id, OrderResult::PLACED, trades{}, nullptr, "Order placed"};
 }
 
 OrderResult OrderBook::placeOrder(Order& order, callback callbackFn)
 {
     [[maybe_unused]] auto lol = callbackFn;
     return {*order.get_id(), OrderResult::FILLED, trades(), &order, ""};
-}
-
-OrderResult OrderBook::placeOrder(Order&& order)
-{
-    return placeOrder(order);
 }
 
 OrderResult OrderBook::placeOrder(Order&& order, callback callbackFn)
@@ -118,8 +174,7 @@ const order_list& OrderBook::asksAt(float priceLevel)
 
 const Order& OrderBook::getOrderByID(const uuids::uuid* id)
 {
-    [[maybe_unused]] auto lol = id;
-    return *dummy.begin();
+    return *idMap.at(id).itr;
 }
 
 const Order& OrderBook::getOrderByID(const uuids::uuid& id)
