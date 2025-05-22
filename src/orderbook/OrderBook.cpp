@@ -174,13 +174,26 @@ const order_list& OrderBook::asksAt(float priceLevel)
 
 const Order& OrderBook::getOrderByID(const uuids::uuid* id)
 {
-    return *idMap.at(id).itr;
+    try
+    {
+        return *idMap.at(id).itr;
+    } catch (const std::out_of_range&)
+    {
+        throw std::invalid_argument{"Order is no longer active"};
+    }
 }
 
 const Order& OrderBook::getOrderByID(const uuids::uuid& id)
 {
-    [[maybe_unused]] auto lol = id;
-    return *dummy.begin();
+    // look in the idPool first if the id exists
+    auto it{idPool.find(id)};
+
+    if (it == idPool.end())
+    {
+        throw std::invalid_argument{"ID does not exist"};
+    }
+
+    return getOrderByID(&(*it));
 }
 
 int OrderBook::volumeAt(float priceLevel)

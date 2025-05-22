@@ -7,15 +7,15 @@ Order::Order(Side side, int volume, Type type, float price)
 {
     // Validate based on order type
     if (type == Type::MARKET && price != -1) {
-        throw InvalidOrderException{"Market orders cannot specify a price."};
+        throw std::invalid_argument{"Market orders cannot specify a price."};
     }
 
     if (type == Type::LIMIT && price <= 0) {
-        throw InvalidOrderException{"Limit orders must specify a (positive) price."};
+        throw std::invalid_argument{"Limit orders must specify a (positive) price."};
     }
 
     if (volume <= 0) {
-        throw InvalidOrderException{"Volume has to be positive"};
+        throw std::invalid_argument{"Volume has to be positive"};
     }
 }
 

@@ -29,12 +29,6 @@ struct Order
         MARKET
     };
 
-    class InvalidOrderException : public std::invalid_argument {
-    public:
-        InvalidOrderException(const std::string& message) 
-            : std::invalid_argument(message) {}
-    };
-
     Order(Side side, int volume, Type type, float price = -1);
 
     // factory functions
