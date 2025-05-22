@@ -2,7 +2,7 @@
 
 // order id and timestamp is going to be initialized when it is passed to the order book
 Order::Order(Side side, int volume, Type type, float price)
-: side{side}, volume{volume}
+: id{nullptr}, side{side}, volume{volume}
 , type{type}, price{price}
 {
     // Validate based on order type
@@ -12,6 +12,10 @@ Order::Order(Side side, int volume, Type type, float price)
 
     if (type == Type::LIMIT && price <= 0) {
         throw InvalidOrderException{"Limit orders must specify a (positive) price."};
+    }
+
+    if (volume <= 0) {
+        throw InvalidOrderException{"Volume has to be positive"};
     }
 }
 

@@ -60,6 +60,7 @@ set(TEST_SOURCES
     tests/unit/orderbook/depth_tests.cpp
     tests/unit/orderbook/id_tests.cpp
     tests/unit/orderbook/order_tests.cpp
+    tests/unit/orderbook/reference_overload_tests.cpp
 )
 
 # Create the test executable
@@ -68,6 +69,10 @@ target_include_directories(run_tests PRIVATE
     ${PROJECT_SOURCE_DIR}/tests  # Add tests directory to include path
 )
 target_link_libraries(run_tests PRIVATE orderbook Catch2::Catch2)
+
+# Create a playground executable for manual testing
+add_executable(playground src/main.cpp)
+target_link_libraries(playground PRIVATE orderbook)
 
 # Register tests with CTest
 include(CTest)
