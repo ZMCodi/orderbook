@@ -1,4 +1,7 @@
 #include "orderbook/OrderBook.h"
+#include <iostream>
+
+const order_list OrderBook::emptyOrders{};
 
 bool OrderAudit::equals_to(const OrderAudit& other) const
 {
@@ -27,6 +30,10 @@ auto now() {return std::chrono::system_clock::now();}
 
 OrderResult OrderBook::placeOrder(Order& order)
 {
+    if (order.volume <= 0) 
+    {
+        throw std::invalid_argument{"Volume has to be positive"};
+    }
     // generate a unique id and timestamp for the order
     auto id{uuid_generator()};
     time_ ts{now()};
@@ -51,12 +58,18 @@ OrderResult OrderBook::placeOrder(Order& order)
     // if order remains unfilled
     if (activeCopy.volume > 0)
     {
+        // update relevant fields
+        totalVolume += activeCopy.volume;
+
         // put in bid/ask map
         order_list::iterator activeItr;
 
         // some code duplication here since bid_map and ask_map are diff types
         if (activeCopy.side == Order::Side::BUY)
         {
+            // update best bid if better
+            if (activeCopy.price > bestBid) {bestBid = activeCopy.price;}
+
             // add the order to the end of the orderlist
             // and update volume at PriceLevel
             auto& pLevel{bidMap[activeCopy.price]};
@@ -65,6 +78,9 @@ OrderResult OrderBook::placeOrder(Order& order)
             activeItr = std::prev(pLevel.orders.end());
         } else
         {
+            // update best ask if better
+            if (bestAsk == -1 || activeCopy.price < bestAsk) {bestAsk = activeCopy.price;}
+
             auto& pLevel{askMap[activeCopy.price]};
             pLevel.volume += activeCopy.volume;
             pLevel.orders.push_back(std::move(activeCopy));
@@ -74,6 +90,7 @@ OrderResult OrderBook::placeOrder(Order& order)
         // add to idMap
         idMap[order.id] = OrderLocation{order.price, activeItr, order.side};
         result.remainingOrder = &(*activeItr); // result points to remaining order
+
     }
 
     return result;
@@ -162,14 +179,28 @@ bool OrderBook::removeCallback(const uuids::uuid& id)
 
 const order_list& OrderBook::bidsAt(float priceLevel)
 {
-    [[maybe_unused]] float lol = priceLevel * 2;
-    return dummy;
+    auto it{bidMap.find(priceLevel)};
+
+    // if no bids, return empty list
+    if (it == bidMap.end())
+    {
+        return OrderBook::emptyOrders;
+    }
+
+    return it->second.orders;
 }
 
 const order_list& OrderBook::asksAt(float priceLevel)
 {
-    [[maybe_unused]] float lol = priceLevel * 2;
-    return dummy;
+    auto it{askMap.find(priceLevel)};
+
+    // if no asks, return empty list
+    if (it == askMap.end())
+    {
+        return OrderBook::emptyOrders;
+    }
+
+    return it->second.orders;
 }
 
 const Order& OrderBook::getOrderByID(const uuids::uuid* id)
@@ -198,8 +229,24 @@ const Order& OrderBook::getOrderByID(const uuids::uuid& id)
 
 int OrderBook::volumeAt(float priceLevel)
 {
-    [[maybe_unused]] float lol = priceLevel * 2;
-    return -1;
+    // determine to check at bidMap or askMap
+    if (priceLevel <= bestBid)
+    {
+        auto it{bidMap.find(priceLevel)};
+        if (it != bidMap.end())
+        {
+            return it->second.volume;
+        }
+    } else if (priceLevel >= bestAsk)
+    {
+        auto it{askMap.find(priceLevel)};
+        if (it != askMap.end())
+        {
+            return it->second.volume;
+        }
+    }
+
+    return 0;
 }
 
 // center around best bid/ask

@@ -107,17 +107,9 @@ std::ostream& operator<<(std::ostream& out, const OrderResult& o)
 int main()
 {
     OrderBook ob{};
-    Order buy50{Order::Side::BUY, 3,  Order::Type::LIMIT, 50};
+    ob.placeOrder(Order::makeLimitBuy(1, 50));
+    ob.placeOrder(Order::makeLimitSell(1, 55));
 
-    auto res{ob.placeOrder(buy50)};
-    OrderResult exp{
-        *buy50.get_id(), 
-        OrderResult::PLACED, 
-        trades(), 
-        &ob.getOrderByID(buy50.get_id()), 
-        "Order placed"
-    };
+    std::cout << "Spread: " << ob.getBestAsk() << " - " << ob.getBestBid();
 
-    std::cout << res << "\n\n";
-    std::cout << exp;
 }

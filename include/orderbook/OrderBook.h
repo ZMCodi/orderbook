@@ -139,11 +139,11 @@ public:
     Depth getDepthAtPrice(float price, size_t levels);
     Depth getDepthInRange(float maxPrice, float minPrice);
 
-    float getBestBid() {return bestBid;}
-    float getBestAsk() {return bestAsk;}
+    float getBestBid() {if (bestBid == -1) throw std::runtime_error{"No bids available"}; return bestBid;}
+    float getBestAsk() {if (bestAsk == -1) throw std::runtime_error{"No asks available"}; return bestAsk;}
     float getMarketPrice() {return marketPrice;}
     int getTotalVolume() {return totalVolume;}
-    float getSpread() {return bestAsk - bestBid;}
+    float getSpread() {return getBestAsk() - getBestBid();}
 
     // helpers for testing
     friend bool checkOBState(const OrderBook& ob, const OrderBookState& state); // for testing
@@ -155,6 +155,9 @@ public:
     std::list<Order> dummy{{Order::Side::BUY, 3, Order::Type::LIMIT, 50}};
 
 private:
+
+    // for empty pricelevels
+    static const order_list emptyOrders;
 
     // internal processing logic
     OrderResult matchOrder(Order& order);
