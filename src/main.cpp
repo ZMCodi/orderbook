@@ -3,6 +3,14 @@
 
 #include "orderbook/OrderBook.h"
 
+inline OrderBookState OrderBook::getState()
+{
+    return {
+        bidMap, askMap, idMap, tradeList, orderList,
+        bestBid, bestAsk, marketPrice, totalVolume
+    };
+}
+
 std::ostream& operator<<(std::ostream& out, const Order& o)
 {
     std::stringstream str;
@@ -118,23 +126,54 @@ std::ostream& operator<<(std::ostream& out, order_list olist)
     return out << str.str();
 }
 
+std::ostream& operator<<(std::ostream& out, PriceLevel p)
+{
+    std::stringstream str;
+    str << "PriceLevel(volume: " << p.volume << ", orders: " << p.orders << ")";
+    return out << str.str();
+}
+
+std::ostream& operator<<(std::ostream& out, ask_map a)
+{
+    std::stringstream str;
+    str << "{\n";
+
+    for (auto it{a.begin()}; it != a.end(); ++it)
+    {
+        str << '\t' << it->first << ": " << it->second << ",\n";
+    }
+
+    str << "\n}";
+    return out << str.str();
+}
+
+std::ostream& operator<<(std::ostream& out, bid_map a)
+{
+    std::stringstream str;
+    str << "{\n";
+
+    for (auto it{a.begin()}; it != a.end(); ++it)
+    {
+        str << '\t' << it->first << ": " << it->second << ",\n";
+    }
+
+    str << "\n}";
+    return out << str.str();
+}
+
 int main()
 {
-    OrderBook ob{0.001f};
-    // these should be on different price levels
-    auto order5001_1{Order::makeLimitBuy(5, 50.01f)};
-    auto order5002_1{Order::makeLimitBuy(5, 50.02f)};
-    ob.placeOrder(order5001_1);
-    ob.placeOrder(order5002_1);
+    OrderBook ob{};
 
-    // but these should be on 50.01
-    auto order5001_2{Order::makeLimitBuy(5, 50.0101f)};
-    auto order5001_3{Order::makeLimitBuy(5, 50.0162f)}; // this should truncate, not round up
-    ob.placeOrder(order5001_2);
-    ob.placeOrder(order5001_3);
+    double max_price{999'999.99};
+    std::cout << max_price << '\n';
 
-    std::cout << ob.bidsAt(50.01f) << '\n';
-    std::cout.precision(10);
-    std::cout << std::floor(50.01 / 0.001) * 0.001 << '\n';
-    std::cout << std::floor(50.01f / 0.001f) * 0.001f << '\n';
+    auto order1{Order::makeLimitBuy(5, max_price)};
+    auto order2{Order::makeLimitBuy(5, 0.0001)};
+
+    ob.placeOrder(order1);
+    ob.placeOrder(order2);
+
+    std::cout << ob.getState().bidMap;
+    
 }

@@ -47,10 +47,13 @@ OrderResult OrderBook::placeOrder(Order& order)
     // bookkeeping
     orderList.push_back(order);
 
+    // for market orders, no need for a copy
+    if (order.type == Order::Type::MARKET) {return matchOrder(order);}
+
     // local active copy that is actually processed with truncated price
     Order activeCopy{order, tickSize};
     double truncPrice{activeCopy.price};
-    // std::cout << "old price: " << order.price << ", trunc price: " << truncPrice;
+    tick_t tickPrice{utils::convertTick(truncPrice, tickSize)};
 
     // match with existing orders and return result
     auto result{matchOrder(activeCopy)};
@@ -72,7 +75,7 @@ OrderResult OrderBook::placeOrder(Order& order)
 
             // add the order to the end of the orderlist
             // and update volume at PriceLevel
-            auto& pLevel{bidMap[activeCopy.price]};
+            auto& pLevel{bidMap[tickPrice]};
             pLevel.volume += activeCopy.volume;
             pLevel.orders.push_back(std::move(activeCopy));
             activeItr = std::prev(pLevel.orders.end());
@@ -81,7 +84,7 @@ OrderResult OrderBook::placeOrder(Order& order)
             // update best ask if better
             if (bestAsk == -1 || activeCopy.price < bestAsk) {bestAsk = activeCopy.price;}
 
-            auto& pLevel{askMap[activeCopy.price]};
+            auto& pLevel{askMap[tickPrice]};
             pLevel.volume += activeCopy.volume;
             pLevel.orders.push_back(std::move(activeCopy));
             activeItr = std::prev(pLevel.orders.end());
@@ -179,8 +182,8 @@ bool OrderBook::removeCallback(const uuids::uuid& id)
 
 const order_list& OrderBook::bidsAt(double priceLevel)
 {
-    priceLevel = utils::trunc(priceLevel ,tickSize);
-    auto it{bidMap.find(priceLevel)};
+    tick_t tickPrice{utils::convertTick(priceLevel, tickSize)};
+    auto it{bidMap.find(tickPrice)};
 
     // if no bids, return empty list
     if (it == bidMap.end())
@@ -193,8 +196,8 @@ const order_list& OrderBook::bidsAt(double priceLevel)
 
 const order_list& OrderBook::asksAt(double priceLevel)
 {
-    priceLevel = utils::trunc(priceLevel ,tickSize);
-    auto it{askMap.find(priceLevel)};
+    tick_t tickPrice{utils::convertTick(priceLevel, tickSize)};
+    auto it{askMap.find(tickPrice)};
 
     // if no asks, return empty list
     if (it == askMap.end())
@@ -231,19 +234,22 @@ const Order& OrderBook::getOrderByID(const uuids::uuid& id)
 
 int OrderBook::volumeAt(double priceLevel)
 {
+    tick_t tickPrice{utils::convertTick(priceLevel, tickSize)};
     // determine to check at bidMap or askMap
     if (priceLevel <= bestBid)
     {
-        auto it{bidMap.find(priceLevel)};
+        auto it{bidMap.find(tickPrice)};
         if (it != bidMap.end())
         {
             return it->second.volume;
         }
     } else if (priceLevel >= bestAsk)
     {
-        auto it{askMap.find(priceLevel)};
+        // std::cout << askMap[priceLevel];
+        auto it{askMap.find(tickPrice)};
         if (it != askMap.end())
         {
+            std::cout << "here";
             return it->second.volume;
         }
     }

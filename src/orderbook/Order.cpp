@@ -53,7 +53,7 @@ bool Order::equals_to(const Order& other) const
     && side == other.side
     && volume == other.volume
     && type == other.type
-    && price == other.price;
+    && std::abs(price - other.price) < 0.0001;
 }
 
 bool Order::operator==(const Order& other) const

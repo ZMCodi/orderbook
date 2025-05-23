@@ -151,28 +151,28 @@ TEST_CASE("OrderBook", "[orderbook][basic]")
     SECTION("Price level precision")
     {
         // these should be on different price levels
-        auto order5001_1{Order::makeLimitBuy(5, 50.01f)};
-        auto order5002_1{Order::makeLimitBuy(5, 50.02f)};
+        auto order5001_1{Order::makeLimitBuy(5, 50.01)};
+        auto order5002_1{Order::makeLimitBuy(5, 50.02)};
         ob.placeOrder(order5001_1);
         ob.placeOrder(order5002_1);
 
         // but these should be on 50.01
-        auto order5001_2{Order::makeLimitBuy(5, 50.0101f)};
-        auto order5001_3{Order::makeLimitBuy(5, 50.0162f)}; // this should truncate, not round up
+        auto order5001_2{Order::makeLimitBuy(5, 50.0101)};
+        auto order5001_3{Order::makeLimitBuy(5, 50.0162)}; // this should truncate, not round up
         ob.placeOrder(order5001_2);
         ob.placeOrder(order5001_3);
 
         // check that they are rounded
-        REQUIRE(ob.getOrderByID(order5001_1.get_id()).price == Catch::Approx(50.01f).epsilon(0.01f));
-        REQUIRE(ob.getOrderByID(order5001_2.get_id()).price == Catch::Approx(50.01f).epsilon(0.01f));
-        REQUIRE(ob.getOrderByID(order5001_3.get_id()).price == Catch::Approx(50.01f).epsilon(0.01f));
+        REQUIRE(ob.getOrderByID(order5001_1.get_id()).price == Catch::Approx(50.01).epsilon(0.01));
+        REQUIRE(ob.getOrderByID(order5001_2.get_id()).price == Catch::Approx(50.01).epsilon(0.01));
+        REQUIRE(ob.getOrderByID(order5001_3.get_id()).price == Catch::Approx(50.01).epsilon(0.01));
 
-        REQUIRE(compareOrderLists(ob.bidsAt(50.00f), order_list()));
-        REQUIRE(compareOrderLists(ob.bidsAt(50.01f), order_list{order5001_1, order5001_2, order5001_3}));
-        REQUIRE(compareOrderLists(ob.bidsAt(50.02f), order_list{order5002_1}));
+        REQUIRE(compareOrderLists(ob.bidsAt(50.00), order_list()));
+        REQUIRE(compareOrderLists(ob.bidsAt(50.01), order_list{order5001_1, order5001_2, order5001_3}));
+        REQUIRE(compareOrderLists(ob.bidsAt(50.02), order_list{order5002_1}));
 
         // now for an ob with a different precision
-        OrderBook ob2{0.001f};
+        OrderBook ob2{0.001};
 
         // these should be the same price level (50.010)
         ob2.placeOrder(order5001_1);
@@ -182,31 +182,31 @@ TEST_CASE("OrderBook", "[orderbook][basic]")
         ob2.placeOrder(order5001_3);
 
         // check that they are rounded
-        REQUIRE(ob2.getOrderByID(order5001_1.get_id()).price == Catch::Approx(50.010f).epsilon(0.001f));
-        REQUIRE(ob2.getOrderByID(order5001_2.get_id()).price == Catch::Approx(50.010f).epsilon(0.001f));
-        REQUIRE(ob2.getOrderByID(order5001_3.get_id()).price == Catch::Approx(50.016f).epsilon(0.001f));
+        REQUIRE(ob2.getOrderByID(order5001_1.get_id()).price == Catch::Approx(50.010).epsilon(0.001));
+        REQUIRE(ob2.getOrderByID(order5001_2.get_id()).price == Catch::Approx(50.010).epsilon(0.001));
+        REQUIRE(ob2.getOrderByID(order5001_3.get_id()).price == Catch::Approx(50.016).epsilon(0.001));
 
-        REQUIRE(compareOrderLists(ob2.bidsAt(50.01f), order_list{order5001_1, order5001_2}, 0.001f));
-        REQUIRE(compareOrderLists(ob2.bidsAt(50.010f), order_list{order5001_1, order5001_2}, 0.001f));
-        REQUIRE(compareOrderLists(ob2.bidsAt(50.016f), order_list{order5001_3}, 0.001f));
+        REQUIRE(compareOrderLists(ob2.bidsAt(50.01), order_list{order5001_1, order5001_2}, 0.001));
+        REQUIRE(compareOrderLists(ob2.bidsAt(50.010), order_list{order5001_1, order5001_2}, 0.001));
+        REQUIRE(compareOrderLists(ob2.bidsAt(50.016), order_list{order5001_3}, 0.001));
     }
 
     SECTION("Small and large prices")
     {
-        double max_price{std::numeric_limits<double>::max()};
+        double max_price{999'999.99}; // highest traded stock is ~700k
 
         auto order1{Order::makeLimitBuy(5, max_price)};
-        auto order2{Order::makeLimitBuy(5, 0.0001f)};
+        auto order2{Order::makeLimitBuy(5, 0.01)};
 
         ob.placeOrder(order1);
         ob.placeOrder(order2);
 
-        REQUIRE(compareOrderLists(ob.bidsAt(max_price), order_list{order1}));
-        REQUIRE(ob.getOrderByID(order1.get_id()).price == Catch::Approx(max_price).epsilon(0.01f));
+        auto truncPrice{utils::trunc(max_price, 0.01)};
+        REQUIRE(compareOrderLists(ob.bidsAt(truncPrice), order_list{order1}));
+        REQUIRE(ob.getOrderByID(order1.get_id()).price == Catch::Approx(truncPrice).epsilon(0.01));
 
-        // this would actually get rounded to 0.01
-        REQUIRE(compareOrderLists(ob.bidsAt(0.0001f), order_list{order2}));
-        REQUIRE(ob.getOrderByID(order2.get_id()).price == Catch::Approx(0.01f).epsilon(0.01f));
+        REQUIRE(compareOrderLists(ob.bidsAt(0.01), order_list{order2}));
+        REQUIRE(ob.getOrderByID(order2.get_id()).price == Catch::Approx(0.01).epsilon(0.01));
     }
 
     SECTION("Tracks market price")
@@ -275,6 +275,6 @@ TEST_CASE("OrderBook", "[orderbook][basic]")
 
         ob.placeOrder(sell55);
 
-        REQUIRE(ob.getSpread() == Catch::Approx(5.00f));
+        REQUIRE(ob.getSpread() == Catch::Approx(5.00));
     }
 }

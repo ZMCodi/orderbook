@@ -45,8 +45,8 @@ struct PriceLevel
 };
 
 // bid/ask map = {price: (volume, [orders...])}
-using bid_map = std::map<double, PriceLevel, std::greater<double>>;
-using ask_map = std::map<double, PriceLevel>;
+using bid_map = std::map<tick_t, PriceLevel, std::greater<tick_t>>;
+using ask_map = std::map<tick_t, PriceLevel>;
 
 struct OrderLocation
 {
@@ -141,7 +141,7 @@ public:
 
     double getBestBid() {if (bestBid == -1) throw std::runtime_error{"No bids available"}; return bestBid;}
     double getBestAsk() {if (bestAsk == -1) throw std::runtime_error{"No asks available"}; return bestAsk;}
-    double getMarketPrice() {return marketPrice;}
+    double getMarketPrice() {if (marketPrice == -1) throw std::runtime_error("No trades yet"); return marketPrice;}
     int getTotalVolume() {return totalVolume;}
     double getSpread() {return getBestAsk() - getBestBid();}
 
