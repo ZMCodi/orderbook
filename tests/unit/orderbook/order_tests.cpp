@@ -20,7 +20,7 @@ TEST_CASE("Order", "[order]")
         REQUIRE(order1.type == Order::Type::LIMIT);
         REQUIRE(order1.price == Catch::Approx(20.0));
         REQUIRE(order1.timestamp == epoch);
-        REQUIRE(!order1.callbackFn);
+        REQUIRE(!order1.getCallback());
 
         REQUIRE(!order2.id);
         REQUIRE(order2.side == Order::Side::SELL);
@@ -28,7 +28,7 @@ TEST_CASE("Order", "[order]")
         REQUIRE(order2.type == Order::Type::LIMIT);
         REQUIRE(order2.price == Catch::Approx(20.0));
         REQUIRE(order2.timestamp == epoch);
-        REQUIRE(!order2.callbackFn);
+        REQUIRE(!order2.getCallback());
 
         REQUIRE(!order3.id);
         REQUIRE(order3.side == Order::Side::BUY);
@@ -36,7 +36,7 @@ TEST_CASE("Order", "[order]")
         REQUIRE(order3.type == Order::Type::MARKET);
         REQUIRE(order3.price == Catch::Approx(-1.0));
         REQUIRE(order3.timestamp == epoch);
-        REQUIRE(!order3.callbackFn);
+        REQUIRE(!order3.getCallback());
 
         REQUIRE(!order4.id);
         REQUIRE(order4.side == Order::Side::SELL);
@@ -44,7 +44,7 @@ TEST_CASE("Order", "[order]")
         REQUIRE(order4.type == Order::Type::MARKET);
         REQUIRE(order4.price == Catch::Approx(-1.0));
         REQUIRE(order4.timestamp == epoch);
-        REQUIRE(order4.callbackFn == nullptr);
+        REQUIRE(order4.getCallback() == nullptr);
     }
 
     SECTION("Market order with a price throws an error")

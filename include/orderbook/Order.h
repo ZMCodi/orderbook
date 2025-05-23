@@ -3,17 +3,17 @@
 #include <array>
 #include <string>
 #include <string_view>
-#include <chrono>
 #include <exception>
 #include <functional>
 
 #include "libraries/uuid.h"
 #include "libraries/Random.h"
+#include "orderbook/Utils.h"
 
 struct Trade;
+class OrderBook;
 
 using callback = std::function<void(Trade)>;
-using time_ = std::chrono::time_point<std::chrono::system_clock>;
 
 struct Order
 {
@@ -38,9 +38,9 @@ struct Order
     static Order makeMarketSell(int volume);
 
     bool equals_to(const Order& other) const; // for testing
+    callback getCallback() {return callbackFn;} // for testing
     bool operator==(const Order& other) const;
     const uuids::uuid* get_id() const;
-    void notify(Trade trade);
 
     const uuids::uuid* id;
     const Side side;
@@ -48,5 +48,13 @@ struct Order
     const Type type;
     const float price;
     time_ timestamp;
+
+    friend class OrderBook;
+    friend Order truncPrice(const Order& order, float tickSize); // helper for testing
+
+private:
+    Order(const Order& order, float tickSize);
+    void notify(Trade trade);
+
     callback callbackFn;
 };

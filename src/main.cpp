@@ -104,12 +104,37 @@ std::ostream& operator<<(std::ostream& out, const OrderResult& o)
     return out << str.str();
 }
 
+std::ostream& operator<<(std::ostream& out, order_list olist)
+{
+    std::stringstream str;
+    str << "[";
+
+    for (auto itr{olist.begin()}; itr != olist.end(); ++itr) {
+        str << *itr;
+        str << ", ";
+    }
+
+    str << "]";
+    return out << str.str();
+}
+
 int main()
 {
-    OrderBook ob{};
-    ob.placeOrder(Order::makeLimitBuy(1, 50));
-    ob.placeOrder(Order::makeLimitSell(1, 55));
+    OrderBook ob{0.001f};
+    // these should be on different price levels
+    auto order5001_1{Order::makeLimitBuy(5, 50.01f)};
+    auto order5002_1{Order::makeLimitBuy(5, 50.02f)};
+    ob.placeOrder(order5001_1);
+    ob.placeOrder(order5002_1);
 
-    std::cout << "Spread: " << ob.getBestAsk() << " - " << ob.getBestBid();
+    // but these should be on 50.01
+    auto order5001_2{Order::makeLimitBuy(5, 50.0101f)};
+    auto order5001_3{Order::makeLimitBuy(5, 50.0162f)}; // this should truncate, not round up
+    ob.placeOrder(order5001_2);
+    ob.placeOrder(order5001_3);
 
+    std::cout << ob.bidsAt(50.01f) << '\n';
+    std::cout.precision(10);
+    std::cout << std::floor(50.01 / 0.001) * 0.001 << '\n';
+    std::cout << std::floor(50.01f / 0.001f) * 0.001f << '\n';
 }

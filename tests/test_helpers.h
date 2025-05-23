@@ -11,8 +11,13 @@ inline auto time_point() {
     return std::chrono::system_clock::now();
 }
 
+inline Order truncPrice(const Order& order, float tickSize)
+{
+    return Order{order, tickSize};
+}
+
 // helper for comparing orderlists
-inline bool compareOrderLists(const order_list& first, const order_list& sec)
+inline bool compareOrderLists(const order_list& first, const order_list& sec, float tickSize = 0.01f)
 {
     if (first.size() != sec.size()) {return false;}
 
@@ -20,7 +25,8 @@ inline bool compareOrderLists(const order_list& first, const order_list& sec)
     auto s{sec.begin()};
     for (size_t i{}; i < first.size(); ++i)
     {
-        if (!f->equals_to(*s)) {return false;}
+        auto expected{truncPrice(*s, tickSize)};
+        if (!f->equals_to(expected)) {return false;}
         ++f;
         ++s;
     }

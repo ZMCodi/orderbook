@@ -158,7 +158,7 @@ TEST_CASE("OrderBook", "[orderbook][basic]")
 
         // but these should be on 50.01
         auto order5001_2{Order::makeLimitBuy(5, 50.0101f)};
-        auto order5001_3{Order::makeLimitBuy(5, 50.0132f)};
+        auto order5001_3{Order::makeLimitBuy(5, 50.0162f)}; // this should truncate, not round up
         ob.placeOrder(order5001_2);
         ob.placeOrder(order5001_3);
 
@@ -178,17 +178,17 @@ TEST_CASE("OrderBook", "[orderbook][basic]")
         ob2.placeOrder(order5001_1);
         ob2.placeOrder(order5001_2);
 
-        // but this is a different price level (50.013)
+        // but this is a different price level (50.016)
         ob2.placeOrder(order5001_3);
 
         // check that they are rounded
         REQUIRE(ob2.getOrderByID(order5001_1.get_id()).price == Catch::Approx(50.010f).epsilon(0.001f));
         REQUIRE(ob2.getOrderByID(order5001_2.get_id()).price == Catch::Approx(50.010f).epsilon(0.001f));
-        REQUIRE(ob2.getOrderByID(order5001_3.get_id()).price == Catch::Approx(50.013f).epsilon(0.001f));
+        REQUIRE(ob2.getOrderByID(order5001_3.get_id()).price == Catch::Approx(50.016f).epsilon(0.001f));
 
-        REQUIRE(compareOrderLists(ob2.bidsAt(50.01f), order_list{order5001_1, order5001_2}));
-        REQUIRE(compareOrderLists(ob2.bidsAt(50.010f), order_list{order5001_1, order5001_2}));
-        REQUIRE(compareOrderLists(ob2.bidsAt(50.013f), order_list{order5001_3}));
+        REQUIRE(compareOrderLists(ob2.bidsAt(50.01f), order_list{order5001_1, order5001_2}, 0.001f));
+        REQUIRE(compareOrderLists(ob2.bidsAt(50.010f), order_list{order5001_1, order5001_2}, 0.001f));
+        REQUIRE(compareOrderLists(ob2.bidsAt(50.016f), order_list{order5001_3}, 0.001f));
     }
 
     SECTION("Small and large prices")

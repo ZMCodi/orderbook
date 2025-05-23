@@ -19,6 +19,11 @@ Order::Order(Side side, int volume, Type type, float price)
     }
 }
 
+Order::Order(const Order& order, float tickSize)
+: id{order.id}, side{order.side}, volume{order.volume}
+, type{order.type}, price{utils::trunc(order.price, tickSize)}
+, timestamp{order.timestamp} {}
+
 Order Order::makeLimitBuy(int volume, float price)
 {
     return {Order::Side::BUY, volume, Order::Type::LIMIT, price};

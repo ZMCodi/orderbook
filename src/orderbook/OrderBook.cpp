@@ -26,8 +26,6 @@ bool OrderBook::Depth::operator==(const Depth& other) const
     && marketPrice == other.marketPrice;
 }
 
-auto now() {return std::chrono::system_clock::now();}
-
 OrderResult OrderBook::placeOrder(Order& order)
 {
     if (order.volume <= 0) 
@@ -36,7 +34,7 @@ OrderResult OrderBook::placeOrder(Order& order)
     }
     // generate a unique id and timestamp for the order
     auto id{uuid_generator()};
-    time_ ts{now()};
+    time_ ts{utils::now()};
 
     // store in id pool for persistent storage and get pointer
     auto [it, _] = idPool.insert(id);
@@ -49,8 +47,10 @@ OrderResult OrderBook::placeOrder(Order& order)
     // bookkeeping
     orderList.push_back(order);
 
-    // local active copy that is actually processed
-    auto activeCopy{order};
+    // local active copy that is actually processed with truncated price
+    Order activeCopy{order, tickSize};
+    float truncPrice{activeCopy.price};
+    // std::cout << "old price: " << order.price << ", trunc price: " << truncPrice;
 
     // match with existing orders and return result
     auto result{matchOrder(activeCopy)};
@@ -88,7 +88,7 @@ OrderResult OrderBook::placeOrder(Order& order)
         }
 
         // add to idMap
-        idMap[order.id] = OrderLocation{order.price, activeItr, order.side};
+        idMap[order.id] = OrderLocation{truncPrice, activeItr, order.side};
         result.remainingOrder = &(*activeItr); // result points to remaining order
 
     }
@@ -179,6 +179,7 @@ bool OrderBook::removeCallback(const uuids::uuid& id)
 
 const order_list& OrderBook::bidsAt(float priceLevel)
 {
+    priceLevel = utils::trunc(priceLevel ,tickSize);
     auto it{bidMap.find(priceLevel)};
 
     // if no bids, return empty list
@@ -192,6 +193,7 @@ const order_list& OrderBook::bidsAt(float priceLevel)
 
 const order_list& OrderBook::asksAt(float priceLevel)
 {
+    priceLevel = utils::trunc(priceLevel ,tickSize);
     auto it{askMap.find(priceLevel)};
 
     // if no asks, return empty list

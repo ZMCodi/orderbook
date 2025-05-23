@@ -38,6 +38,7 @@ set(ORDERBOOK_SOURCES
     src/orderbook/OrderBook.cpp
     src/orderbook/OrderResult.cpp
     src/orderbook/Trade.cpp
+    src/orderbook/Utils.cpp
 )
 
 # Create the orderbook library
