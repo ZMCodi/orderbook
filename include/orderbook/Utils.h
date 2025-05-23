@@ -6,6 +6,6 @@ using time_ = std::chrono::time_point<std::chrono::system_clock>;
 
 namespace utils
 {
-    float trunc(float price, float tickSize);
+    double trunc(double price, double tickSize);
     time_ now();
 }

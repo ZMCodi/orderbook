@@ -45,12 +45,12 @@ struct PriceLevel
 };
 
 // bid/ask map = {price: (volume, [orders...])}
-using bid_map = std::map<float, PriceLevel, std::greater<float>>;
-using ask_map = std::map<float, PriceLevel>;
+using bid_map = std::map<double, PriceLevel, std::greater<double>>;
+using ask_map = std::map<double, PriceLevel>;
 
 struct OrderLocation
 {
-    float price;
+    double price;
     order_list::iterator itr; // O(1) access to cancel/modify/fetch
     Order::Side side; // easier to determine which map to search
 };
@@ -67,9 +67,9 @@ struct OrderBookState
     trade_list tradeList{};
     orders orderList{};
 
-    float bestBid{-1};
-    float bestAsk{-1};
-    float marketPrice{-1};
+    double bestBid{-1};
+    double bestAsk{-1};
+    double marketPrice{-1};
     int totalVolume{};
 };
 
@@ -80,7 +80,7 @@ public:
     // snapshot at each price level
     struct Level
     {
-        float price;
+        double price;
         int volume;
         int orderCount;
 
@@ -93,15 +93,15 @@ public:
         std::vector<Level> bids;
         std::vector<Level> asks;
         int volume;
-        float bestBid;
-        float bestAsk;
-        float marketPrice;
+        double bestBid;
+        double bestAsk;
+        double marketPrice;
 
         bool operator==(const Depth& other) const;
     };
 
     OrderBook() = default;
-    OrderBook(float tickSize) : tickSize(tickSize) {}
+    OrderBook(double tickSize) : tickSize(tickSize) {}
     OrderBook(const OrderBook&) = delete;
     OrderBook& operator=(const OrderBook&) = delete;
     OrderBook(OrderBook&&) = delete;
@@ -114,12 +114,12 @@ public:
 
     OrderResult cancelOrder(const uuids::uuid* id);
     OrderResult modifyVolume(const uuids::uuid* id, int volume);
-    OrderResult modifyPrice(const uuids::uuid* id, float price);
+    OrderResult modifyPrice(const uuids::uuid* id, double price);
 
     // reference overload
     OrderResult cancelOrder(const uuids::uuid& id);
     OrderResult modifyVolume(const uuids::uuid& id, int volume);
-    OrderResult modifyPrice(const uuids::uuid& id, float price);
+    OrderResult modifyPrice(const uuids::uuid& id, double price);
 
     bool registerCallback(const uuids::uuid* id, callback callbackFn);
     bool removeCallback(const uuids::uuid* id);
@@ -128,22 +128,22 @@ public:
     bool registerCallback(const uuids::uuid& id, callback callbackFn);
     bool removeCallback(const uuids::uuid& id);
 
-    const order_list& bidsAt(float priceLevel);
-    const order_list& asksAt(float priceLevel);
-    int volumeAt(float priceLevel);
+    const order_list& bidsAt(double priceLevel);
+    const order_list& asksAt(double priceLevel);
+    int volumeAt(double priceLevel);
 
     const Order& getOrderByID(const uuids::uuid* id);
     const Order& getOrderByID(const uuids::uuid& id);
 
     Depth getDepth(size_t levels);
-    Depth getDepthAtPrice(float price, size_t levels);
-    Depth getDepthInRange(float maxPrice, float minPrice);
+    Depth getDepthAtPrice(double price, size_t levels);
+    Depth getDepthInRange(double maxPrice, double minPrice);
 
-    float getBestBid() {if (bestBid == -1) throw std::runtime_error{"No bids available"}; return bestBid;}
-    float getBestAsk() {if (bestAsk == -1) throw std::runtime_error{"No asks available"}; return bestAsk;}
-    float getMarketPrice() {return marketPrice;}
+    double getBestBid() {if (bestBid == -1) throw std::runtime_error{"No bids available"}; return bestBid;}
+    double getBestAsk() {if (bestAsk == -1) throw std::runtime_error{"No asks available"}; return bestAsk;}
+    double getMarketPrice() {return marketPrice;}
     int getTotalVolume() {return totalVolume;}
-    float getSpread() {return getBestAsk() - getBestBid();}
+    double getSpread() {return getBestAsk() - getBestBid();}
 
     // helpers for testing
     friend bool checkOBState(const OrderBook& ob, const OrderBookState& state); // for testing
@@ -171,10 +171,10 @@ private:
     id_pool idPool{}; // store uuids for ptr persistence and mem efficiency
     audit_list auditList{}; // store record of order modification/cancellation
 
-    float bestBid{-1};
-    float bestAsk{-1};
-    float marketPrice{-1};
+    double bestBid{-1};
+    double bestAsk{-1};
+    double marketPrice{-1};
     int totalVolume{};
 
-    const float tickSize{0.01f};
+    const double tickSize{0.01f};
 };

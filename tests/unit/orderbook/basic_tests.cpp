@@ -193,7 +193,7 @@ TEST_CASE("OrderBook", "[orderbook][basic]")
 
     SECTION("Small and large prices")
     {
-        float max_price{std::numeric_limits<float>::max()};
+        double max_price{std::numeric_limits<double>::max()};
 
         auto order1{Order::makeLimitBuy(5, max_price)};
         auto order2{Order::makeLimitBuy(5, 0.0001f)};

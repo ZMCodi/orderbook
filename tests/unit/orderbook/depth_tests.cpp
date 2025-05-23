@@ -52,16 +52,16 @@ TEST_CASE("Depth", "[orderbook][depth]")
         OrderBook::Depth expected{
             // bids
             std::vector<OrderBook::Level>{
-                {55.0f, 7,  1},
-                {50.0f, 6,  2},
-                {45.0f, 15, 3}
+                {55.0, 7,  1},
+                {50.0, 6,  2},
+                {45.0, 15, 3}
             },
 
             // asks
             std::vector<OrderBook::Level>{
-                {60.0f, 12, 3},
-                {65.0f, 12, 2},
-                {70.0f, 8,  1}
+                {60.0, 12, 3},
+                {65.0, 12, 2},
+                {70.0, 8,  1}
             },
             60, // volume
             55, // best bid
@@ -80,14 +80,14 @@ TEST_CASE("Depth", "[orderbook][depth]")
         OrderBook::Depth expected{
             // bids
             std::vector<OrderBook::Level>{
-                {55.0f, 7, 1},
-                {50.0f, 6, 2}
+                {55.0, 7, 1},
+                {50.0, 6, 2}
             },
 
             // asks
             std::vector<OrderBook::Level>{
-                {60.0f, 12, 3},
-                {65.0f, 12, 2}
+                {60.0, 12, 3},
+                {65.0, 12, 2}
             },
             60, // volume
             55, // best bid
@@ -106,15 +106,15 @@ TEST_CASE("Depth", "[orderbook][depth]")
         OrderBook::Depth expected{
             // bids
             std::vector<OrderBook::Level>{
-                {55.0f, 7,  1},
-                {50.0f, 6,  2},
-                {45.0f, 15, 3}
+                {55.0, 7,  1},
+                {50.0, 6,  2},
+                {45.0, 15, 3}
             },
 
             // asks
             std::vector<OrderBook::Level>{
-                {60.0f, 12, 3},
-                {65.0f, 12, 2}
+                {60.0, 12, 3},
+                {65.0, 12, 2}
             },
             60, // volume
             55, // best bid
@@ -133,13 +133,13 @@ TEST_CASE("Depth", "[orderbook][depth]")
         OrderBook::Depth expected{
             // bids
             std::vector<OrderBook::Level>{
-                {55.0f, 7, 1},
-                {50.0f, 6, 2}
+                {55.0, 7, 1},
+                {50.0, 6, 2}
             },
 
             // asks
             std::vector<OrderBook::Level>{
-                {60.0f, 12, 3},
+                {60.0, 12, 3},
             },
             33, // volume
             55, // best bid
@@ -148,7 +148,7 @@ TEST_CASE("Depth", "[orderbook][depth]")
         };
 
         // Get actual depth in range
-        auto actual = ob.getDepthInRange(62.5f, 47.5f);
+        auto actual = ob.getDepthInRange(62.5, 47.5);
         REQUIRE(actual == expected);
     }
 
@@ -178,8 +178,8 @@ TEST_CASE("Depth", "[orderbook][depth]")
         OrderBook::Depth expected{
             // bids
             std::vector<OrderBook::Level>{
-                {50.0f, 3, 1},
-                {45.0f, 5, 1}
+                {50.0, 3, 1},
+                {45.0, 5, 1}
             },
 
             // asks should be empty
@@ -208,8 +208,8 @@ TEST_CASE("Depth", "[orderbook][depth]")
 
             // asks
             std::vector<OrderBook::Level>{
-                {60.0f, 4, 1},
-                {65.0f, 6, 1}
+                {60.0, 4, 1},
+                {65.0, 6, 1}
             },
 
             10, // volume
@@ -251,19 +251,19 @@ TEST_CASE("Depth", "[orderbook][depth]")
         for (int i = 0; i < 1000; ++i)
         {
             // make the price differences granular
-            ob.placeOrder(Order::makeLimitBuy(1, 59.95f - i * 0.01f));
-            ob.placeOrder(Order::makeLimitSell(1, 60.05f + i * 0.01f));
+            ob.placeOrder(Order::makeLimitBuy(1, 59.95 - i * 0.01));
+            ob.placeOrder(Order::makeLimitSell(1, 60.05 + i * 0.01));
 
-            expectedBids.push_back({59.95f - i * 0.01f, 1, 1});
-            expectedAsks.push_back({60.05f + i * 0.01f, 1, 1});
+            expectedBids.push_back({59.95 - i * 0.01, 1, 1});
+            expectedAsks.push_back({60.05 + i * 0.01, 1, 1});
         }
 
         OrderBook::Depth expected{
             expectedBids,
             expectedAsks,
             2000, // volume
-            59.95f, // best bid
-            60.05f, // best ask
+            59.95, // best bid
+            60.05, // best ask
             -1      // market price
         };
         // Get actual depth

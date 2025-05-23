@@ -92,9 +92,9 @@ TEST_CASE("Order", "[order]")
 
     SECTION("Order handles large and small prices")
     {
-        float max_price{std::numeric_limits<float>::max()};
+        double max_price{std::numeric_limits<double>::max()};
         REQUIRE_NOTHROW(Order{Order::Side::BUY, 1, Order::Type::LIMIT, max_price});
-        REQUIRE_NOTHROW(Order{Order::Side::BUY, 1, Order::Type::LIMIT, 0.01f});
+        REQUIRE_NOTHROW(Order{Order::Side::BUY, 1, Order::Type::LIMIT, 0.01});
     }
 
     SECTION("Create orders using factory function")
@@ -112,8 +112,8 @@ TEST_CASE("Order", "[order]")
 
     SECTION("Check price precision")
     {
-        Order order1{Order::Side::BUY, 1, Order::Type::LIMIT, 0.12f};
-        Order order2{Order::Side::BUY, 1, Order::Type::LIMIT, 0.1234f};
+        Order order1{Order::Side::BUY, 1, Order::Type::LIMIT, 0.12};
+        Order order2{Order::Side::BUY, 1, Order::Type::LIMIT, 0.1234};
 
         REQUIRE(!order1.equals_to(order2));
         REQUIRE(order1.price == Catch::Approx(0.12).epsilon(0.01)); // 2 dp average price precision

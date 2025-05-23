@@ -29,11 +29,11 @@ struct Order
         MARKET
     };
 
-    Order(Side side, int volume, Type type, float price = -1);
+    Order(Side side, int volume, Type type, double price = -1);
 
     // factory functions
-    static Order makeLimitBuy(int volume, float price);
-    static Order makeLimitSell(int volume, float price);
+    static Order makeLimitBuy(int volume, double price);
+    static Order makeLimitSell(int volume, double price);
     static Order makeMarketBuy(int volume);
     static Order makeMarketSell(int volume);
 
@@ -46,14 +46,14 @@ struct Order
     const Side side;
     int volume;
     const Type type;
-    const float price;
+    const double price;
     time_ timestamp;
 
     friend class OrderBook;
-    friend Order truncPrice(const Order& order, float tickSize); // helper for testing
+    friend Order truncPrice(const Order& order, double tickSize); // helper for testing
 
 private:
-    Order(const Order& order, float tickSize);
+    Order(const Order& order, double tickSize);
     void notify(Trade trade);
 
     callback callbackFn;

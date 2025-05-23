@@ -49,7 +49,7 @@ OrderResult OrderBook::placeOrder(Order& order)
 
     // local active copy that is actually processed with truncated price
     Order activeCopy{order, tickSize};
-    float truncPrice{activeCopy.price};
+    double truncPrice{activeCopy.price};
     // std::cout << "old price: " << order.price << ", trunc price: " << truncPrice;
 
     // match with existing orders and return result
@@ -128,7 +128,7 @@ OrderResult OrderBook::modifyVolume(const uuids::uuid* id, int volume)
     return {*id, OrderResult::FILLED, trades(), nullptr, ""};
 }
 
-OrderResult OrderBook::modifyPrice(const uuids::uuid* id, float price)
+OrderResult OrderBook::modifyPrice(const uuids::uuid* id, double price)
 {
     [[maybe_unused]] auto lol = price * 2;
     return {*id, OrderResult::FILLED, trades(), nullptr, ""};
@@ -145,7 +145,7 @@ OrderResult OrderBook::modifyVolume(const uuids::uuid& id, int volume)
     return {id, OrderResult::FILLED, trades(), nullptr, ""};
 }
 
-OrderResult OrderBook::modifyPrice(const uuids::uuid& id, float price)
+OrderResult OrderBook::modifyPrice(const uuids::uuid& id, double price)
 {
     [[maybe_unused]] auto lol = price * 2;
     return {id, OrderResult::FILLED, trades(), nullptr, ""};
@@ -177,7 +177,7 @@ bool OrderBook::removeCallback(const uuids::uuid& id)
     return false;
 }
 
-const order_list& OrderBook::bidsAt(float priceLevel)
+const order_list& OrderBook::bidsAt(double priceLevel)
 {
     priceLevel = utils::trunc(priceLevel ,tickSize);
     auto it{bidMap.find(priceLevel)};
@@ -191,7 +191,7 @@ const order_list& OrderBook::bidsAt(float priceLevel)
     return it->second.orders;
 }
 
-const order_list& OrderBook::asksAt(float priceLevel)
+const order_list& OrderBook::asksAt(double priceLevel)
 {
     priceLevel = utils::trunc(priceLevel ,tickSize);
     auto it{askMap.find(priceLevel)};
@@ -229,7 +229,7 @@ const Order& OrderBook::getOrderByID(const uuids::uuid& id)
     return getOrderByID(&(*it));
 }
 
-int OrderBook::volumeAt(float priceLevel)
+int OrderBook::volumeAt(double priceLevel)
 {
     // determine to check at bidMap or askMap
     if (priceLevel <= bestBid)
@@ -259,7 +259,7 @@ OrderBook::Depth OrderBook::getDepth(size_t levels)
 }
 
 // center around a given price
-OrderBook::Depth OrderBook::getDepthAtPrice(float price, size_t levels)
+OrderBook::Depth OrderBook::getDepthAtPrice(double price, size_t levels)
 {
     [[maybe_unused]] auto lol = levels * 2;
     [[maybe_unused]] auto lol2 = price * 2;
@@ -267,7 +267,7 @@ OrderBook::Depth OrderBook::getDepthAtPrice(float price, size_t levels)
 }
 
 // depth in a given range
-OrderBook::Depth OrderBook::getDepthInRange(float maxPrice, float minPrice)
+OrderBook::Depth OrderBook::getDepthInRange(double maxPrice, double minPrice)
 {
     [[maybe_unused]] auto lol = maxPrice * 2;
     [[maybe_unused]] auto lol2 = minPrice * 2;

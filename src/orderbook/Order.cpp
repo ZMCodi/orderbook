@@ -1,7 +1,7 @@
 #include "orderbook/Order.h"
 
 // order id and timestamp is going to be initialized when it is passed to the order book
-Order::Order(Side side, int volume, Type type, float price)
+Order::Order(Side side, int volume, Type type, double price)
 : id{nullptr}, side{side}, volume{volume}
 , type{type}, price{price}
 {
@@ -19,17 +19,17 @@ Order::Order(Side side, int volume, Type type, float price)
     }
 }
 
-Order::Order(const Order& order, float tickSize)
+Order::Order(const Order& order, double tickSize)
 : id{order.id}, side{order.side}, volume{order.volume}
 , type{order.type}, price{utils::trunc(order.price, tickSize)}
 , timestamp{order.timestamp} {}
 
-Order Order::makeLimitBuy(int volume, float price)
+Order Order::makeLimitBuy(int volume, double price)
 {
     return {Order::Side::BUY, volume, Order::Type::LIMIT, price};
 }
 
-Order Order::makeLimitSell(int volume, float price)
+Order Order::makeLimitSell(int volume, double price)
 {
     return {Order::Side::SELL, volume, Order::Type::LIMIT, price};
 }

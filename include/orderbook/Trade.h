@@ -8,7 +8,7 @@ public:
     const uuids::uuid* const id;
     const uuids::uuid* const buyer_id;
     const uuids::uuid* const seller_id;
-    const float price;
+    const double price;
     const int volume;
     const time_ timestamp;
     const Order::Side taker;
