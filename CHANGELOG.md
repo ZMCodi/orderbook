@@ -38,6 +38,15 @@ Also, it is up to the user to store the `OrderResult` and they could very much n
 
 P.S. Now I realize this isn't really related to UUID handling but whatever
 
+## Float precision
+I knew when I used float instead of double that it's gonna bite me in the ass some day, and today (23/5/2025) is that day
+
+### v1
+I used float in hopes of having an `Order` be 64 bytes for cache alignment but I started running into problems with precision for anything beyond 2 dp. This is a problem since penny stocks trade up to 4dp. So I had to concede the cache alignment and use double instead. This made an `Order` object 72 bytes now (68 bytes and some misalignment)
+
+### v2
+Another problem I now encounter is that getting map values using doubles don't work. Even if the `bidMap` has an entry with key 60, I can't do `bidMap.at(60)` due to precision issues since 60 is not equal 60 for some flipping reason. So now I have to use an int for internal map keys and a utility `convertTick` function that converts any double inputs to int based on the `tickSize` of the `OrderBook`
+
 ## Thoughts
 
 ### Cache alignment
@@ -46,3 +55,7 @@ Started fussing over cache alignment here. `Order` objects are already 64 bytes 
 - When I get to the memory allocator part, make sure each `Trade` objects are stored next to their id in memory. Pros: Pads up exactly to 64 bytes, no need to change implementation except maybe change tests that check trade id is stored in `idPool`. Cons: Way more complicated and probably wouldn't be worth it
 
 As I thought about the second approach more, I started to think would optimizing the `Trade` placement in memory for cache alignment be worth it? After all, `Trade`s aren't a big part of the `OrderBook` operations anyways. They are created once when `Order`s match, stored in `tradeList` for bookkeeping and sent as copies to users. After that, no further references to them are made except probably when they are flushed into a database. I'll take a look again once I've got the basic implementation done and get some benchmarks setup but this thought process is good to document so I don't have to think about it all over again in case `Trade` memory alignment do become a bottleneck for some reason.
+
+Man now the `Order` is no longer 64 bytes. Some ways to make it work is maybe using an `int32_t` to store the price and just divide by a precision value. But this has some problems:
+- If we just use a universal precision like 0.0001 (penny stocks precision) then we can just multiply the price by 0.0001 everytime we need to use it and we can live happily ever after. Thing is, BRK.A trades for ~$700k which would be ~7,000,000,000 with this system, and if you haven't realized, a 32-bit int can only store up to ~2,000,000,000 and even its unsigned counterpart can only store double that. If we use a 64-byte int then that would be just as big as a double.
+- If we use a relative precision then it would solve this previous problem. If an order is 90c then its precision would be 0.0001 so it would be 900,000. If an order is $9000 then its precision would be 0.01 so it would be 900,000 as well. The question is how does an `OrderBook` tell these apart? If the `tickSize` is 0.01 or 0.0001 then sure, but what if its 0.001? 0.05? 1? These wouldn't work unless I have another member which tracks the precision which then would make the `Order` just as big as it was.
