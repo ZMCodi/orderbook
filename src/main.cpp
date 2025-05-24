@@ -161,19 +161,71 @@ std::ostream& operator<<(std::ostream& out, bid_map a)
     return out << str.str();
 }
 
+std::ostream& operator<<(std::ostream& out, OrderBook::Level l)
+{
+    std::stringstream str;
+    str << "Level(price: " << l.price << ", volume: " << l.volume
+    << ", orderCount: " << l.orderCount << ")";
+
+    return out << str.str();
+}
+
+std::ostream& operator<<(std::ostream& out, OrderBook::Depth d)
+{
+    std::stringstream str;
+    str << "Depth(bids: [";
+
+    for (auto bid : d.bids)
+    {
+        str << bid << ", ";
+    }
+
+    str << "], asks: [";
+
+    for (auto ask : d.asks)
+    {
+        str << ask << ", ";
+    }
+
+    str << "], volume: " << d.volume << ", bestBid: " << d.bestBid
+    << ", bestAsk: " << d.bestAsk << ", marketPrice: " << d.marketPrice
+    << ")";
+
+    return out << str.str();
+}
+
 int main()
 {
     OrderBook ob{};
 
-    double max_price{999'999.99};
-    std::cout << max_price << '\n';
+    // Setup some test orders at various price levels
+    Order buyLow{Order::Side::BUY, 5, Order::Type::LIMIT, 45};
+    Order buyLow2{Order::Side::BUY, 5, Order::Type::LIMIT, 45};
+    Order buyLow3{Order::Side::BUY, 5, Order::Type::LIMIT, 45};
+    Order buyMid{Order::Side::BUY, 3, Order::Type::LIMIT, 50};
+    Order buyMid2{Order::Side::BUY, 3, Order::Type::LIMIT, 50};
+    Order buyHigh{Order::Side::BUY, 7, Order::Type::LIMIT, 55};
 
-    auto order1{Order::makeLimitBuy(5, max_price)};
-    auto order2{Order::makeLimitBuy(5, 0.0001)};
+    Order sellLow{Order::Side::SELL, 4, Order::Type::LIMIT, 60};
+    Order sellLow2{Order::Side::SELL, 4, Order::Type::LIMIT, 60};
+    Order sellLow3{Order::Side::SELL, 4, Order::Type::LIMIT, 60};
+    Order sellMid{Order::Side::SELL, 6, Order::Type::LIMIT, 65};
+    Order sellMid2{Order::Side::SELL, 6, Order::Type::LIMIT, 65};
+    Order sellHigh{Order::Side::SELL, 8, Order::Type::LIMIT, 70};
 
-    ob.placeOrder(order1);
-    ob.placeOrder(order2);
+    // Place orders to populate the book
+    ob.placeOrder(buyLow);
+    ob.placeOrder(buyLow2);
+    ob.placeOrder(buyLow3);
+    ob.placeOrder(buyMid);
+    ob.placeOrder(buyMid2);
+    ob.placeOrder(buyHigh);
+    ob.placeOrder(sellLow);
+    ob.placeOrder(sellLow2);
+    ob.placeOrder(sellLow3);
+    ob.placeOrder(sellMid);
+    ob.placeOrder(sellMid2);
+    ob.placeOrder(sellHigh);
 
-    std::cout << ob.getState().bidMap;
-    
+    std::cout << ob.getDepthInRange(47.5, 62.5);
 }

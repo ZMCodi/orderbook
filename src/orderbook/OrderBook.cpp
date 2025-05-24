@@ -257,25 +257,157 @@ int OrderBook::volumeAt(double priceLevel)
     return 0;
 }
 
+// OPTIMIZE: this could probably be just one loop
 // center around best bid/ask
 OrderBook::Depth OrderBook::getDepth(size_t levels)
 {
-    [[maybe_unused]] auto lol = levels * 2;
-    return {std::vector<OrderBook::Level>(), std::vector<OrderBook::Level>(), 0, 0, 0, 0};
+    // get bids first
+    std::vector<OrderBook::Level> bids{};
+    size_t i{};
+    for (auto it{bidMap.begin()}; it != bidMap.end(); ++it)
+    {
+        if (i >= levels) {break;}
+        bids.emplace_back(it->first * tickSize, it->second.volume, it->second.orders.size());
+        ++i;
+    }
+
+    // get asks
+    std::vector<OrderBook::Level> asks{};
+    i = 0;
+    for (auto it{askMap.begin()}; it != askMap.end(); ++it)
+    {
+        if (i >= levels) {break;}
+        asks.emplace_back(it->first * tickSize, it->second.volume, it->second.orders.size());
+        ++i;
+    }
+
+    return {bids, asks, totalVolume, bestBid, bestAsk, marketPrice};
 }
 
 // center around a given price
 OrderBook::Depth OrderBook::getDepthAtPrice(double price, size_t levels)
 {
-    [[maybe_unused]] auto lol = levels * 2;
-    [[maybe_unused]] auto lol2 = price * 2;
-    return {std::vector<OrderBook::Level>(), std::vector<OrderBook::Level>(), 0, 0, 0, 0};
+    std::vector<OrderBook::Level> bids{};
+    std::vector<OrderBook::Level> asks{};
+
+    if (price < bestBid) // centered around a bid price
+    {
+        // start at best bid and go until `levels` levels below the price
+        // iterate and find the level of the price after it (in case the price itself doesnt exist)
+        auto endIt{bidMap.begin()};
+        while (endIt != bidMap.end())
+        {
+            if (endIt->first * tickSize < price) // found the first level after
+            {
+                // move it the remaining levels
+                // it should end one step over for a half open range
+                if (std::distance(endIt, bidMap.end()) >= static_cast<int>(levels))
+                {
+                    // make sure we dont advance past the end iterator here
+                    std::advance(endIt, levels);
+                } else
+                {
+                    endIt = bidMap.end();
+                }
+                break;
+            }
+            ++endIt;
+        }
+
+        // bids should be everything from best bid to the end iterator
+        // or end of the map if that comes first
+        for (auto it{bidMap.begin()}; it != bidMap.end() && it != endIt; ++it)
+        {
+            bids.emplace_back(it->first * tickSize, it->second.volume, it->second.orders.size());
+        }
+
+        size_t i{};
+        // for asks just go `levels` level from best ask
+        for (auto it{askMap.begin()}; it != askMap.end(); ++it)
+        {
+            if (i >= levels) {break;}
+            asks.emplace_back(it->first * tickSize, it->second.volume, it->second.orders.size());
+            ++i;
+        }
+
+    } else if (price > bestAsk) // centered around an ask price
+    {
+        // logic here is basically the same
+        auto endIt{askMap.begin()};
+        while (endIt != askMap.end())
+        {
+            if (endIt->first * tickSize > price)
+            {
+                if (std::distance(endIt, askMap.end()) >= static_cast<int>(levels))
+                {
+                    std::advance(endIt, levels);
+                } else
+                {
+                    endIt = askMap.end();
+                }
+            }
+            ++endIt;
+        }
+
+        for (auto it{askMap.begin()}; it != askMap.end() && it != endIt; ++it)
+        {
+            asks.emplace_back(it->first * tickSize, it->second.volume, it->second.orders.size());
+        }
+
+        size_t i{};
+        for (auto it{bidMap.begin()}; it != bidMap.end(); ++it)
+        {
+            if (i >= levels) {break;}
+            bids.emplace_back(it->first * tickSize, it->second.volume, it->second.orders.size());
+            ++i;
+        }
+
+    } else // centered around best bid/ask or gap in between
+    {
+        return getDepth(levels);
+    }
+
+    return {bids, asks, totalVolume, bestBid, bestAsk, marketPrice};
 }
 
 // depth in a given range
-OrderBook::Depth OrderBook::getDepthInRange(double maxPrice, double minPrice)
+OrderBook::Depth OrderBook::getDepthInRange(double minPrice, double maxPrice)
 {
-    [[maybe_unused]] auto lol = maxPrice * 2;
-    [[maybe_unused]] auto lol2 = minPrice * 2;
-    return {std::vector<OrderBook::Level>(), std::vector<OrderBook::Level>(), 0, 0, 0, 0};
+    std::vector<OrderBook::Level> bids{};
+    std::vector<OrderBook::Level> asks{};
+
+    if (maxPrice >= bestAsk && minPrice >= bestAsk) // whole range is just in asks
+    {
+        for (auto it{askMap.begin()}; it != askMap.end(); ++it)
+        {
+            if (it->first * tickSize < minPrice) {continue;} // not yet reached min
+            if (it->first * tickSize > maxPrice) {break;} // overshot max
+            asks.emplace_back(it->first * tickSize, it->second.volume, it->second.orders.size());
+        }
+
+    } else if (minPrice <= bestBid && maxPrice <= bestBid)
+    {
+        for (auto it{bidMap.begin()}; it != bidMap.end(); ++it)
+        {
+            if (it->first * tickSize < minPrice) {continue;} // not yet reached min
+            if (it->first * tickSize > maxPrice) {break;} // overshot max
+            asks.emplace_back(it->first * tickSize, it->second.volume, it->second.orders.size());
+        }
+
+    } else // go from best ask to max and best bid to min
+    {
+        for (auto it{askMap.begin()}; it != askMap.end(); ++it)
+        {
+            if (it->first * tickSize > maxPrice) {break;}
+            asks.emplace_back(it->first * tickSize, it->second.volume, it->second.orders.size());
+        }
+
+        for (auto it{bidMap.begin()}; it != bidMap.end(); ++it)
+        {
+            if (it->first * tickSize < minPrice) {break;}
+            bids.emplace_back(it->first * tickSize, it->second.volume, it->second.orders.size());
+        }
+    }
+
+    return {bids, asks, totalVolume, bestBid, bestAsk, marketPrice};
 }

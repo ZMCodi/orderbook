@@ -23,10 +23,16 @@ TEST_CASE("Depth", "[orderbook][depth]")
 
     // Place orders to populate the book
     ob.placeOrder(buyLow);
+    ob.placeOrder(buyLow2);
+    ob.placeOrder(buyLow3);
     ob.placeOrder(buyMid);
+    ob.placeOrder(buyMid2);
     ob.placeOrder(buyHigh);
     ob.placeOrder(sellLow);
+    ob.placeOrder(sellLow2);
+    ob.placeOrder(sellLow3);
     ob.placeOrder(sellMid);
+    ob.placeOrder(sellMid2);
     ob.placeOrder(sellHigh);
 
 // +----------+---------------+---------------+
@@ -37,9 +43,9 @@ TEST_CASE("Depth", "[orderbook][depth]")
 // +----------+---------------+---------------+
 // | 65.00    |               | 12     2      |
 // +----------+---------------+---------------+
-// | 60.00    |               | 12     3      |
+// | 60.00    |               | 12     3      | // best ask
 // +----------+---------------+---------------+
-// | 55.00    | 7      1      |               |
+// | 55.00    | 7      1      |               | // best bid
 // +----------+---------------+---------------+
 // | 50.00    | 6      2      |               |
 // +----------+---------------+---------------+
@@ -141,14 +147,14 @@ TEST_CASE("Depth", "[orderbook][depth]")
             std::vector<OrderBook::Level>{
                 {60.0, 12, 3},
             },
-            33, // volume
+            60, // volume
             55, // best bid
             60, // best ask
-            55  // market price
+            -1  // market price
         };
 
         // Get actual depth in range
-        auto actual = ob.getDepthInRange(62.5, 47.5);
+        auto actual = ob.getDepthInRange(47.5, 62.5);
         REQUIRE(actual == expected);
     }
 

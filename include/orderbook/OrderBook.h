@@ -176,5 +176,5 @@ private:
     double marketPrice{-1};
     int totalVolume{};
 
-    const double tickSize{0.01f};
+    const double tickSize{0.01};
 };
