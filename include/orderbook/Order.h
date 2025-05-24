@@ -5,7 +5,12 @@
 
 #include "orderbook/Utils.h"
 
-struct Trade;
+template<bool ownsUUIDs>
+struct TradeImpl;
+
+using Trade = TradeImpl<false>;
+using TradeCopy = TradeImpl<true>;
+
 class OrderBook;
 
 using callback = std::function<void(Trade)>;
