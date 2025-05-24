@@ -17,7 +17,7 @@ inline Order truncPrice(const Order& order, double tickSize)
 }
 
 // helper for comparing orderlists
-inline bool compareOrderLists(const order_list& first, const order_list& sec, double tickSize = 0.01f)
+inline bool compareOrderLists(const order_list& first, const order_list& sec, double tickSize = 0.01)
 {
     if (first.size() != sec.size()) {return false;}
 

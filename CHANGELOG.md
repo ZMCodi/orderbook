@@ -47,6 +47,9 @@ I used float in hopes of having an `Order` be 64 bytes for cache alignment but I
 ### v2
 Another problem I now encounter is that getting map values using doubles don't work. Even if the `bidMap` has an entry with key 60, I can't do `bidMap.at(60)` due to precision issues since 60 is not equal 60 for some flipping reason. So now I have to use an int for internal map keys and a utility `convertTick` function that converts any double inputs to int based on the `tickSize` of the `OrderBook`
 
+### v3
+Truncating is kinda messed up in some places bcs floats are weird bro. A number like 60.05 = 60.05000495 but 60.06 = 60.05999999234 and then when I divide by tick size I get 6005.999 and it truncates to 60.05. So what I did was add a small `tickSize` correction term after the scaling so it pushes the numbers that are close to the next number (like 6005.999 + 0.01 = 6006) but doesn't disrupt numbers that are already there (like 6005.00 + 0.01 = 6005). Still, I'm suffering from that choice of converting double to float. Spent a while tweaking bcs of a float literal in a default value smh.
+
 ## Thoughts
 
 ### Cache alignment

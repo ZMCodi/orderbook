@@ -34,7 +34,7 @@ std::ostream& operator<<(std::ostream& out, const Order& o)
         str << "MARKET, ";
     }
 
-    str << "price: " << o.price << ", timestamp: "
+    str << "price: " << std::fixed << o.price << ", timestamp: "
     << o.timestamp << ")";
 
     return out << str.str();
@@ -199,35 +199,4 @@ int main()
 {
     // OrderBook ob{};
 
-    // for (int i = 0; i < 1000; ++i)
-    // {
-    //     // make the price differences granular
-    //     ob.placeOrder(Order::makeLimitBuy(1, 59.95 - i * 0.01));
-    //     ob.placeOrder(Order::makeLimitSell(1, 60.05 + i * 0.01));
-    // }
-
-    for (int i = 0; i < 10; ++i) {
-        double askPrice = 60.05 + i * 0.01;
-        std::cout << "i=" << i << ", askPrice=" << askPrice 
-                << ", truncated=" << utils::trunc(askPrice, 0.01)
-                << ", tick=" << utils::convertTick(askPrice, 0.01) << std::endl;
-    }
-
-    // for (int i = 0; i < 5; ++i) {
-    //     double askPrice = 60.05 + i * 0.01;
-    //     double divided = askPrice / 0.01 + 0.01;
-    //     double floored = std::floor(divided);
-    //     double result = floored * 0.01;
-        
-    //     std::cout << std::fixed << std::setprecision(20) 
-    //             << "i=" << i << ", askPrice=" << askPrice 
-    //             << ", divided=" << divided
-    //             << ", floored=" << floored 
-    //             << ", result=" << result << std::endl;
-    // }
-
-
-    // std::ofstream out{"depthMain.txt"};
-    // std::cout.rdbuf(out.rdbuf());
-    // std::cout << ob.getDepth(1000);
 }
