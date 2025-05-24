@@ -38,6 +38,13 @@ Also, it is up to the user to store the `OrderResult` and they could very much n
 
 P.S. Now I realize this isn't really related to UUID handling but whatever
 
+### v6
+Following the last point, I also just realized that the `Trade`s in `OrderResult.trades` still store pointers to the IDs stored in `idPool` and would be dangling if `idPool` were to be flushed. So I had to make two types of trades, one is for internal processing which uses UUID pointers to save memory and another is for user copy that stores the actual UUID itself for persistence.
+
+Hence, I dived into template programming and changed `Trade` to `TradeImpl` which has a non-type template parameter `ownsUUIDs`. So now a `Trade` is a `TradeImpl<false>` and a `TradeCopy` is a `TradeImpl<true>`! Next, I needed to update `callback` (in `Order`) and `trades` (in `OrderResult`) to use `TradeCopy` instead of `Trade`.
+
+Of course this came with a lot of rewriting the tests to reflect the new API but it wasn't that bad. I just had to make a specialized 'SFINAE copy constructor' that creates a `TradeCopy` from a `Trade`, redefine a 'SFINAE aggregate constructor' for `Trade`s to mirror the aggregate constructor and redefine the copy constructors for both. Then, the compiler took care of converting the `Trade` to `TradeCopy` when I pass it into a `trades` container.
+
 ## Float precision
 I knew when I used float instead of double that it's gonna bite me in the ass some day, and today (23/5/2025) is that day
 
