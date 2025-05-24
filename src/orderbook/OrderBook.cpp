@@ -11,7 +11,7 @@ bool OrderAudit::equals_to(const OrderAudit& other) const
 
 bool OrderBook::Level::operator==(const Level& other) const
 {
-    return price == other.price
+    return std::abs(price - other.price) < 0.0001
     && volume == other.volume
     && orderCount == other.orderCount;
 }
@@ -21,9 +21,9 @@ bool OrderBook::Depth::operator==(const Depth& other) const
     return bids == other.bids
     && asks == other.asks
     && volume == other.volume
-    && bestBid == other.bestBid
-    && bestAsk == other.bestAsk
-    && marketPrice == other.marketPrice;
+    && std::abs(bestBid - other.bestBid) < 0.0001
+    && std::abs(bestAsk - other.bestAsk) < 0.0001
+    && std::abs(marketPrice - other.marketPrice) < 0.0001;
 }
 
 OrderResult OrderBook::placeOrder(Order& order)
@@ -315,8 +315,7 @@ OrderBook::Depth OrderBook::getDepthAtPrice(double price, size_t levels)
         }
 
         // bids should be everything from best bid to the end iterator
-        // or end of the map if that comes first
-        for (auto it{bidMap.begin()}; it != bidMap.end() && it != endIt; ++it)
+        for (auto it{bidMap.begin()}; it != endIt; ++it)
         {
             bids.emplace_back(it->first * tickSize, it->second.volume, it->second.orders.size());
         }
@@ -349,7 +348,7 @@ OrderBook::Depth OrderBook::getDepthAtPrice(double price, size_t levels)
             ++endIt;
         }
 
-        for (auto it{askMap.begin()}; it != askMap.end() && it != endIt; ++it)
+        for (auto it{askMap.begin()}; it != endIt; ++it)
         {
             asks.emplace_back(it->first * tickSize, it->second.volume, it->second.orders.size());
         }

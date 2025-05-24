@@ -1,6 +1,39 @@
 #include <catch2/catch_all.hpp>
 
 #include "test_helpers.h"
+#include <fstream>
+std::ostream& operator<<(std::ostream& out, OrderBook::Level l)
+{
+    std::stringstream str;
+    str << "Level(price: " << l.price << ", volume: " << l.volume
+    << ", orderCount: " << l.orderCount << ")";
+
+    return out << str.str();
+}
+
+std::ostream& operator<<(std::ostream& out, OrderBook::Depth d)
+{
+    std::stringstream str;
+    str << "Depth(\n\tbids: [\n\t";
+
+    for (auto bid : d.bids)
+    {
+        str << '\t' << bid << ",\n\t";
+    }
+
+    str << "],\n\tasks: [\n\t";
+
+    for (auto ask : d.asks)
+    {
+        str << '\t' << ask << ",\n\t";
+    }
+
+    str << "],\n\tvolume: " << d.volume << ", bestBid: " << d.bestBid
+    << ", bestAsk: " << d.bestAsk << ", marketPrice: " << d.marketPrice
+    << "\n)";
+
+    return out << str.str();
+}
 
 TEST_CASE("Depth", "[orderbook][depth]")
 {
@@ -246,6 +279,8 @@ TEST_CASE("Depth", "[orderbook][depth]")
 
     SECTION("Stress testing the depth")
     {
+        OrderBook ob{};
+
         // Create large number of orders on both sides
         // and fill in the expected levels
         std::vector<OrderBook::Level> expectedBids;

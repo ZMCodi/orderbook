@@ -173,59 +173,61 @@ std::ostream& operator<<(std::ostream& out, OrderBook::Level l)
 std::ostream& operator<<(std::ostream& out, OrderBook::Depth d)
 {
     std::stringstream str;
-    str << "Depth(bids: [";
+    str << "Depth(\n\tbids: [\n\t";
 
     for (auto bid : d.bids)
     {
-        str << bid << ", ";
+        str << '\t' << bid << ",\n\t";
     }
 
-    str << "], asks: [";
+    str << "],\n\tasks: [\n\t";
 
     for (auto ask : d.asks)
     {
-        str << ask << ", ";
+        str << '\t' << ask << ",\n\t";
     }
 
-    str << "], volume: " << d.volume << ", bestBid: " << d.bestBid
+    str << "],\n\tvolume: " << d.volume << ", bestBid: " << d.bestBid
     << ", bestAsk: " << d.bestAsk << ", marketPrice: " << d.marketPrice
-    << ")";
+    << "\n)";
 
     return out << str.str();
 }
 
+#include <fstream>
 int main()
 {
-    OrderBook ob{};
+    // OrderBook ob{};
 
-    // Setup some test orders at various price levels
-    Order buyLow{Order::Side::BUY, 5, Order::Type::LIMIT, 45};
-    Order buyLow2{Order::Side::BUY, 5, Order::Type::LIMIT, 45};
-    Order buyLow3{Order::Side::BUY, 5, Order::Type::LIMIT, 45};
-    Order buyMid{Order::Side::BUY, 3, Order::Type::LIMIT, 50};
-    Order buyMid2{Order::Side::BUY, 3, Order::Type::LIMIT, 50};
-    Order buyHigh{Order::Side::BUY, 7, Order::Type::LIMIT, 55};
+    // for (int i = 0; i < 1000; ++i)
+    // {
+    //     // make the price differences granular
+    //     ob.placeOrder(Order::makeLimitBuy(1, 59.95 - i * 0.01));
+    //     ob.placeOrder(Order::makeLimitSell(1, 60.05 + i * 0.01));
+    // }
 
-    Order sellLow{Order::Side::SELL, 4, Order::Type::LIMIT, 60};
-    Order sellLow2{Order::Side::SELL, 4, Order::Type::LIMIT, 60};
-    Order sellLow3{Order::Side::SELL, 4, Order::Type::LIMIT, 60};
-    Order sellMid{Order::Side::SELL, 6, Order::Type::LIMIT, 65};
-    Order sellMid2{Order::Side::SELL, 6, Order::Type::LIMIT, 65};
-    Order sellHigh{Order::Side::SELL, 8, Order::Type::LIMIT, 70};
+    for (int i = 0; i < 10; ++i) {
+        double askPrice = 60.05 + i * 0.01;
+        std::cout << "i=" << i << ", askPrice=" << askPrice 
+                << ", truncated=" << utils::trunc(askPrice, 0.01)
+                << ", tick=" << utils::convertTick(askPrice, 0.01) << std::endl;
+    }
 
-    // Place orders to populate the book
-    ob.placeOrder(buyLow);
-    ob.placeOrder(buyLow2);
-    ob.placeOrder(buyLow3);
-    ob.placeOrder(buyMid);
-    ob.placeOrder(buyMid2);
-    ob.placeOrder(buyHigh);
-    ob.placeOrder(sellLow);
-    ob.placeOrder(sellLow2);
-    ob.placeOrder(sellLow3);
-    ob.placeOrder(sellMid);
-    ob.placeOrder(sellMid2);
-    ob.placeOrder(sellHigh);
+    // for (int i = 0; i < 5; ++i) {
+    //     double askPrice = 60.05 + i * 0.01;
+    //     double divided = askPrice / 0.01 + 0.01;
+    //     double floored = std::floor(divided);
+    //     double result = floored * 0.01;
+        
+    //     std::cout << std::fixed << std::setprecision(20) 
+    //             << "i=" << i << ", askPrice=" << askPrice 
+    //             << ", divided=" << divided
+    //             << ", floored=" << floored 
+    //             << ", result=" << result << std::endl;
+    // }
 
-    std::cout << ob.getDepthInRange(47.5, 62.5);
+
+    // std::ofstream out{"depthMain.txt"};
+    // std::cout.rdbuf(out.rdbuf());
+    // std::cout << ob.getDepth(1000);
 }

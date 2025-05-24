@@ -5,10 +5,10 @@ time_ utils::now() {return std::chrono::system_clock::now();}
 
 double utils::trunc(double price, double tickSize)
 {
-    return std::floor(price / tickSize) * tickSize;
+    return std::floor(price / tickSize + tickSize) * tickSize;
 }
 
 tick_t utils::convertTick(double price, double tickSize)
 {
-    return static_cast<tick_t>(std::trunc(price / tickSize));
+    return static_cast<tick_t>(std::trunc(price / tickSize + tickSize));
 }
