@@ -114,7 +114,6 @@ TEST_CASE("Partial filling orders", "[order filling][partial filling]")
 
         // test with rvalue
         ob.clear();
-        sell50.id = nullptr; // reset id to add again
         ob.placeOrder(sell50);
         auto actual2{ob.placeOrder(Order::makeMarketBuy(5))};
 
@@ -166,7 +165,6 @@ TEST_CASE("Partial filling orders", "[order filling][partial filling]")
 
         // test with rvalue
         ob.clear();
-        buy55.id = nullptr; // reset id to add again
         ob.placeOrder(buy55);
         auto actual2{ob.placeOrder(Order::makeMarketSell(5))};
 

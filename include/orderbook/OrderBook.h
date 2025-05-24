@@ -103,10 +103,8 @@ public:
     OrderBook(OrderBook&&) = delete;
     OrderBook& operator=(OrderBook&&) = delete;
 
-    OrderResult placeOrder(Order& order);
-    OrderResult placeOrder(Order& order, callback callbackFn);
-    OrderResult placeOrder(Order&& order);
-    OrderResult placeOrder(Order&& order, callback callbackFn);
+    OrderResult placeOrder(Order& order, callback callbackFn = nullptr);
+    OrderResult placeOrder(Order&& order, callback callbackFn = nullptr);
 
     OrderResult cancelOrder(const uuids::uuid* id);
     OrderResult modifyVolume(const uuids::uuid* id, int volume);

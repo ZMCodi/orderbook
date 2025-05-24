@@ -96,9 +96,9 @@ TEST_CASE("Callback function notification", "[order filling][callbacks]")
         ob.cancelOrder(sell50.get_id());
         REQUIRE(!ob.removeCallback(sell50.get_id()));
 
-        // orders with no callback cannot remove a callback
+        // orders with no callback can remove a callback (idempotency)
         ob.placeOrder(buy50);
-        REQUIRE(!ob.removeCallback(buy50.get_id()));
+        REQUIRE(ob.removeCallback(buy50.get_id()));
 
         // nonexistent orders
         auto fakeID(utils::uuid_generator());

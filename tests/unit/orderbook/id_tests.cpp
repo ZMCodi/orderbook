@@ -111,14 +111,14 @@ TEST_CASE("ID generation", "[orderbook][id]")
         // this order will be rejected
         ob.placeOrder(buyMarket);
 
-        auto *id1{buy50.get_id()};
-        auto *id2{sell50.get_id()};
-        auto *id3{buyMarket.get_id()};
+        auto id1{*buy50.get_id()};
+        auto id2{*sell50.get_id()};
+        auto id3{*buyMarket.get_id()};
 
         id_pool ids_pool{ob.getIDPool()};
-        REQUIRE(ids_pool.contains(*id1));
-        REQUIRE(ids_pool.contains(*id2));
-        REQUIRE(ids_pool.contains(*id3));
+        REQUIRE(ids_pool.contains(id1));
+        REQUIRE(ids_pool.contains(id2));
+        REQUIRE(ids_pool.contains(id3));
 
     }
 

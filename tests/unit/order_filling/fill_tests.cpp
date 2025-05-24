@@ -134,7 +134,6 @@ TEST_CASE("Order filling", "[order filling]")
 
         // test with rvalue
         ob.clear();
-        sell50.id = nullptr; // reset id to add again
         ob.placeOrder(sell50);
         auto actual2{ob.placeOrder(Order::makeMarketBuy(5))};
 
@@ -185,7 +184,6 @@ TEST_CASE("Order filling", "[order filling]")
 
         // test with rvalue
         ob.clear();
-        buy50.id = nullptr; // reset id to add again
         ob.placeOrder(buy50);
         auto actual2{ob.placeOrder(Order::makeMarketSell(5))};
 

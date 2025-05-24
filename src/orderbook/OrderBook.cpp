@@ -26,7 +26,7 @@ bool OrderBook::Depth::operator==(const Depth& other) const
     && std::abs(marketPrice - other.marketPrice) < 0.0001;
 }
 
-OrderResult OrderBook::placeOrder(Order& order)
+OrderResult OrderBook::placeOrder(Order& order, callback callbackFn)
 {
     if (order.volume <= 0) 
     {
@@ -53,6 +53,7 @@ OrderResult OrderBook::placeOrder(Order& order)
 
     // local active copy that is actually processed with truncated price
     Order activeCopy{order, tickSize};
+    if (callbackFn) {activeCopy.callbackFn = callbackFn;}
     double truncPrice{activeCopy.price};
     tick_t tickPrice{utils::convertTick(truncPrice, tickSize)};
 
@@ -100,25 +101,14 @@ OrderResult OrderBook::placeOrder(Order& order)
     return result;
 }
 
-OrderResult OrderBook::placeOrder(Order&& order)
+OrderResult OrderBook::placeOrder(Order&& order, callback callbackFn)
 {
-    return placeOrder(order);
+    return placeOrder(order, callbackFn);
 }
 
 OrderResult OrderBook::matchOrder(Order& order)
 {
     return {*order.id, OrderResult::PLACED, trades{}, nullptr, "Order placed"};
-}
-
-OrderResult OrderBook::placeOrder(Order& order, callback callbackFn)
-{
-    [[maybe_unused]] auto lol = callbackFn;
-    return {*order.get_id(), OrderResult::FILLED, trades(), &order, ""};
-}
-
-OrderResult OrderBook::placeOrder(Order&& order, callback callbackFn)
-{
-    return placeOrder(order, callbackFn);
 }
 
 OrderResult OrderBook::cancelOrder(const uuids::uuid* id)
@@ -157,28 +147,44 @@ OrderResult OrderBook::modifyPrice(const uuids::uuid& id, double price)
 
 bool OrderBook::registerCallback(const uuids::uuid* id, callback callbackFn)
 {
-    [[maybe_unused]] auto lol = id;
-    [[maybe_unused]] auto lol2 = callbackFn;
-    return false;
+    // check if order is still active
+    auto it{idMap.find(id)};
+
+    if (it == idMap.end()) {return false;} // order is no longer active
+
+    it->second.itr->callbackFn = callbackFn; // assign the callback
+    return true;
 }
 
 bool OrderBook::removeCallback(const uuids::uuid* id)
 {
-    [[maybe_unused]] auto lol = id;
-    return false;
+    // check if order is still active
+    auto it{idMap.find(id)};
+
+    if (it == idMap.end()) {return false;} // order is no longer active
+
+    it->second.itr->callbackFn = nullptr; // assign the callback
+    return true;
 }
 
 bool OrderBook::registerCallback(const uuids::uuid& id, callback callbackFn)
 {
-    [[maybe_unused]] auto lol = id;
-    [[maybe_unused]] auto lol2 = callbackFn;
-    return false;
+    // find uuid in idPool first and get pointer
+    auto it{idPool.find(id)};
+
+    if (it == idPool.end()) {return false;} // not a valid uuid
+
+    return registerCallback(&(*it), callbackFn);
 }
 
 bool OrderBook::removeCallback(const uuids::uuid& id)
 {
-    [[maybe_unused]] auto lol = id;
-    return false;
+    // find uuid in idPool first and get pointer
+    auto it{idPool.find(id)};
+
+    if (it == idPool.end()) {return false;} // not a valid uuid
+
+    return removeCallback(&(*it));
 }
 
 const order_list& OrderBook::bidsAt(double priceLevel)
