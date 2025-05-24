@@ -171,7 +171,7 @@ TEST_CASE("ID generation", "[orderbook][id]")
         REQUIRE(actual2.equals_to(expected2));
 
         // order with garbage ID is also rejected
-        auto fakeID{uuid_generator()};
+        auto fakeID{utils::uuid_generator()};
         sell50.id = &fakeID;
         auto actual3{ob.placeOrder(sell50)};
 

@@ -50,7 +50,7 @@ TEST_CASE("OrderBook", "[orderbook][basic]")
         REQUIRE(ob.getOrderByID(id1).equals_to(buy50));
 
         // nonexistent ID
-        auto fakeID{uuid_generator()};
+        auto fakeID{utils::uuid_generator()};
         REQUIRE_THROWS(ob.getOrderByID(fakeID));
         REQUIRE_THROWS(ob.getOrderByID(nullptr));
     }

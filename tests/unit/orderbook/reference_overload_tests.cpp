@@ -83,7 +83,7 @@ TEST_CASE("UUID reference overloads", "[orderbook][uuid reference]")
     SECTION("UUID not in pool")
     {
         // create a UUID that doesn't exist in the pool
-        auto fakeID{uuid_generator()};
+        auto fakeID{utils::uuid_generator()};
 
         // Verify operations with non-existent UUID throw exceptions
         REQUIRE_THROWS(ob.getOrderByID(fakeID));

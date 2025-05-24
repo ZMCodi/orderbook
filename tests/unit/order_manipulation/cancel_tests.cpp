@@ -16,7 +16,7 @@ TEST_CASE("Order cancellation", "[order manipulation][cancellation]")
     SECTION("Modifications only work on orders in the book")
     {
         // nonexistent order
-        auto fakeID(uuid_generator());
+        auto fakeID(utils::uuid_generator());
         REQUIRE_THROWS(ob.cancelOrder(&fakeID));
         REQUIRE_THROWS(ob.cancelOrder(nullptr));
         REQUIRE_THROWS(ob.modifyPrice(&fakeID, 50));

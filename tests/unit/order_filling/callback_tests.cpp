@@ -72,7 +72,7 @@ TEST_CASE("Callback function notification", "[order filling][callbacks]")
         REQUIRE(actual2.equals_to(expected2));
 
         // nonexistent orders
-        auto fakeID(uuid_generator());
+        auto fakeID(utils::uuid_generator());
         REQUIRE(!ob.registerCallback(&fakeID, callbackFn));
         REQUIRE(!ob.registerCallback(nullptr, callbackFn));
     }
@@ -101,7 +101,7 @@ TEST_CASE("Callback function notification", "[order filling][callbacks]")
         REQUIRE(!ob.removeCallback(buy50.get_id()));
 
         // nonexistent orders
-        auto fakeID(uuid_generator());
+        auto fakeID(utils::uuid_generator());
         REQUIRE(!ob.removeCallback(&fakeID));
         REQUIRE(!ob.removeCallback(nullptr));
     }

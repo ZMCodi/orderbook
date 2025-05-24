@@ -8,10 +8,6 @@
 #include "Order.h"
 #include "OrderResult.h"
 
-// uuid generators
-inline static std::mt19937 engine{Random::generate()};
-inline static uuids::uuid_random_generator uuid_generator(engine);
-
 // linked list of orders where the tail is the newest order
 using order_list = std::list<Order>;
 
