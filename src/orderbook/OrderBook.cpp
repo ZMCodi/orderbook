@@ -32,6 +32,7 @@ OrderResult OrderBook::placeOrder(Order& order)
     {
         throw std::invalid_argument{"Volume has to be positive"};
     }
+
     // generate a unique id and timestamp for the order
     auto id{utils::uuid_generator()};
     time_ ts{utils::now()};

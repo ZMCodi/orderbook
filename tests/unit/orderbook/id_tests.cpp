@@ -46,7 +46,7 @@ TEST_CASE("ID generation", "[orderbook][id]")
             ids.insert(*ordercpy.get_id());
         }
 
-        REQUIRE(ids.size() == 8);
+        REQUIRE(ids.size() == 12);
 
         id_pool ids_pool{ob.getIDPool()};
         for (auto id : ids)
@@ -58,13 +58,13 @@ TEST_CASE("ID generation", "[orderbook][id]")
     SECTION("Generate unique Trade IDs and store them")
     {
         ob.placeOrder(buy50);
-        auto id1{ob.placeOrder(sell50).trades[0].id};
+        auto id1{ob.placeOrder(sell50).trades.at(0).id};
 
         ob.placeOrder(sell60);
-        auto id2{ob.placeOrder(buyMarket).trades[0].id};
+        auto id2{ob.placeOrder(buyMarket).trades.at(0).id};
 
-        ob.placeOrder(sellMarket);
-        auto id3{ob.placeOrder(buy45).trades[0].id};
+        ob.placeOrder(buy45);
+        auto id3{ob.placeOrder(sellMarket).trades.at(0).id};
 
         REQUIRE(std::unordered_set{id1, id2, id3}.size() == 3);
 
@@ -74,7 +74,7 @@ TEST_CASE("ID generation", "[orderbook][id]")
             *buy50.get_id(), *sell50.get_id(),
             *sell60.get_id(), *buyMarket.get_id(),
             *sellMarket.get_id(), *buy45.get_id()
-        }.size() == 8);
+        }.size() == 9);
 
 
         id_pool ids_pool{ob.getIDPool()};
@@ -98,7 +98,7 @@ TEST_CASE("ID generation", "[orderbook][id]")
         catch (std::exception&) {}
 
         // id is uninitialized
-        REQUIRE(*buy50.get_id() == uuids::uuid{});
+        REQUIRE(!buy50.get_id());
         REQUIRE(ob.getIDPool().empty());
     }
 
@@ -134,54 +134,58 @@ TEST_CASE("ID generation", "[orderbook][id]")
 
         // buy50 will be filled
         ob.placeOrder(sell50);
+        idMap = ob.getState().idMap;
         REQUIRE(!idMap.contains(buy50.get_id()));
 
         // sellMarket will be rejected
         ob.placeOrder(sellMarket);
+        idMap = ob.getState().idMap;
         REQUIRE(!idMap.contains(sellMarket.get_id()));
     }
 
     SECTION("Re-placing the same order")
     {
-        ob.placeOrder(buy45);
+        auto first{ob.placeOrder(buy45)};
+        auto old_ts{buy45.timestamp};
+        auto old_id{*buy45.id};
+
+        // place the same order again
         auto actual{ob.placeOrder(buy45)};
-        auto old_id{actual.order_id};
+        auto new_ts{buy45.timestamp};
+        auto new_id{*buy45.id};
+
+        // Order should be restamped
+        REQUIRE(old_ts != new_ts);
+        REQUIRE(old_id != new_id);
 
         OrderResult expected{
             *buy45.get_id(),
-            OrderResult::REJECTED,
-            trades(),
+            OrderResult::PLACED,
+            trades{},
             &ob.getOrderByID(buy45.get_id()),
-            "Order already exists"
+            "Order placed"
         };
         REQUIRE(actual.equals_to(expected));
 
-        // to re-place an identical order, set id to nullptr
-        buy45.id = nullptr;
-        auto actual2{ob.placeOrder(buy45)};
-        REQUIRE(old_id != actual.order_id); // new ID is generated
+        // order with garbage ID is also restamped
+        auto fakeID{utils::uuid_generator()};
+        sell50.id = &fakeID;
+
+        auto actual2{ob.placeOrder(sell50)};
+        new_id = *sell50.id;
+
+        REQUIRE(fakeID != new_id);
 
         OrderResult expected2{
-            *buy45.get_id(),
+            *sell50.get_id(), // new ID is generated
             OrderResult::PLACED,
             trades(),
-            &ob.getOrderByID(buy45.get_id()),
+            &ob.getOrderByID(sell50.get_id()),
             "Order placed"
         };
         REQUIRE(actual2.equals_to(expected2));
 
-        // order with garbage ID is also rejected
-        auto fakeID{utils::uuid_generator()};
-        sell50.id = &fakeID;
-        auto actual3{ob.placeOrder(sell50)};
-
-        OrderResult expected3{
-            fakeID, // no new ID is generated
-            OrderResult::REJECTED,
-            trades(),
-            &sell50,
-            "Non-null ID"
-        };
-        REQUIRE(actual3.equals_to(expected3));
+        // fake ID is not stored in order book
+        REQUIRE(!ob.getIDPool().contains(fakeID));
     }
 }
