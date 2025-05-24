@@ -22,8 +22,8 @@ TEST_CASE("Callback function notification", "[order filling][callbacks]")
     Order sellMarket{Order::Side::SELL, 8, Order::Type::MARKET};
 
     int callback_count{};
-    std::vector<const uuids::uuid*> tradeIDs{};
-    callback callbackFn = [&callback_count, &tradeIDs](const Trade& trade){
+    std::vector<uuids::uuid> tradeIDs{};
+    callback callbackFn = [&callback_count, &tradeIDs](TradeCopy trade){
         ++callback_count;
         tradeIDs.push_back(trade.get_id());
     };
@@ -135,9 +135,9 @@ TEST_CASE("Callback function notification", "[order filling][callbacks]")
 
         // for completeness, lets test two different callbacks
         int buy_count{};
-        ob.placeOrder(buy52, [&buy_count](const Trade&){++buy_count;});
+        ob.placeOrder(buy52, [&buy_count](TradeCopy){++buy_count;});
         int sell_count{};
-        ob.placeOrder(sell52, [&sell_count](const Trade&){++sell_count;});
+        ob.placeOrder(sell52, [&sell_count](TradeCopy){++sell_count;});
         REQUIRE(buy_count == 1);
         REQUIRE(sell_count == 1);
     }
@@ -198,7 +198,7 @@ TEST_CASE("Callback function notification", "[order filling][callbacks]")
         REQUIRE(tradeIDs[1] == id3);
 
         // change to another callback
-        ob.registerCallback(buyBig53.get_id(), [&callback_count, &tradeIDs](const Trade& trade){
+        ob.registerCallback(buyBig53.get_id(), [&callback_count, &tradeIDs](TradeCopy trade){
             callback_count += 5;
             tradeIDs[0] = trade.get_id();
         });

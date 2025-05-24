@@ -13,7 +13,7 @@ using TradeCopy = TradeImpl<true>;
 
 class OrderBook;
 
-using callback = std::function<void(Trade)>;
+using callback = std::function<void(TradeCopy)>;
 
 struct Order
 {
@@ -54,7 +54,7 @@ struct Order
 
 private:
     Order(const Order& order, double tickSize);
-    void notify(Trade trade);
+    void notify(TradeCopy trade);
 
     callback callbackFn;
 };

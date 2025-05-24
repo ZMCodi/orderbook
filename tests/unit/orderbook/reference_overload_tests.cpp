@@ -58,7 +58,7 @@ TEST_CASE("UUID reference overloads", "[orderbook][uuid reference]")
     SECTION("registerCallback with reference")
     {
         int callback_count{};
-        callback callbackFn = [&callback_count](const Trade&) { ++callback_count; };
+        callback callbackFn = [&callback_count](TradeCopy) { ++callback_count; };
 
         REQUIRE(ob.registerCallback(buy_id_copy, callbackFn));
 
@@ -70,7 +70,7 @@ TEST_CASE("UUID reference overloads", "[orderbook][uuid reference]")
     SECTION("removeCallback with reference")
     {
         int callback_count{};
-        callback callbackFn = [&callback_count](const Trade&) { ++callback_count; };
+        callback callbackFn = [&callback_count](TradeCopy) { ++callback_count; };
 
         ob.registerCallback(buy50.get_id(), callbackFn);
         REQUIRE(ob.removeCallback(buy_id_copy));
@@ -90,7 +90,7 @@ TEST_CASE("UUID reference overloads", "[orderbook][uuid reference]")
         REQUIRE_THROWS(ob.cancelOrder(fakeID));
         REQUIRE_THROWS(ob.modifyVolume(fakeID, 10));
         REQUIRE_THROWS(ob.modifyPrice(fakeID, 45));
-        REQUIRE_FALSE(ob.registerCallback(fakeID, [](const Trade&){}));
+        REQUIRE_FALSE(ob.registerCallback(fakeID, [](TradeCopy){}));
         REQUIRE_FALSE(ob.removeCallback(fakeID));
     }
 }

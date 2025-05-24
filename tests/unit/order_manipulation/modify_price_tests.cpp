@@ -129,7 +129,9 @@ TEST_CASE("Price modification", "[order manipulation][price modification]")
     {
         ob.placeOrder(buy50);
         // this fills 3/5 of buy50's volume
-        Trade expTrade{ob.placeOrder(sell50_2).trades[0]};
+        ob.placeOrder(sell50_2);
+        Trade expTrade{nullptr, buy50.get_id(), sell50_2.get_id(), 50, 3, time_point(), Order::Side::SELL};
+
         ob.placeOrder(buy45);
         auto actual{ob.modifyPrice(buy50.get_id(), 45)};
         id = &actual.order_id;
@@ -181,7 +183,9 @@ TEST_CASE("Price modification", "[order manipulation][price modification]")
     {
         ob.placeOrder(sell50);
         // this fills 3/5 of sell50's volume
-        Trade expTrade{ob.placeOrder(buy50_2).trades[0]};
+        ob.placeOrder(buy50_2);
+        Trade expTrade{nullptr, buy50_2.get_id(), sell50.get_id(), 50, 3, time_point(), Order::Side::BUY};
+
         ob.placeOrder(sell60);
         auto actual{ob.modifyPrice(sell50.get_id(), 60)};
         id = &actual.order_id;

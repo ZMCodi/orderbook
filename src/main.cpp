@@ -62,6 +62,28 @@ std::ostream& operator<<(std::ostream& out, const Trade& t)
     return out << str.str();
 }
 
+std::ostream& operator<<(std::ostream& out, const TradeCopy& t)
+{
+    std::stringstream str;
+    str << "Trade(id: " << t.id << ", buyer_id: " << t.buyer_id
+    << ", seller_id: " << t.seller_id << ", price: " << t.price
+    << ", volume: " << t.volume << ", timestamp: " << t.timestamp
+    << ", taker: ";
+
+    switch (t.taker)
+    {
+        case Order::Side::BUY:
+            str << "BUY";
+            break;
+        case Order::Side::SELL:
+            str << "SELL";
+            break;
+    }
+
+    str << ")";
+    return out << str.str();
+}
+
 std::ostream& operator<<(std::ostream& out, const trades& t)
 {
    std::stringstream str;

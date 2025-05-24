@@ -58,19 +58,19 @@ TEST_CASE("ID generation", "[orderbook][id]")
     SECTION("Generate unique Trade IDs and store them")
     {
         ob.placeOrder(buy50);
-        auto* id1{ob.placeOrder(sell50).trades[0].id};
+        auto id1{ob.placeOrder(sell50).trades[0].id};
 
         ob.placeOrder(sell60);
-        auto* id2{ob.placeOrder(buyMarket).trades[0].id};
+        auto id2{ob.placeOrder(buyMarket).trades[0].id};
 
         ob.placeOrder(sellMarket);
-        auto* id3{ob.placeOrder(buy45).trades[0].id};
+        auto id3{ob.placeOrder(buy45).trades[0].id};
 
         REQUIRE(std::unordered_set{id1, id2, id3}.size() == 3);
 
         // check trade ID and order ID are different
         REQUIRE(std::unordered_set{
-            *id1, *id2, *id3,
+            id1, id2, id3,
             *buy50.get_id(), *sell50.get_id(),
             *sell60.get_id(), *buyMarket.get_id(),
             *sellMarket.get_id(), *buy45.get_id()
@@ -78,9 +78,9 @@ TEST_CASE("ID generation", "[orderbook][id]")
 
 
         id_pool ids_pool{ob.getIDPool()};
-        REQUIRE(ids_pool.contains(*id1));
-        REQUIRE(ids_pool.contains(*id2));
-        REQUIRE(ids_pool.contains(*id3));
+        REQUIRE(ids_pool.contains(id1));
+        REQUIRE(ids_pool.contains(id2));
+        REQUIRE(ids_pool.contains(id3));
     }
 
     SECTION("Rejected orders have ID")

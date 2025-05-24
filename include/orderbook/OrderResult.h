@@ -3,7 +3,7 @@
 #include "Trade.h"
 #include "Order.h"
 
-using trades = std::vector<Trade>;
+using trades = std::vector<TradeCopy>;
 
 // helper for comparing Trades
 bool compareTrades(const trades& first, const trades& second);

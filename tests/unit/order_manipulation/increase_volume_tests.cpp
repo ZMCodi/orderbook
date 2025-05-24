@@ -119,8 +119,11 @@ TEST_CASE("Increase order volume", "[order manipulation][increase volume]")
     {
         ob.placeOrder(buy50);
         // this fills 3/5 of buy50's volume
-        Trade expTrade{ob.placeOrder(sell50_2).trades[0]};
+        ob.placeOrder(sell50_2);
+        Trade expTrade{nullptr, buy50.get_id(), sell50_2.get_id(), 50, 3, time_point(), Order::Side::SELL};
+
         ob.placeOrder(buy50_2);
+
         auto actual{ob.modifyVolume(buy50.get_id(), 10)};
         id = &actual.order_id;
         REQUIRE(*id != *buy50.get_id()); // ensure its a new order
@@ -171,8 +174,11 @@ TEST_CASE("Increase order volume", "[order manipulation][increase volume]")
     {
         ob.placeOrder(sell50);
         // this fills 3/5 of sell50's volume
-        Trade expTrade{ob.placeOrder(buy50_2).trades[0]};
+        ob.placeOrder(buy50_2);
+        Trade expTrade{nullptr, buy50_2.get_id(), sell50.get_id(), 50, 3, time_point(), Order::Side::BUY};
+
         ob.placeOrder(sell50_2);
+
         auto actual{ob.modifyVolume(sell50.get_id(), 10)};
         id = &actual.order_id;
         REQUIRE(*id != *sell50.get_id()); // ensure its a new order
