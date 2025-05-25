@@ -281,32 +281,7 @@ inline OrderBookState OrderBook::getState()
 int main()
 {
     OrderBook ob{};
-    Order sell50{Order::Side::SELL, 3, Order::Type::LIMIT, 50};
-    Order buy50{Order::Side::BUY, 5, Order::Type::LIMIT, 50};
+    Order buy50{Order::Side::BUY, 2, Order::Type::LIMIT, 50};
 
-    ob.placeOrder(sell50);
-    ob.placeOrder(buy50);
-
-    auto state{ob.getState()};
-    std::cout << "actual state: " << state;
-
-    Trade expTrade{nullptr, buy50.id, sell50.get_id(), 50, 3, utils::now(), Order::Side::BUY};
-    buy50.volume = 2;
-    bid_map expBM{
-        {50.0, PriceLevel{2, order_list{buy50}}}
-    };
-
-    id_map expIDM{
-        {buy50.id, OrderLocation{50, expBM.at(50.0).orders.begin(), Order::Side::BUY}}
-    };
-
-    buy50.volume = 5; // reset for orderList
-    OrderBookState expState{
-        expBM, ask_map(), expIDM,
-        trade_list{expTrade}, orders{sell50, buy50},
-        50, -1, 50, 2
-    };
-
-
-    std::cout << "\nexpected state: " << expState;
+    std::cout << ob.placeOrder(buy50);
 }

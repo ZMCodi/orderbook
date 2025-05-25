@@ -130,7 +130,7 @@ OrderResult OrderBook::matchOrder(Order& order)
 
 OrderResult OrderBook::matchLimitBuy(Order& order, trades& generatedTrades, OrderResult& default_)
 {
-    if (order.price < bestAsk) {return default_;} // doesn't cross spread
+    if (bestAsk == -1 || order.price < bestAsk) {return default_;} // doesn't cross spread or no asks
 
     int oriVol{order.volume}; // save this here for result
 
@@ -193,7 +193,7 @@ OrderResult OrderBook::matchLimitBuy(Order& order, trades& generatedTrades, Orde
 
 OrderResult OrderBook::matchLimitSell(Order& order, trades& generatedTrades, OrderResult& default_)
 {
-    if (bestBid != -1 && order.price > bestBid) {return default_;} // doesn't cross spread
+    if (bestBid == -1 || (bestBid != -1 && order.price > bestBid)) {return default_;} // doesn't cross spread or no bids
 
     // int oriVol{order.volume};
     [[maybe_unused]] auto lol = generatedTrades;

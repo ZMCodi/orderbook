@@ -20,11 +20,11 @@ TEST_CASE("Walking the book", "[order filling][walking the book]")
     Order sellBig50{Order::Side::SELL, 8, Order::Type::LIMIT, 50};
     Order sellMarket{Order::Side::SELL, 8, Order::Type::MARKET};
 
-    std::vector<Order> buys{
+    std::vector<std::reference_wrapper<Order>> buys{
         buy50, buy51, buy52, buy53
     };
 
-    std::vector<Order> sells{
+    std::vector<std::reference_wrapper<Order>> sells{
         sell50, sell51, sell52, sell53
     };
 
@@ -119,11 +119,11 @@ TEST_CASE("Walking the book", "[order filling][walking the book]")
         buyBig53.volume = 2; // ob doesnt modify original order so we have to do it manually
 
         bid_map expBM{
-            {53.0, PriceLevel{2, order_list{buyBig53}}}
+            {5300, PriceLevel{2, order_list{buyBig53}}}
         };
 
         id_map expIDM{
-            {id, OrderLocation{53, expBM.at(53.0).orders.begin(), Order::Side::BUY}}
+            {id, OrderLocation{53, expBM.at(5300).orders.begin(), Order::Side::BUY}}
         };
 
         buyBig53.volume = 8; // reset for orderList
@@ -161,7 +161,7 @@ TEST_CASE("Walking the book", "[order filling][walking the book]")
         sellBig50.volume = 2;
 
         ask_map expAM{
-            {50.0, PriceLevel{2, order_list{sellBig50}}}
+            {5000, PriceLevel{2, order_list{sellBig50}}}
         };
 
         id_map expIDM{

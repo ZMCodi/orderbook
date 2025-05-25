@@ -18,7 +18,7 @@ TEST_CASE("OrderBook", "[orderbook][basic]")
     Order sell60_3{Order::Side::SELL, 27, Order::Type::LIMIT, 60};
     Order sellMarket{Order::Side::SELL, 5,  Order::Type::MARKET};
 
-    std::vector orders{
+    std::vector<std::reference_wrapper<Order>> orders{
         buy50,  buy45,  buyMarket,  buy50_2,  buy50_3,
         sell50, sell60, sell55, sell60_2, sell60_3
     };

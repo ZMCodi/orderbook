@@ -39,7 +39,7 @@ TEST_CASE("Partial filling orders", "[order filling][partial filling]")
         };
 
         id_map expIDM{
-            {id, OrderLocation{50, expBM.at(50.0).orders.begin(), Order::Side::BUY}}
+            {id, OrderLocation{50, expBM.at(5000).orders.begin(), Order::Side::BUY}}
         };
 
         buy50.volume = 5; // reset for orderList
@@ -75,7 +75,7 @@ TEST_CASE("Partial filling orders", "[order filling][partial filling]")
         };
 
         id_map expIDM{
-            {id, OrderLocation{55, expAM.at(55.0).orders.begin(), Order::Side::SELL}}
+            {id, OrderLocation{55, expAM.at(5500).orders.begin(), Order::Side::SELL}}
         };
 
         sell55.volume = 5; // reset for orderList

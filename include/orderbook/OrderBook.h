@@ -235,16 +235,16 @@ inline std::ostream& operator<<(std::ostream& out, const Trade& t)
 inline std::ostream& operator<<(std::ostream& out, const trades& t)
 {
    std::stringstream str;
-   str << "[";
+   str << "[\n\t";
 
    for (size_t i = 0; i < t.size(); ++i) {
        str << t[i];
        if (i < t.size() - 1) {
-           str << ", ";
+           str << ",\n\t";
        }
    }
 
-   str << "]";
+   str << "\n]";
    out << str.str();
    return out;
 }
@@ -276,7 +276,7 @@ inline std::ostream& operator<<(std::ostream& out, const OrderResult& o)
         break;
     }
 
-    str << ", trades: " << o.trades << ", remainingOrder: "
+    str << ",\n\ttrades: " << o.trades << ",\nremainingOrder: "
     << o.remainingOrder << ", message: " << o.message << ")";
 
     return out << str.str();
