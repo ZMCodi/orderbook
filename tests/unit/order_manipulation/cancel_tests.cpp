@@ -52,7 +52,7 @@ TEST_CASE("Order cancellation", "[order manipulation][cancellation]")
             OrderResult::CANCELLED,
             trades(),
             nullptr,
-            "Order cancelled"
+            "Order cancelled with 5 unfilled shares"
         };
 
         REQUIRE(actual.equals_to(expected));
@@ -83,7 +83,7 @@ TEST_CASE("Order cancellation", "[order manipulation][cancellation]")
             OrderResult::CANCELLED,
             trades(),
             nullptr,
-            "Order cancelled"
+            "Order cancelled with 5 unfilled shares"
         };
 
         REQUIRE(actual.equals_to(expected));

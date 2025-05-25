@@ -46,7 +46,11 @@ OrderResult OrderBook::placeOrder(Order& order, callback callbackFn)
     orderList.push_back(order); // bookkeeping
 
     // for market orders, no need for a copy
-    if (order.type == Order::Type::MARKET) {return matchOrder(order);}
+    if (order.type == Order::Type::MARKET) 
+    {
+        order.callbackFn = callbackFn;
+        return matchOrder(order);
+    }
 
     // local active copy that is actually processed with truncated price
     Order activeCopy{order, tickSize};
@@ -170,6 +174,7 @@ OrderResult OrderBook::matchLimitBuy(Order& order, trades& generatedTrades, Orde
 
                 // order is filled
                 mapIt->second.volume -= order.volume; // volume at PriceLevel
+                totalVolume -= order.volume;
                 order.volume = 0;
             }
 
@@ -231,6 +236,7 @@ OrderResult OrderBook::matchLimitSell(Order& order, trades& generatedTrades, Ord
                 genTrade(o, order, o.price, order.volume, order.side, generatedTrades);
 
                 mapIt->second.volume -= order.volume;
+                totalVolume -= order.volume;
                 order.volume = 0;
             }
 
@@ -292,6 +298,7 @@ OrderResult OrderBook::matchMarketBuy(Order& order, trades& generatedTrades)
                 genTrade(order, o, o.price, order.volume, order.side, generatedTrades);
 
                 mapIt->second.volume -= order.volume;
+                totalVolume -= order.volume;
                 order.volume = 0;
             }
 
@@ -351,6 +358,7 @@ OrderResult OrderBook::matchMarketSell(Order& order, trades& generatedTrades)
                 genTrade(o, order, o.price, order.volume, order.side, generatedTrades);
 
                 mapIt->second.volume -= order.volume;
+                totalVolume -= order.volume;
                 order.volume = 0;
             }
 
@@ -397,7 +405,49 @@ void OrderBook::genTrade(const Order& buyer, const Order& seller, double price,
 
 OrderResult OrderBook::cancelOrder(const uuids::uuid* id)
 {
-    return {*id, OrderResult::FILLED, trades(), nullptr, ""};
+    auto [price, itr, side] = idMap.at(id); // unpack the OrderLocation
+    auto tickPrice{utils::convertTick(price, tickSize)};
+    auto vol{itr->volume};
+
+    // update volume and idMap
+    totalVolume -= vol;
+    idMap.erase(id);
+
+    if (side == Order::Side::BUY)
+    {
+        bidMap.at(tickPrice).volume -= vol;
+        bidMap.at(tickPrice).orders.erase(itr);
+
+        if (bidMap.at(tickPrice).orders.empty()) // if that was the last order at that level
+        {
+            bidMap.erase(tickPrice);
+        }
+
+        // update bestBid
+        if (bidMap.empty()) {bestBid = -1;}
+        else {bestBid = bidMap.begin()->first * tickSize;}
+
+    } else if (side == Order::Side::SELL)
+    {
+        askMap.at(tickPrice).volume -= vol;
+        askMap.at(tickPrice).orders.erase(itr);
+
+        if (askMap.at(tickPrice).orders.empty())
+        {
+            askMap.erase(tickPrice);
+        }
+
+        // update bestAsk
+        if (askMap.empty()) {bestAsk = -1;}
+        else {bestAsk = askMap.begin()->first * tickSize;}
+    }
+
+    // update auditList
+    auditList.emplace_back(id, utils::now(), -1);
+
+    std::stringstream msg;
+    msg << "Order cancelled with " << vol << " unfilled shares";
+    return {*id, OrderResult::CANCELLED, trades(), nullptr, msg.str()};
 }
 
 OrderResult OrderBook::modifyVolume(const uuids::uuid* id, int volume)
