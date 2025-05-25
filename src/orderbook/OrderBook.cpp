@@ -116,92 +116,100 @@ OrderResult OrderBook::matchOrder(Order& order)
     // limit buy
     if (order.type == Order::Type::LIMIT && order.side == Order::Side::BUY)
     {
-        if (order.price < bestAsk) // does not cross the spread
-        {
-            return default_;
-        }
-
-        int oriVol{order.volume}; // save this here for result
-
-        // start at bestAsk
-        for (auto mapIt{askMap.begin()}; mapIt != askMap.end(); ++mapIt)
-        {
-            // order has filled all orders below its price
-            if (mapIt->first * tickSize > order.price) {break;}
-
-            // iterate through orders at the level
-            auto orders{mapIt->second.orders};
-            for (auto orderIt{orders.begin()}; orderIt != orders.end(); orderIt = orders.erase(orderIt))
-            {
-                auto o{*orderIt}; // the current order being matched against
-                if (order.volume >= o.volume) // order gets partial filled by o
-                {
-                    order.volume -= o.volume;
-
-                    // generate Trade
-                    auto tradeId{utils::uuid_generator()};
-                    auto [it, _] = idPool.insert(tradeId);
-                    Trade trade{&(*it), order.id, o.id, o.price, o.volume, utils::now(), Order::Side::BUY};
-                    generatedTrades.push_back(trade);
-
-                    // internal bookkeeping
-                    tradeList.push_back(trade);
-                    marketPrice = o.price;
-
-                    // remove o since its matched
-                    idMap.erase(o.id); // from idMAP
-                    mapIt->second.volume -= o.volume; // volume at PriceLevel
-
-                } else if (order.volume < o.volume) // order gets fully filled by o
-                {
-                    o.volume -= order.volume;
-
-                    // generate Trade
-                    auto tradeId{utils::uuid_generator()};
-                    auto [it, _] = idPool.insert(tradeId);
-                    Trade trade{&(*it), order.id, o.id, o.price, o.volume, utils::now(), Order::Side::BUY};
-                    generatedTrades.push_back(trade);
-
-                    // internal bookkeeping
-                    tradeList.push_back(trade);
-                    marketPrice = o.price;
-
-                    // order is filled
-                    order.volume = 0;
-                    mapIt->second.volume -= order.volume; // volume at PriceLevel
-                }
-
-                if (order.volume == 0) {break;} // order already filled
-            }
-        }
-
-        // update bestAsk
-        if (askMap.empty()) {bestAsk = -1;}
-        else {bestAsk = askMap.begin()->first * tickSize;}
-
-        // return OrderResult
-        if (order.volume == 0) // fully filled
-        {
-            return {*order.id, OrderResult::FILLED, generatedTrades, nullptr, "Order filled"};
-        } else // partially filled
-        {
-            std::stringstream msg;
-            msg << "Partially filled " << oriVol - order.volume << " shares, "
-            << order.volume << " shares remaining";
-            return {*order.id, OrderResult::PARTIALLY_FILLED, generatedTrades, nullptr, msg.str()};
-        }
+        return matchLimitBuy(order, generatedTrades, default_);
     }
 
     // limit sell
     if (order.type == Order::Type::LIMIT && order.side == Order::Side::SELL)
     {
-        if (order.price > bestBid) // does not cross the spread
-        {
-            return default_;
-        }
+        return matchLimitSell(order, generatedTrades, default_);
     }
 
-    return {*order.id, OrderResult::PLACED, trades{}, nullptr, "Order placed"};
+    return default_;
+}
+
+OrderResult OrderBook::matchLimitBuy(Order& order, trades& generatedTrades, OrderResult& default_)
+{
+    if (order.price < bestAsk) {return default_;} // doesn't cross spread
+
+    int oriVol{order.volume}; // save this here for result
+
+    // start at bestAsk
+    for (auto mapIt{askMap.begin()}; mapIt != askMap.end();/*increment logic is complex*/)
+    {
+        // order has filled all orders below its price
+        if (mapIt->first * tickSize > order.price) {break;}
+
+        // iterate through orders at the level
+        auto& orders{mapIt->second.orders};
+        for (auto orderIt{orders.begin()}; orderIt != orders.end();/*increment logic is complex*/)
+        {
+            auto& o{*orderIt}; // the current order being matched against
+            if (order.volume >= o.volume) // order gets partial filled by o
+            {
+                order.volume -= o.volume;
+                genTrade(order.id, o.id, o.price, o.volume, order.side, generatedTrades);
+
+                // remove o since its matched
+                idMap.erase(o.id); // from idMAP
+                mapIt->second.volume -= o.volume; // volume at PriceLevel
+                totalVolume -= o.volume;
+                orderIt = orders.erase(orderIt); // orders at PriceLevel
+
+
+            } else if (order.volume < o.volume) // order gets fully filled by o
+            {
+                o.volume -= order.volume;
+                genTrade(order.id, o.id, o.price, order.volume, order.side, generatedTrades);
+
+                // order is filled
+                mapIt->second.volume -= order.volume; // volume at PriceLevel
+                order.volume = 0;
+            }
+
+            if (order.volume == 0) {break;} // order already filled
+        }
+
+        // clear the level if no more orders
+        if (mapIt->second.orders.empty()) {mapIt = askMap.erase(mapIt);}
+    }
+
+    // update bestAsk
+    if (askMap.empty()) {bestAsk = -1;}
+    else {bestAsk = askMap.begin()->first * tickSize;}
+
+    // return OrderResult
+    if (order.volume == 0) // fully filled
+    {
+        return {*order.id, OrderResult::FILLED, generatedTrades, nullptr, "Order filled"};
+    } else // partially filled
+    {
+        std::stringstream msg;
+        msg << "Partially filled " << oriVol - order.volume << " shares, "
+        << order.volume << " shares remaining";
+        return {*order.id, OrderResult::PARTIALLY_FILLED, generatedTrades, nullptr, msg.str()};
+    }
+}
+
+OrderResult OrderBook::matchLimitSell(Order& order, trades& generatedTrades, OrderResult& default_)
+{
+    if (bestBid != -1 && order.price > bestBid) {return default_;} // doesn't cross spread
+
+    // int oriVol{order.volume};
+    [[maybe_unused]] auto lol = generatedTrades;
+    return default_;
+}
+
+void OrderBook::genTrade(const uuids::uuid* buy_id, const uuids::uuid* sell_id, double price, int volume, Order::Side side, trades& generatedTrades)
+{
+    auto tradeId{utils::uuid_generator()};
+    auto [it, _] = idPool.insert(tradeId);
+    Trade trade{&(*it), buy_id, sell_id, price, volume, utils::now(), side};
+    generatedTrades.push_back(trade);
+
+    // internal bookkeeping
+    tradeList.push_back(trade);
+    marketPrice = price;
 }
 
 OrderResult OrderBook::cancelOrder(const uuids::uuid* id)

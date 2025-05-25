@@ -18,7 +18,7 @@ TEST_CASE("Partial filling orders", "[order filling][partial filling]")
     SECTION("Partial fill limit buy")
     {
         ob.placeOrder(sell50);
-        auto actual{ob.placeOrder(buy50)}; // segfaults here
+        auto actual{ob.placeOrder(buy50)};
         id = buy50.get_id();
 
         Trade expTrade{nullptr, id, sell50.get_id(), 50, 3, time_point(), Order::Side::BUY};
@@ -35,7 +35,7 @@ TEST_CASE("Partial filling orders", "[order filling][partial filling]")
         buy50.volume = 2; // ob doesnt change the original object so we have to do it manually
 
         bid_map expBM{
-            {50.0, PriceLevel{2, order_list{buy50}}}
+            {5000, PriceLevel{2, order_list{buy50}}}
         };
 
         id_map expIDM{
@@ -71,7 +71,7 @@ TEST_CASE("Partial filling orders", "[order filling][partial filling]")
         sell55.volume = 2;
 
         ask_map expAM{
-            {55.0, PriceLevel{2, order_list{sell55}}}
+            {5500, PriceLevel{2, order_list{sell55}}}
         };
 
         id_map expIDM{
