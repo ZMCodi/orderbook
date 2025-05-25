@@ -14,7 +14,7 @@ inline OrderBookState OrderBook::getState()
 std::ostream& operator<<(std::ostream& out, const Order& o)
 {
     std::stringstream str;
-    str << "Order(id: " << o.id << ", side: ";
+    str << "Order(id: " << *o.id << ", side: ";
 
     if (o.side == Order::Side::BUY)
     {
@@ -40,28 +40,6 @@ std::ostream& operator<<(std::ostream& out, const Order& o)
     return out << str.str();
 }
 
-std::ostream& operator<<(std::ostream& out, const Trade& t)
-{
-    std::stringstream str;
-    str << "Trade(id: " << *t.id << ", buyer_id: " << *t.buyer_id
-    << ", seller_id: " << *t.seller_id << ", price: " << t.price
-    << ", volume: " << t.volume << ", timestamp: " << t.timestamp
-    << ", taker: ";
-
-    switch (t.taker)
-    {
-        case Order::Side::BUY:
-            str << "BUY";
-            break;
-        case Order::Side::SELL:
-            str << "SELL";
-            break;
-    }
-
-    str << ")";
-    return out << str.str();
-}
-
 std::ostream& operator<<(std::ostream& out, const TradeCopy& t)
 {
     std::stringstream str;
@@ -82,6 +60,11 @@ std::ostream& operator<<(std::ostream& out, const TradeCopy& t)
 
     str << ")";
     return out << str.str();
+}
+
+std::ostream& operator<<(std::ostream& out, const Trade& t)
+{
+    return out << TradeCopy{t};
 }
 
 std::ostream& operator<<(std::ostream& out, const trades& t)
@@ -216,6 +199,84 @@ std::ostream& operator<<(std::ostream& out, OrderBook::Depth d)
     return out << str.str();
 }
 
+std::ostream& operator<<(std::ostream& out, OrderLocation o)
+{
+    std::stringstream str;
+    str << "OrderLocation(order: " << *o.itr << ", price: "
+    << o.price << ", side: ";
+
+    if (o.side == Order::Side::BUY) {str << "BUY)";}
+    if (o.side == Order::Side::SELL) {str << "SELL)";}
+
+    return out << str.str();
+}
+
+std::ostream& operator<<(std::ostream& out, id_map i)
+{
+     std::stringstream str;
+    str << "{\n";
+
+    for (auto it{i.begin()}; it != i.end(); ++it)
+    {
+        str << '\t' << it->first << ": " << it->second << ",\n";
+    }
+
+    str << "\n}";
+
+    return out << str.str();
+}
+
+std::ostream& operator<<(std::ostream& out, trade_list t)
+{
+    std::stringstream str;
+    str << "[";
+
+    for (size_t i = 0; i < t.size(); ++i) {
+        str << t[i];
+        if (i < t.size() - 1) {
+            str << ", ";
+        }
+    }
+
+    str << "]";
+    out << str.str();
+    return out;
+}
+
+std::ostream& operator<<(std::ostream& out, orders o)
+{
+    std::stringstream str;
+    str << "[";
+
+    for (size_t i = 0; i < o.size(); ++i) {
+        str << o[i];
+        if (i < o.size() - 1) {
+            str << ", ";
+        }
+    }
+
+    str << "]";
+    out << str.str();
+    return out;
+}
+
+std::ostream& operator<<(std::ostream& out, OrderBookState s)
+{
+    std::stringstream str;
+    str << "State(\n";
+    str << "\tbidMap: " << s.bidMap << ",\n";
+    str << "\taskMap: " << s.askMap << ",\n";
+    str << "\tidMap: " << s.idMap << ",\n";
+    str << "\ttradeList: " << s.tradeList << ",\n";
+    str << "\torderList: " << s.orderList << ",\n";
+    str << "\tbestBid: " << s.bestBid
+    << ", bestAsk: " << s.bestAsk
+    << ", marketPrice: " << s.marketPrice
+    << ", totalVolume: " << s.totalVolume << "\n)";
+
+    return out << str.str();
+}
+
 #include <fstream>
 int main()
 {
@@ -224,6 +285,8 @@ int main()
     Order buy50{Order::Side::BUY, 5, Order::Type::LIMIT, 50};
 
     ob.placeOrder(sell50);
-    auto actual{ob.placeOrder(buy50)};
-    std::cout << actual;
+    ob.placeOrder(buy50);
+
+    auto state{ob.getState()};
+    std::cout << state;
 }

@@ -122,7 +122,6 @@ OrderResult OrderBook::matchOrder(Order& order)
         }
 
         int oriVol{order.volume}; // save this here for result
-        std::cout << "oriVol: " << oriVol << std::endl;
 
         // start at bestAsk
         for (auto mapIt{askMap.begin()}; mapIt != askMap.end(); ++mapIt)
@@ -151,7 +150,6 @@ OrderResult OrderBook::matchOrder(Order& order)
 
                     // remove o since its matched
                     idMap.erase(o.id); // from idMAP
-                    orderIt = orders.erase(orderIt); // from askMap and move to next order
                     mapIt->second.volume -= o.volume; // volume at PriceLevel
 
                 } else if (order.volume < o.volume) // order gets fully filled by o
@@ -178,7 +176,8 @@ OrderResult OrderBook::matchOrder(Order& order)
         }
 
         // update bestAsk
-        bestAsk = askMap.begin()->first * tickSize;
+        if (askMap.empty()) {bestAsk = -1;}
+        else {bestAsk = askMap.begin()->first * tickSize;}
 
         // return OrderResult
         if (order.volume == 0) // fully filled

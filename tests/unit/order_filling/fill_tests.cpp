@@ -2,7 +2,7 @@
 
 #include "test_helpers.h"
 
-TEST_CASE("Order filling", "[order filling]")
+TEST_CASE("Order filling", "[order filling][fill]")
 {
     OrderBook ob{};
     Order buy50{Order::Side::BUY, 5, Order::Type::LIMIT, 50};
