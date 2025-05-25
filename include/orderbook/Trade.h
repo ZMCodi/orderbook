@@ -60,7 +60,7 @@ public:
 };
 
 // this has to be put here because Trade has to be defined
-inline void Order::notify(TradeCopy trade)
+inline void Order::notify(TradeCopy trade) const
 {
     if (callbackFn) {callbackFn(trade);}
 }

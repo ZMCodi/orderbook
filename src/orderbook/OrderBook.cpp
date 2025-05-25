@@ -143,7 +143,7 @@ OrderResult OrderBook::matchLimitBuy(Order& order, trades& generatedTrades, Orde
             if (order.volume >= o.volume) // order gets partial filled by o
             {
                 order.volume -= o.volume;
-                genTrade(order.id, o.id, o.price, o.volume, order.side, generatedTrades);
+                genTrade(order, o, o.price, o.volume, order.side, generatedTrades);
 
                 // remove o since its matched
                 idMap.erase(o.id); // from idMAP
@@ -154,7 +154,7 @@ OrderResult OrderBook::matchLimitBuy(Order& order, trades& generatedTrades, Orde
             } else if (order.volume < o.volume) // order gets fully filled by o
             {
                 o.volume -= order.volume;
-                genTrade(order.id, o.id, o.price, order.volume, order.side, generatedTrades);
+                genTrade(order, o, o.price, order.volume, order.side, generatedTrades);
 
                 // order is filled
                 mapIt->second.volume -= order.volume; // volume at PriceLevel
@@ -205,7 +205,7 @@ OrderResult OrderBook::matchLimitSell(Order& order, trades& generatedTrades, Ord
             if (order.volume >= o.volume) // order gets partial filled
             {
                 order.volume -= o.volume;
-                genTrade(o.id, order.id, o.price, o.volume, order.side, generatedTrades);
+                genTrade(o, order, o.price, o.volume, order.side, generatedTrades);
 
                 // remove o since its matched
                 idMap.erase(o.id);
@@ -216,7 +216,7 @@ OrderResult OrderBook::matchLimitSell(Order& order, trades& generatedTrades, Ord
             } else if (order.volume < o.volume) // order gets fully filled
             {
                 o.volume -= order.volume;
-                genTrade(o.id, order.id, o.price, order.volume, order.side, generatedTrades);
+                genTrade(o, order, o.price, order.volume, order.side, generatedTrades);
 
                 mapIt->second.volume -= order.volume;
                 order.volume = 0;
@@ -247,12 +247,17 @@ OrderResult OrderBook::matchLimitSell(Order& order, trades& generatedTrades, Ord
     }
 }
 
-void OrderBook::genTrade(const uuids::uuid* buy_id, const uuids::uuid* sell_id, double price, int volume, Order::Side side, trades& generatedTrades)
+void OrderBook::genTrade(const Order& buyer, const Order& seller, double price,
+                        int volume, Order::Side side, trades& generatedTrades)
 {
     auto tradeId{utils::uuid_generator()};
     auto [it, _] = idPool.insert(tradeId);
-    Trade trade{&(*it), buy_id, sell_id, price, volume, utils::now(), side};
+    Trade trade{&(*it), buyer.id, seller.id, price, volume, utils::now(), side};
     generatedTrades.push_back(trade);
+
+    // trigger callbacks
+    buyer.notify(trade);
+    seller.notify(trade);
 
     // internal bookkeeping
     tradeList.push_back(trade);
@@ -304,6 +309,16 @@ bool OrderBook::registerCallback(const uuids::uuid* id, callback callbackFn)
     return true;
 }
 
+bool OrderBook::registerCallback(const uuids::uuid& id, callback callbackFn)
+{
+    // find uuid in idPool first and get pointer
+    auto it{idPool.find(id)};
+
+    if (it == idPool.end()) {return false;} // not a valid uuid
+
+    return registerCallback(&(*it), callbackFn);
+}
+
 bool OrderBook::removeCallback(const uuids::uuid* id)
 {
     // check if order is still active
@@ -313,16 +328,6 @@ bool OrderBook::removeCallback(const uuids::uuid* id)
 
     it->second.itr->callbackFn = nullptr; // assign the callback
     return true;
-}
-
-bool OrderBook::registerCallback(const uuids::uuid& id, callback callbackFn)
-{
-    // find uuid in idPool first and get pointer
-    auto it{idPool.find(id)};
-
-    if (it == idPool.end()) {return false;} // not a valid uuid
-
-    return registerCallback(&(*it), callbackFn);
 }
 
 bool OrderBook::removeCallback(const uuids::uuid& id)

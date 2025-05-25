@@ -281,14 +281,18 @@ inline OrderBookState OrderBook::getState()
 int main()
 {
     OrderBook ob{};
-    Order buy51Small{Order::Side::BUY, 10, Order::Type::LIMIT, 51};
+    Order buy51{Order::Side::BUY, 2, Order::Type::LIMIT, 51};
+    Order sell51{Order::Side::SELL, 2, Order::Type::LIMIT, 51};
 
-    Order sell51_1{Order::Side::SELL, 5, Order::Type::LIMIT, 51};
-    Order sell51_2{Order::Side::SELL, 10, Order::Type::LIMIT, 51};
-    Order sell51_3{Order::Side::SELL, 2, Order::Type::LIMIT, 51};
+    int callback_count{};
+    callback cb = [&callback_count](TradeCopy){
+        std::cout << "callback called\n";
+        ++callback_count;
+    };
 
-    ob.placeOrder(sell51_1);
-    ob.placeOrder(sell51_2);
-    ob.placeOrder(sell51_3);
-    ob.placeOrder(buy51Small);
+    ob.placeOrder(buy51, cb);
+    std::cout << std::boolalpha << static_cast<bool>(ob.getOrderByID(buy51.id).getCallback());
+    ob.placeOrder(sell51);
+
+    // std::cout << ob.getState();
 }

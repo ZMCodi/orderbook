@@ -38,7 +38,7 @@ struct Order
     static Order makeMarketSell(int volume);
 
     bool equals_to(const Order& other) const; // for testing
-    callback getCallback() {return callbackFn;} // for testing
+    callback getCallback() const {return callbackFn;} // for testing
     bool operator==(const Order& other) const;
     const uuids::uuid* get_id() const;
 
@@ -54,7 +54,7 @@ struct Order
 
 private:
     Order(const Order& order, double tickSize);
-    void notify(TradeCopy trade);
+    void notify(TradeCopy trade) const;
 
     callback callbackFn;
 };
