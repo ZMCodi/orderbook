@@ -126,6 +126,12 @@ OrderResult OrderBook::matchOrder(Order& order)
         return matchMarketBuy(order, generatedTrades);
     }
 
+    // market sell
+    if (order.type == Order::Type::MARKET && order.side == Order::Side::SELL)
+    {
+        return matchMarketSell(order, generatedTrades);
+    }
+
     return default_;
 }
 
@@ -312,6 +318,65 @@ OrderResult OrderBook::matchMarketBuy(Order& order, trades& generatedTrades)
     }
 }
 
+OrderResult OrderBook::matchMarketSell(Order& order, trades& generatedTrades)
+{
+    if (bestBid == -1) // no bids
+    {
+        return {*order.id, OrderResult::REJECTED, trades{}, nullptr, "Not enough liquidity"};
+    }
+
+    int oriVol{order.volume};
+
+    // start at bestBid
+    for (auto mapIt{bidMap.begin()}; mapIt != bidMap.end();)
+    {
+        auto& orders{mapIt->second.orders};
+        for (auto orderIt{orders.begin()}; orderIt != orders.end();)
+        {
+            auto& o{*orderIt};
+            if (order.volume >= o.volume) // order gets partial filled
+            {
+                order.volume -= o.volume;
+                genTrade(o, order, o.price, o.volume, order.side, generatedTrades);
+
+                // remove o since its matched
+                idMap.erase(o.id);
+                mapIt->second.volume -= o.volume;
+                totalVolume -= o.volume;
+                orderIt = orders.erase(orderIt);
+
+            } else if (order.volume < o.volume) // order gets fully filled
+            {
+                o.volume -= order.volume;
+                genTrade(o, order, o.price, order.volume, order.side, generatedTrades);
+
+                mapIt->second.volume -= order.volume;
+                order.volume = 0;
+            }
+
+            if (order.volume == 0) {break;} // order filled
+        }
+
+        // clear level if no more orders left
+        if (mapIt->second.orders.empty()) {mapIt = bidMap.erase(mapIt);}
+        else {++mapIt;}
+    }
+
+    // update bestBid
+    if (bidMap.empty()) {bestBid = -1;}
+    else {bestBid = bidMap.begin()->first * tickSize;}
+
+    // return OrderResult
+    if (order.volume == 0) // fully filled
+    {
+        return {*order.id, OrderResult::FILLED, generatedTrades, nullptr, "Order filled"};
+    } else // partially filled
+    {
+        std::stringstream msg;
+        msg << "Partially filled " << oriVol - order.volume << " shares, remaining order cancelled";
+        return {*order.id, OrderResult::PARTIALLY_FILLED, generatedTrades, nullptr, msg.str()};
+    }
+}
 
 void OrderBook::genTrade(const Order& buyer, const Order& seller, double price,
                         int volume, Order::Side side, trades& generatedTrades)

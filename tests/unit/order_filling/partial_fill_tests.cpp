@@ -116,8 +116,9 @@ TEST_CASE("Partial filling orders", "[order filling][partial filling]")
         ob.clear();
         ob.placeOrder(sell50);
         auto actual2{ob.placeOrder(Order::makeMarketBuy(5))};
+        auto it{ob.getIDPool().find(actual2.order_id)};
 
-        Trade expTrade2{nullptr, &actual2.order_id, sell50.get_id(), 50, 3, time_point(), Order::Side::BUY};
+        Trade expTrade2{nullptr, &(*it), sell50.get_id(), 50, 3, time_point(), Order::Side::BUY};
         OrderResult expected2{
             actual2.order_id,
             OrderResult::PARTIALLY_FILLED,
@@ -125,7 +126,8 @@ TEST_CASE("Partial filling orders", "[order filling][partial filling]")
             nullptr,
             "Partially filled 3 shares, remaining order cancelled"
         };
-        buyMarket.id = &actual2.order_id;
+
+        buyMarket.id = &(*it);
         buyMarket.volume = 5; // reset for orderList
         REQUIRE(actual2.equals_to(expected2));
 
@@ -135,7 +137,6 @@ TEST_CASE("Partial filling orders", "[order filling][partial filling]")
             -1, -1, 50, 0
         };
         REQUIRE(checkOBState(ob, expState2));
-
     }
 
     SECTION("Partial fill market sell")
@@ -167,8 +168,9 @@ TEST_CASE("Partial filling orders", "[order filling][partial filling]")
         ob.clear();
         ob.placeOrder(buy55);
         auto actual2{ob.placeOrder(Order::makeMarketSell(5))};
+        auto it{ob.getIDPool().find(actual2.order_id)};
 
-        Trade expTrade2{nullptr, &actual2.order_id, buy55.get_id(), 55, 3, time_point(), Order::Side::SELL};
+        Trade expTrade2{nullptr, buy55.get_id(), &(*it), 55, 3, time_point(), Order::Side::SELL};
         OrderResult expected2{
             actual2.order_id,
             OrderResult::PARTIALLY_FILLED,
@@ -176,7 +178,7 @@ TEST_CASE("Partial filling orders", "[order filling][partial filling]")
             nullptr,
             "Partially filled 3 shares, remaining order cancelled"
         };
-        sellMarket.id = &actual2.order_id;
+        sellMarket.id = &(*it);
         sellMarket.volume = 5; // reset for orderList
         REQUIRE(actual2.equals_to(expected2));
 

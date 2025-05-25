@@ -402,27 +402,6 @@ int main()
 {
     [[maybe_unused]] OrderBook ob{};
 
-    [[maybe_unused]] Order buy50{Order::Side::BUY, 5, Order::Type::LIMIT, 50};
-    [[maybe_unused]] Order buy55{Order::Side::BUY, 3, Order::Type::LIMIT, 55};
-    [[maybe_unused]] Order buyMarket{Order::Side::BUY, 5, Order::Type::MARKET};
-
-    [[maybe_unused]] Order sell50{Order::Side::SELL, 3, Order::Type::LIMIT, 50};
-    [[maybe_unused]] Order sell55{Order::Side::SELL, 5, Order::Type::LIMIT, 55};
-    [[maybe_unused]] Order sellMarket{Order::Side::SELL, 5, Order::Type::MARKET};
-
-    ob.placeOrder(sell50);
-        auto actual{ob.placeOrder(buyMarket)};
-
-    Trade expTrade{nullptr, buyMarket.get_id(), sell50.get_id(), 50, 3, utils::now(), Order::Side::BUY};
-    OrderResult expected{
-        *buyMarket.get_id(),
-        OrderResult::PARTIALLY_FILLED,
-        trades{expTrade},
-        &buyMarket,
-        "Partially filled 3 shares, remaining order cancelled"
-    };
-
-    std::cout << "actual: " << actual;
-    std::cout << "\nexpected: " << expected;
+    
 
 }

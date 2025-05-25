@@ -41,29 +41,11 @@ public:
 
     bool equals_to(const TradeImpl<ownsUUIDs>& other) const // for testing
     {
-    if constexpr (ownsUUIDs)
-    {
-        // TradeCopy - normal comparison
         return buyer_id == other.buyer_id
         && seller_id == other.seller_id
         && price == other.price
         && volume == other.volume
         && taker == other.taker;
-    } else 
-    {
-        // Trade - pointer comparison with nullptr check
-        bool buyer_equal = (buyer_id == nullptr && other.buyer_id == nullptr) || 
-                            (buyer_id != nullptr && other.buyer_id != nullptr && *buyer_id == *other.buyer_id);
-
-        bool seller_equal = (seller_id == nullptr && other.seller_id == nullptr) || 
-                            (seller_id != nullptr && other.seller_id != nullptr && *seller_id == *other.seller_id);
-
-        return buyer_equal
-        && seller_equal
-        && price == other.price
-        && volume == other.volume
-        && taker == other.taker;
-    }
     }
 
     bool operator==(const TradeImpl<ownsUUIDs>& other) const

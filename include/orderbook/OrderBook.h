@@ -142,7 +142,7 @@ public:
     // helpers for testing
     friend bool checkOBState(const OrderBook& ob, const OrderBookState& state); // for testing
     OrderBookState getState();
-    id_pool getIDPool() {return idPool;}
+    const id_pool& getIDPool() {return idPool;}
     audit_list getAuditList() {return auditList;}
     void clear();
 
@@ -158,6 +158,7 @@ private:
     OrderResult matchLimitBuy(Order& order, trades& generatedTrades, OrderResult& default_);
     OrderResult matchLimitSell(Order& order, trades& generatedTrades, OrderResult& default_);
     OrderResult matchMarketBuy(Order& order, trades& generatedTrades);
+    OrderResult matchMarketSell(Order& order, trades& generatedTrades);
     void genTrade(const Order& buyer, const Order& seller, double price,
                   int volume, Order::Side side, trades& generatedTrades);
 

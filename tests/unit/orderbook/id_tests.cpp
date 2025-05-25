@@ -37,11 +37,12 @@ TEST_CASE("ID generation", "[orderbook][id]")
 
         for (auto order : orders)
         {
+            Order ordercpy{order};
+
             ob.placeOrder(order);
             ids.insert(*order.get_id());
 
             // add copy
-            Order ordercpy{order};
             ob.placeOrder(ordercpy);
             ids.insert(*ordercpy.get_id());
         }

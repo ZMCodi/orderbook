@@ -88,6 +88,7 @@ TEST_CASE("Order filling", "[order filling][fill]")
         // test with rvalue
         ob.clear();
         auto actual2{ob.placeOrder(Order::makeMarketBuy(5))};
+        auto it{ob.getIDPool().find(actual2.order_id)};
 
         OrderResult expected2{
             actual2.order_id,
@@ -97,7 +98,7 @@ TEST_CASE("Order filling", "[order filling][fill]")
             "Not enough liquidity"
         };
 
-        buyMarket.id = &actual2.order_id; // set manually
+        buyMarket.id = &(*it); // set manually
         REQUIRE(actual2.equals_to(expected2));
 
         OrderBookState expState2{
@@ -137,8 +138,9 @@ TEST_CASE("Order filling", "[order filling][fill]")
         ob.clear();
         ob.placeOrder(sell50);
         auto actual2{ob.placeOrder(Order::makeMarketBuy(5))};
+        auto it{ob.getIDPool().find(actual2.order_id)};
 
-        Trade expTrade2{nullptr, &actual2.order_id, sell50.get_id(), 50, 5, time_point(), Order::Side::BUY};
+        Trade expTrade2{nullptr, &(*it), sell50.get_id(), 50, 5, time_point(), Order::Side::BUY};
         OrderResult expected2{
             actual2.order_id,
             OrderResult::FILLED,
@@ -146,7 +148,7 @@ TEST_CASE("Order filling", "[order filling][fill]")
             nullptr,
             "Order filled"
         };
-        buyMarket.id = &actual2.order_id;
+        buyMarket.id = &(*it);
         REQUIRE(actual2.equals_to(expected2));
 
         OrderBookState expState2{
@@ -186,8 +188,9 @@ TEST_CASE("Order filling", "[order filling][fill]")
         ob.clear();
         ob.placeOrder(buy50);
         auto actual2{ob.placeOrder(Order::makeMarketSell(5))};
+        auto it{ob.getIDPool().find(actual2.order_id)};
 
-        Trade expTrade2{nullptr, buy50.get_id(), &actual2.order_id, 50, 5, time_point(), Order::Side::SELL};
+        Trade expTrade2{nullptr, buy50.get_id(), &(*it), 50, 5, time_point(), Order::Side::SELL};
         OrderResult expected2{
             actual2.order_id,
             OrderResult::FILLED,
@@ -195,7 +198,7 @@ TEST_CASE("Order filling", "[order filling][fill]")
             nullptr,
             "Order filled"
         };
-        sellMarket.id = &actual2.order_id;
+        sellMarket.id = &(*it);
         REQUIRE(actual2.equals_to(expected2));
 
         OrderBookState expState2{
