@@ -281,7 +281,14 @@ inline OrderBookState OrderBook::getState()
 int main()
 {
     OrderBook ob{};
-    Order buy50{Order::Side::BUY, 2, Order::Type::LIMIT, 50};
+    Order buy51Small{Order::Side::BUY, 10, Order::Type::LIMIT, 51};
 
-    std::cout << ob.placeOrder(buy50);
+    Order sell51_1{Order::Side::SELL, 5, Order::Type::LIMIT, 51};
+    Order sell51_2{Order::Side::SELL, 10, Order::Type::LIMIT, 51};
+    Order sell51_3{Order::Side::SELL, 2, Order::Type::LIMIT, 51};
+
+    ob.placeOrder(sell51_1);
+    ob.placeOrder(sell51_2);
+    ob.placeOrder(sell51_3);
+    ob.placeOrder(buy51Small);
 }

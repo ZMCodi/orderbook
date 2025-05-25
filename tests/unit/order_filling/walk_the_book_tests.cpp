@@ -165,7 +165,7 @@ TEST_CASE("Walking the book", "[order filling][walking the book]")
         };
 
         id_map expIDM{
-            {id, OrderLocation{50, expAM.at(50.0).orders.begin(), Order::Side::SELL}}
+            {id, OrderLocation{50, expAM.at(5000).orders.begin(), Order::Side::SELL}}
         };
 
         sellBig50.volume = 8; // reset for orderList

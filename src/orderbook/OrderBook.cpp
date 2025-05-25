@@ -41,12 +41,9 @@ OrderResult OrderBook::placeOrder(Order& order, callback callbackFn)
     auto [it, _] = idPool.insert(id);
 
     // stamp the original order object first
-    // OPTIMIZE: can skip stamping for rvalues since user wont keep
     order.id = &(*it);
     order.timestamp = ts;
-
-    // bookkeeping
-    orderList.push_back(order);
+    orderList.push_back(order); // bookkeeping
 
     // for market orders, no need for a copy
     if (order.type == Order::Type::MARKET) {return matchOrder(order);}
@@ -67,9 +64,8 @@ OrderResult OrderBook::placeOrder(Order& order, callback callbackFn)
         totalVolume += activeCopy.volume;
 
         // put in bid/ask map
-        order_list::iterator activeItr;
-
         // some code duplication here since bid_map and ask_map are diff types
+        order_list::iterator activeItr;
         if (activeCopy.side == Order::Side::BUY)
         {
             // update best bid if better
@@ -77,7 +73,7 @@ OrderResult OrderBook::placeOrder(Order& order, callback callbackFn)
 
             // add the order to the end of the orderlist
             // and update volume at PriceLevel
-            auto& pLevel{bidMap[tickPrice]};
+            auto& pLevel{bidMap[tickPrice]}; // creates an empty PriceLevel if doesnt exist
             pLevel.volume += activeCopy.volume;
             pLevel.orders.push_back(std::move(activeCopy));
             activeItr = std::prev(pLevel.orders.end());
@@ -95,7 +91,6 @@ OrderResult OrderBook::placeOrder(Order& order, callback callbackFn)
         // add to idMap
         idMap[order.id] = OrderLocation{truncPrice, activeItr, order.side};
         result.remainingOrder = &(*activeItr); // result points to remaining order
-
     }
 
     return result;
@@ -154,8 +149,7 @@ OrderResult OrderBook::matchLimitBuy(Order& order, trades& generatedTrades, Orde
                 idMap.erase(o.id); // from idMAP
                 mapIt->second.volume -= o.volume; // volume at PriceLevel
                 totalVolume -= o.volume;
-                orderIt = orders.erase(orderIt); // orders at PriceLevel
-
+                orderIt = orders.erase(orderIt); // orders at PriceLevel and increment iterator
 
             } else if (order.volume < o.volume) // order gets fully filled by o
             {
@@ -170,8 +164,9 @@ OrderResult OrderBook::matchLimitBuy(Order& order, trades& generatedTrades, Orde
             if (order.volume == 0) {break;} // order already filled
         }
 
-        // clear the level if no more orders
+        // clear the level and increment iterator if no more orders
         if (mapIt->second.orders.empty()) {mapIt = askMap.erase(mapIt);}
+        else {++mapIt;}
     }
 
     // update bestAsk
@@ -193,11 +188,63 @@ OrderResult OrderBook::matchLimitBuy(Order& order, trades& generatedTrades, Orde
 
 OrderResult OrderBook::matchLimitSell(Order& order, trades& generatedTrades, OrderResult& default_)
 {
-    if (bestBid == -1 || (bestBid != -1 && order.price > bestBid)) {return default_;} // doesn't cross spread or no bids
+    if (bestBid == -1 || order.price > bestBid) {return default_;} // doesn't cross spread or no bids
 
-    // int oriVol{order.volume};
-    [[maybe_unused]] auto lol = generatedTrades;
-    return default_;
+    int oriVol{order.volume};
+
+    // start at bestBid
+    for (auto mapIt{bidMap.begin()}; mapIt != bidMap.end();)
+    {
+        // all orders above the price is filled
+        if (mapIt->first * tickSize < order.price) {break;}
+
+        auto& orders{mapIt->second.orders};
+        for (auto orderIt{orders.begin()}; orderIt != orders.end();)
+        {
+            auto& o{*orderIt};
+            if (order.volume >= o.volume) // order gets partial filled
+            {
+                order.volume -= o.volume;
+                genTrade(o.id, order.id, o.price, o.volume, order.side, generatedTrades);
+
+                // remove o since its matched
+                idMap.erase(o.id);
+                mapIt->second.volume -= o.volume;
+                totalVolume -= o.volume;
+                orderIt = orders.erase(orderIt);
+
+            } else if (order.volume < o.volume) // order gets fully filled
+            {
+                o.volume -= order.volume;
+                genTrade(o.id, order.id, o.price, order.volume, order.side, generatedTrades);
+
+                mapIt->second.volume -= order.volume;
+                order.volume = 0;
+            }
+
+            if (order.volume == 0) {break;} // order filled
+        }
+
+        // clear level if no more orders left
+        if (mapIt->second.orders.empty()) {mapIt = bidMap.erase(mapIt);}
+        else {++mapIt;}
+    }
+
+    // update bestBid
+    if (bidMap.empty()) {bestBid = -1;}
+    else {bestBid = bidMap.begin()->first * tickSize;}
+
+    // return OrderResult
+    if (order.volume == 0) // fully filled
+    {
+        return {*order.id, OrderResult::FILLED, generatedTrades, nullptr, "Order filled"};
+    } else // partially filled
+    {
+        std::stringstream msg;
+        msg << "Partially filled " << oriVol - order.volume << " shares, "
+        << order.volume << " shares remaining";
+        return {*order.id, OrderResult::PARTIALLY_FILLED, generatedTrades, nullptr, msg.str()};
+    }
 }
 
 void OrderBook::genTrade(const uuids::uuid* buy_id, const uuids::uuid* sell_id, double price, int volume, Order::Side side, trades& generatedTrades)
@@ -353,11 +400,9 @@ int OrderBook::volumeAt(double priceLevel)
         }
     } else if (priceLevel >= bestAsk)
     {
-        // std::cout << askMap[priceLevel];
         auto it{askMap.find(tickPrice)};
         if (it != askMap.end())
         {
-            std::cout << "here";
             return it->second.volume;
         }
     }
@@ -492,7 +537,7 @@ OrderBook::Depth OrderBook::getDepthInRange(double minPrice, double maxPrice)
             asks.emplace_back(it->first * tickSize, it->second.volume, it->second.orders.size());
         }
 
-    } else if (minPrice <= bestBid && maxPrice <= bestBid)
+    } else if (minPrice <= bestBid && maxPrice <= bestBid) // whole range just in bids
     {
         for (auto it{bidMap.begin()}; it != bidMap.end(); ++it)
         {
