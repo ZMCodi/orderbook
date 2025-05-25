@@ -124,6 +124,7 @@ TEST_CASE("Order filling", "[order filling][fill]")
 
         REQUIRE(actual.equals_to(expected));
 
+        buyMarket.volume = 5; // reset for orderList
         OrderBookState expState{
             bid_map(), ask_map(), id_map(), 
             trade_list{expTrade}, orders{sell50, buyMarket},
@@ -146,7 +147,6 @@ TEST_CASE("Order filling", "[order filling][fill]")
             "Order filled"
         };
         buyMarket.id = &actual2.order_id;
-        buyMarket.volume = 5; // reset for orderList
         REQUIRE(actual2.equals_to(expected2));
 
         OrderBookState expState2{
@@ -155,7 +155,6 @@ TEST_CASE("Order filling", "[order filling][fill]")
             -1, -1, 50, 0
         };
         REQUIRE(checkOBState(ob, expState2));
-
     }
 
     SECTION("Fill market sell order")
@@ -174,6 +173,7 @@ TEST_CASE("Order filling", "[order filling][fill]")
 
         REQUIRE(actual.equals_to(expected));
 
+        sellMarket.volume = 5; // reset for orderList
         OrderBookState expState{
             bid_map(), ask_map(), id_map(), 
             trade_list{expTrade}, orders{buy50, sellMarket},
@@ -196,7 +196,6 @@ TEST_CASE("Order filling", "[order filling][fill]")
             "Order filled"
         };
         sellMarket.id = &actual2.order_id;
-        sellMarket.volume = 5; // reset for orderList
         REQUIRE(actual2.equals_to(expected2));
 
         OrderBookState expState2{

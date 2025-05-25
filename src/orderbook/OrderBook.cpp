@@ -255,7 +255,7 @@ OrderResult OrderBook::matchLimitSell(Order& order, trades& generatedTrades, Ord
 
 OrderResult OrderBook::matchMarketBuy(Order& order, trades& generatedTrades)
 {
-    if (bestAsk == -1 || order.price < bestAsk) // doesn't cross spread or no asks
+    if (bestAsk == -1) // no asks
     {
         return {*order.id, OrderResult::REJECTED, trades{}, nullptr, "Not enough liquidity"};
     }

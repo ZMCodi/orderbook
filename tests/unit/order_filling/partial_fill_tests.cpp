@@ -97,7 +97,7 @@ TEST_CASE("Partial filling orders", "[order filling][partial filling]")
             *buyMarket.get_id(),
             OrderResult::PARTIALLY_FILLED,
             trades{expTrade},
-            &buyMarket,
+            nullptr,
             "Partially filled 3 shares, remaining order cancelled"
         };
 
@@ -148,7 +148,7 @@ TEST_CASE("Partial filling orders", "[order filling][partial filling]")
             *sellMarket.get_id(),
             OrderResult::PARTIALLY_FILLED,
             trades{expTrade},
-            &sellMarket,
+            nullptr,
             "Partially filled 3 shares, remaining order cancelled"
         };
 

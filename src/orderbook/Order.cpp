@@ -51,7 +51,6 @@ bool Order::equals_to(const Order& other) const
 {
    bool id_equal = (id == nullptr && other.id == nullptr) || 
                    (id != nullptr && other.id != nullptr && *id == *other.id);
-
    return id_equal
    && side == other.side
    && volume == other.volume

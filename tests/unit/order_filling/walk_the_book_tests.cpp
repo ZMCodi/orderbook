@@ -259,7 +259,7 @@ TEST_CASE("Walking the book", "[order filling][walking the book]")
             *buyMarket.get_id(),
             OrderResult::PARTIALLY_FILLED,
             trades{expTrade1, expTrade2, expTrade3},
-            &buyMarket,
+            nullptr,
             "Partially filled 6 shares, remaining order cancelled"
         };
 
@@ -291,7 +291,7 @@ TEST_CASE("Walking the book", "[order filling][walking the book]")
             *sellMarket.get_id(),
             OrderResult::PARTIALLY_FILLED,
             trades{expTrade1, expTrade2, expTrade3},
-            &sellMarket,
+            nullptr,
             "Partially filled 6 shares, remaining order cancelled"
         };
 

@@ -2,7 +2,7 @@
 
 #include "test_helpers.h"
 
-TEST_CASE("Check time priority", "[order filling][time priority checking]")
+TEST_CASE("Check time priority", "[order filling][time priority]")
 {
     OrderBook ob{};
 
