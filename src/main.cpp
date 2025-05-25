@@ -219,6 +219,11 @@ std::ostream& operator<<(std::ostream& out, OrderBook::Depth d)
 #include <fstream>
 int main()
 {
-    // OrderBook ob{};
+    OrderBook ob{};
+    Order sell50{Order::Side::SELL, 3, Order::Type::LIMIT, 50};
+    Order buy50{Order::Side::BUY, 5, Order::Type::LIMIT, 50};
 
+    ob.placeOrder(sell50);
+    auto actual{ob.placeOrder(buy50)};
+    std::cout << actual;
 }

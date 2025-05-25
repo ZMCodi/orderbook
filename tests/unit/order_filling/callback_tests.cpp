@@ -120,13 +120,13 @@ TEST_CASE("Callback function notification", "[order filling][callbacks]")
     SECTION("Matched orders trigger callbacks")
     {
         ob.placeOrder(buy50, callbackFn);
-        auto id{ob.placeOrder(sell50).trades[0].get_id()};
+        auto id{ob.placeOrder(sell50).trades.at(0).get_id()};
 
         REQUIRE(callback_count == 1);
         REQUIRE(tradeIDs[0] == id);
 
         ob.placeOrder(buy51, callbackFn);
-        auto id2{ob.placeOrder(sell51, callbackFn).trades[0].get_id()};
+        auto id2{ob.placeOrder(sell51, callbackFn).trades.at(0).get_id()};
         // this will trigger the callback twice by buy51 and sell51
 
         REQUIRE(callback_count == 3);
@@ -145,19 +145,19 @@ TEST_CASE("Callback function notification", "[order filling][callbacks]")
     SECTION("Multiple matches trigger callbacks once every match")
     {
         ob.placeOrder(buyBig53, callbackFn);
-        auto id1{ob.placeOrder(sell50).trades[0].get_id()}; // fills 2
+        auto id1{ob.placeOrder(sell50).trades.at(0).get_id()}; // fills 2
         REQUIRE(callback_count == 1);
         REQUIRE(tradeIDs[0] == id1);
 
-        auto id2{ob.placeOrder(sell51).trades[0].get_id()}; // fills 2
+        auto id2{ob.placeOrder(sell51).trades.at(0).get_id()}; // fills 2
         REQUIRE(callback_count == 2);
         REQUIRE(tradeIDs[1] == id2);
 
-        auto id3{ob.placeOrder(sell52).trades[0].get_id()}; // fills 2
+        auto id3{ob.placeOrder(sell52).trades.at(0).get_id()}; // fills 2
         REQUIRE(callback_count == 3);
         REQUIRE(tradeIDs[2] == id3);
 
-        auto id4{ob.placeOrder(sell53).trades[0].get_id()}; // fills 2
+        auto id4{ob.placeOrder(sell53).trades.at(0).get_id()}; // fills 2
         REQUIRE(callback_count == 4);
         REQUIRE(tradeIDs[3] == id4);
 
@@ -180,20 +180,20 @@ TEST_CASE("Callback function notification", "[order filling][callbacks]")
     {
         // check it works
         ob.placeOrder(buyBig53, callbackFn);
-        auto id1{ob.placeOrder(sell50).trades[0].get_id()}; // fills 2
+        auto id1{ob.placeOrder(sell50).trades.at(0).get_id()}; // fills 2
         REQUIRE(callback_count == 1);
         REQUIRE(tradeIDs[0] == id1);
 
         // remove it and match
         ob.removeCallback(buyBig53.get_id());
-        auto id2{ob.placeOrder(sell51).trades[0].get_id()}; // fills 2
+        auto id2{ob.placeOrder(sell51).trades.at(0).get_id()}; // fills 2
         REQUIRE(callback_count == 1);
         REQUIRE(tradeIDs.size() == 1);
         REQUIRE(tradeIDs[0] != id2);
 
         // re-add it
         ob.registerCallback(buyBig53.get_id(), callbackFn);
-        auto id3{ob.placeOrder(sell52).trades[0].get_id()}; // fills 2
+        auto id3{ob.placeOrder(sell52).trades.at(0).get_id()}; // fills 2
         REQUIRE(callback_count == 2);
         REQUIRE(tradeIDs[1] == id3);
 
@@ -202,7 +202,7 @@ TEST_CASE("Callback function notification", "[order filling][callbacks]")
             callback_count += 5;
             tradeIDs[0] = trade.get_id();
         });
-        auto id4{ob.placeOrder(sell53).trades[0].get_id()}; // fills 2
+        auto id4{ob.placeOrder(sell53).trades.at(0).get_id()}; // fills 2
         REQUIRE(callback_count == 7);
         REQUIRE(tradeIDs[0] == id4);
         REQUIRE(tradeIDs.size() == 2); // old callback is not called

@@ -18,7 +18,7 @@ TEST_CASE("Partial filling orders", "[order filling][partial filling]")
     SECTION("Partial fill limit buy")
     {
         ob.placeOrder(sell50);
-        auto actual{ob.placeOrder(buy50)};
+        auto actual{ob.placeOrder(buy50)}; // segfaults here
         id = buy50.get_id();
 
         Trade expTrade{nullptr, id, sell50.get_id(), 50, 3, time_point(), Order::Side::BUY};
