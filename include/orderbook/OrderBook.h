@@ -157,6 +157,7 @@ private:
     OrderResult matchOrder(Order& order);
     OrderResult matchLimitBuy(Order& order, trades& generatedTrades, OrderResult& default_);
     OrderResult matchLimitSell(Order& order, trades& generatedTrades, OrderResult& default_);
+    OrderResult matchMarketBuy(Order& order, trades& generatedTrades);
     void genTrade(const Order& buyer, const Order& seller, double price,
                   int volume, Order::Side side, trades& generatedTrades);
 

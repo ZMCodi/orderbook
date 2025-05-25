@@ -49,11 +49,14 @@ Order Order::makeMarketSell(int volume)
 // but id can be compared since we can get id from getOrderByID() or OrderResult
 bool Order::equals_to(const Order& other) const
 {
-    return id == other.id
-    && side == other.side
-    && volume == other.volume
-    && type == other.type
-    && std::abs(price - other.price) < 0.0001;
+   bool id_equal = (id == nullptr && other.id == nullptr) || 
+                   (id != nullptr && other.id != nullptr && *id == *other.id);
+
+   return id_equal
+   && side == other.side
+   && volume == other.volume
+   && type == other.type
+   && std::abs(price - other.price) < 0.0001;
 }
 
 bool Order::operator==(const Order& other) const

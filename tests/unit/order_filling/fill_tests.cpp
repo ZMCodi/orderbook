@@ -71,7 +71,7 @@ TEST_CASE("Order filling", "[order filling][fill]")
             *buyMarket.get_id(),
             OrderResult::REJECTED,
             trades(), 
-            &buyMarket, 
+            nullptr, 
             "Not enough liquidity"
         };
 
@@ -97,7 +97,7 @@ TEST_CASE("Order filling", "[order filling][fill]")
             "Not enough liquidity"
         };
 
-        buyMarket.id = &actual2.order_id; // change manually to compare
+        buyMarket.id = &actual2.order_id; // set manually
         REQUIRE(actual2.equals_to(expected2));
 
         OrderBookState expState2{
