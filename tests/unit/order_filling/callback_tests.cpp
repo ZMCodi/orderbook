@@ -54,7 +54,7 @@ TEST_CASE("Callback function notification", "[order filling][callbacks]")
             OrderResult::PLACED,
             trades(),
             &ob.getOrderByID(buy53.get_id()),
-            "Order placed with callback"
+            "Order placed"
         };
 
         REQUIRE(actual.equals_to(expected));
@@ -66,7 +66,7 @@ TEST_CASE("Callback function notification", "[order filling][callbacks]")
             OrderResult::PLACED,
             trades(),
             actual2.remainingOrder,
-            "Order placed with callback"
+            "Order placed"
         };
 
         REQUIRE(actual2.equals_to(expected2));
@@ -210,6 +210,6 @@ TEST_CASE("Callback function notification", "[order filling][callbacks]")
 
     SECTION("Modifying order retains callbacks")
     {
-        
+
     }
 }

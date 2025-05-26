@@ -475,7 +475,6 @@ OrderResult OrderBook::modifyVolume(const uuids::uuid* id, int volume)
     auto delta{vol - volume};
     auto tickPrice{utils::convertTick(price, tickSize)};
 
-    totalVolume -= delta;
 
     if (delta == 0) // unchanged
     {
@@ -485,6 +484,8 @@ OrderResult OrderBook::modifyVolume(const uuids::uuid* id, int volume)
     // return OrderResult
     if (delta > 0)
     {
+        totalVolume -= delta;
+
         // decrease volume maintain time priority
         if (side == Order::Side::BUY)
         {

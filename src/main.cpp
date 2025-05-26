@@ -140,37 +140,40 @@ int main()
     [[maybe_unused]] Order sell50{Order::Side::SELL, 5,  Order::Type::LIMIT, 50};
     [[maybe_unused]] Order sell50_2{Order::Side::SELL, 3,  Order::Type::LIMIT, 50};
 
-    ob.placeOrder(buy50);
-    auto id = buy50.get_id();
-    ob.placeOrder(buy50_2);
-    auto actual{ob.modifyVolume(id, 2)};
+    ob.placeOrder(sell50);
+    ob.placeOrder(sell50_2);
+    auto actual{ob.modifyVolume(sell50.get_id(), 10)};
+    auto it{ob.getIDPool().find(actual.order_id)};
 
-    [[maybe_unused]] OrderResult expected{
+    auto id = &(*it);
+    const Order& newOrder{ob.getOrderByID(id)};
+
+    OrderResult expected{
         *id,
         OrderResult::MODIFIED,
         trades(),
-        &ob.getOrderByID(id),
-        "Volume decreased from 5 to 2"
+        &newOrder,
+        "Volume increased from 5 to 10. New ID generated."
     };
 
-    buy50.volume = 2; // ob doesnt change original object
 
-    bid_map expBM{
-        {50.0, PriceLevel{5, order_list{buy50, buy50_2}}}
+    // check fields are copied properly
+
+    ask_map expAM{
+        {5000, PriceLevel{13, order_list{sell50_2, newOrder}}}
     };
 
     id_map expIDM{
-        {id, OrderLocation{50.0, expBM.at(50.0).orders.begin(), Order::Side::BUY}},
-        {buy50_2.get_id(), OrderLocation{50.0, ++expBM.at(50.0).orders.begin(), Order::Side::BUY}},
+        {id, OrderLocation{50.0, ++expAM.at(5000).orders.begin(), Order::Side::SELL}},
+        {sell50_2.get_id(), OrderLocation{50.0, expAM.at(5000).orders.begin(), Order::Side::SELL}},
     };
 
-    buy50.volume = 5; // reset for orderList
     OrderBookState expState{
-        expBM, ask_map(), expIDM,
-        trade_list(), orders{buy50, buy50_2},
-        50, -1, -1, 5
+        bid_map(), expAM, expIDM,
+        trade_list(), orders{sell50, sell50_2, newOrder},
+        50, -1, -1, 13
     };
 
-    std::cout << "actual: " << ob.getState();
+    std::cout << "\n\nactual: " << ob.getState();
     std::cout << "\n\nexpected: " << expState;
 }

@@ -19,7 +19,9 @@ TEST_CASE("Increase order volume", "[order manipulation][increase volume]")
         ob.placeOrder(buy50);
         ob.placeOrder(buy50_2);
         auto actual{ob.modifyVolume(buy50.get_id(), 10)};
-        id = &actual.order_id;
+        auto it{ob.getIDPool().find(actual.order_id)};
+
+        id = &(*it);
         REQUIRE(*id != *buy50.get_id()); // ensure its a new order
         const Order& newOrder{ob.getOrderByID(id)};
 
@@ -41,12 +43,12 @@ TEST_CASE("Increase order volume", "[order manipulation][increase volume]")
         REQUIRE(newOrder.timestamp > buy50.timestamp);
 
         bid_map expBM{
-            {50.0, PriceLevel{13, order_list{buy50_2, newOrder}}}
+            {5000, PriceLevel{13, order_list{buy50_2, newOrder}}}
         };
 
         id_map expIDM{
-            {id, OrderLocation{50.0, ++expBM.at(50.0).orders.begin(), Order::Side::BUY}},
-            {buy50_2.get_id(), OrderLocation{50.0, expBM.at(50.0).orders.begin(), Order::Side::BUY}},
+            {id, OrderLocation{50.0, ++expBM.at(5000).orders.begin(), Order::Side::BUY}},
+            {buy50_2.get_id(), OrderLocation{50.0, expBM.at(5000).orders.begin(), Order::Side::BUY}},
         };
 
         OrderBookState expState{
@@ -70,7 +72,9 @@ TEST_CASE("Increase order volume", "[order manipulation][increase volume]")
         ob.placeOrder(sell50);
         ob.placeOrder(sell50_2);
         auto actual{ob.modifyVolume(sell50.get_id(), 10)};
-        id = &actual.order_id;
+        auto it{ob.getIDPool().find(actual.order_id)};
+
+        id = &(*it);
         REQUIRE(*id != *sell50.get_id()); // ensure its a new order
         const Order& newOrder{ob.getOrderByID(id)};
 
@@ -92,18 +96,18 @@ TEST_CASE("Increase order volume", "[order manipulation][increase volume]")
         REQUIRE(newOrder.timestamp > sell50.timestamp);
 
         ask_map expAM{
-            {50.0, PriceLevel{13, order_list{sell50_2, newOrder}}}
+            {5000, PriceLevel{13, order_list{sell50_2, newOrder}}}
         };
 
         id_map expIDM{
-            {id, OrderLocation{50.0, ++expAM.at(50.0).orders.begin(), Order::Side::SELL}},
-            {sell50_2.get_id(), OrderLocation{50.0, expAM.at(50.0).orders.begin(), Order::Side::SELL}},
+            {id, OrderLocation{50.0, ++expAM.at(5000).orders.begin(), Order::Side::SELL}},
+            {sell50_2.get_id(), OrderLocation{50.0, expAM.at(5000).orders.begin(), Order::Side::SELL}},
         };
 
         OrderBookState expState{
             bid_map(), expAM, expIDM,
             trade_list(), orders{sell50, sell50_2, newOrder},
-            50, -1, -1, 13
+            -1, 50, -1, 13
         };
 
         REQUIRE(checkOBState(ob, expState));
@@ -125,7 +129,9 @@ TEST_CASE("Increase order volume", "[order manipulation][increase volume]")
         ob.placeOrder(buy50_2);
 
         auto actual{ob.modifyVolume(buy50.get_id(), 10)};
-        id = &actual.order_id;
+        auto it{ob.getIDPool().find(actual.order_id)};
+
+        id = &(*it);
         REQUIRE(*id != *buy50.get_id()); // ensure its a new order
         const Order& newOrder{ob.getOrderByID(id)};
 
@@ -147,12 +153,12 @@ TEST_CASE("Increase order volume", "[order manipulation][increase volume]")
         REQUIRE(newOrder.timestamp > buy50.timestamp);
 
         bid_map expBM{
-            {50.0, PriceLevel{13, order_list{buy50_2, newOrder}}}
+            {5000, PriceLevel{13, order_list{buy50_2, newOrder}}}
         };
 
         id_map expIDM{
-            {id, OrderLocation{50.0, ++expBM.at(50.0).orders.begin(), Order::Side::BUY}},
-            {buy50_2.get_id(), OrderLocation{50.0, expBM.at(50.0).orders.begin(), Order::Side::BUY}},
+            {id, OrderLocation{50.0, ++expBM.at(5000).orders.begin(), Order::Side::BUY}},
+            {buy50_2.get_id(), OrderLocation{50.0, expBM.at(5000).orders.begin(), Order::Side::BUY}},
         };
 
         OrderBookState expState{
@@ -180,7 +186,9 @@ TEST_CASE("Increase order volume", "[order manipulation][increase volume]")
         ob.placeOrder(sell50_2);
 
         auto actual{ob.modifyVolume(sell50.get_id(), 10)};
-        id = &actual.order_id;
+        auto it{ob.getIDPool().find(actual.order_id)};
+
+        id = &(*it);
         REQUIRE(*id != *sell50.get_id()); // ensure its a new order
         const Order& newOrder{ob.getOrderByID(id)};
 
@@ -202,12 +210,12 @@ TEST_CASE("Increase order volume", "[order manipulation][increase volume]")
         REQUIRE(newOrder.timestamp > sell50.timestamp);
 
         ask_map expAM{
-            {50.0, PriceLevel{13, order_list{sell50_2, newOrder}}}
+            {5000, PriceLevel{13, order_list{sell50_2, newOrder}}}
         };
 
         id_map expIDM{
-            {id, OrderLocation{50.0, ++expAM.at(50.0).orders.begin(), Order::Side::SELL}},
-            {sell50_2.get_id(), OrderLocation{50.0, expAM.at(50.0).orders.begin(), Order::Side::SELL}},
+            {id, OrderLocation{50.0, ++expAM.at(5000).orders.begin(), Order::Side::SELL}},
+            {sell50_2.get_id(), OrderLocation{50.0, expAM.at(5000).orders.begin(), Order::Side::SELL}},
         };
 
         OrderBookState expState{
