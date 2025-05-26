@@ -73,3 +73,11 @@ Man now the `Order` is no longer 64 bytes. Some ways to make it work is maybe us
 Had a crazy epiphany. Instead of the `Side` and `Type` enum with both taking 2 values each, I can just make a `Kind` enum or something like that that takes 4 values. This would knock off 4 bytes making the `Order` 64 bytes again with proper alignment. However, this would need some large scale refactoring.
 
 What I plan to do is, get the tests passing first, set up some benchmark and test if the cache alignment is actually a bottleneck by changing the price from float to double (risking some precision here but this is purely for testing performance). If the speedup is significant, then I'll have to bite the bullet and refactor.
+
+### Refactoring using templates
+Claude made some good points today. In the matching logic, they overlap quite a bit and the only difference is the map types are different (literally just the comparator but of course they aren't compatible lol) and some minor logic difference between limit and market orders. So what I could do is use templates like so
+```cpp
+template<typename MapType, Order::Type OrderType>
+OrderResult matchOrder(Order& order, MapType& map, trades& generatedTrades, OrderResult& default_)
+```
+and I don't have to rewrite the same logic for `bid_map` and `ask_map`! Also just some `if constexpr` branches for the different matching logic and my code would be hella DRY. This can also be done with any logic that requires branching simply because of the map difference like inserting into orderbook and (maybe) depth.

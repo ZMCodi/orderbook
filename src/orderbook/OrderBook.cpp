@@ -675,14 +675,14 @@ int OrderBook::volumeAt(double priceLevel)
 {
     tick_t tickPrice{utils::convertTick(priceLevel, tickSize)};
     // determine to check at bidMap or askMap
-    if (priceLevel <= bestBid)
+    if (bestBid != -1 && priceLevel <= bestBid)
     {
         auto it{bidMap.find(tickPrice)};
         if (it != bidMap.end())
         {
             return it->second.volume;
         }
-    } else if (priceLevel >= bestAsk)
+    } else if (bestAsk != -1 && priceLevel >= bestAsk)
     {
         auto it{askMap.find(tickPrice)};
         if (it != askMap.end())
