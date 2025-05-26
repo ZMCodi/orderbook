@@ -83,7 +83,7 @@ TEST_CASE("Decrease order volume", "[order manipulation][decrease volume]")
         REQUIRE(checkOBState(ob, expState));
 
         OrderAudit expAudit{
-            id, time_point(), 3
+            id, utils::now(), 3
         };
         REQUIRE(ob.getAuditList().size() == 1);
         REQUIRE(ob.getAuditList()[0].equals_to(expAudit));
@@ -127,7 +127,7 @@ TEST_CASE("Decrease order volume", "[order manipulation][decrease volume]")
         REQUIRE(checkOBState(ob, expState));
 
         OrderAudit expAudit{
-            id, time_point(), 3
+            id, utils::now(), 3
         };
         REQUIRE(ob.getAuditList().size() == 1);
         REQUIRE(ob.getAuditList()[0].equals_to(expAudit));
@@ -139,7 +139,7 @@ TEST_CASE("Decrease order volume", "[order manipulation][decrease volume]")
         id = buy50.get_id();
         // this fills 3/5 of buy50's volume
         ob.placeOrder(sell50_2);
-        Trade expTrade{nullptr, buy50.get_id(), sell50_2.get_id(), 50, 3, time_point(), Order::Side::SELL};
+        Trade expTrade{nullptr, buy50.get_id(), sell50_2.get_id(), 50, 3, utils::now(), Order::Side::SELL};
 
         ob.placeOrder(buy50_2);
         auto actual{ob.modifyVolume(id, 1)};
@@ -175,7 +175,7 @@ TEST_CASE("Decrease order volume", "[order manipulation][decrease volume]")
         REQUIRE(checkOBState(ob, expState));
 
         OrderAudit expAudit{
-            id, time_point(), 1
+            id, utils::now(), 1
         };
         REQUIRE(ob.getAuditList().size() == 1);
         REQUIRE(ob.getAuditList()[0].equals_to(expAudit));
@@ -187,7 +187,7 @@ TEST_CASE("Decrease order volume", "[order manipulation][decrease volume]")
         id = sell50.get_id();
         // this fills 3/5 of sell50's volume
         ob.placeOrder(buy50_2);
-        Trade expTrade{nullptr, buy50_2.get_id(), sell50.get_id(), 50, 3, time_point(), Order::Side::BUY};
+        Trade expTrade{nullptr, buy50_2.get_id(), sell50.get_id(), 50, 3, utils::now(), Order::Side::BUY};
 
         ob.placeOrder(sell50_2);
         auto actual{ob.modifyVolume(id, 1)};
@@ -223,7 +223,7 @@ TEST_CASE("Decrease order volume", "[order manipulation][decrease volume]")
         REQUIRE(checkOBState(ob, expState));
 
         OrderAudit expAudit{
-            id, time_point(), 1
+            id, utils::now(), 1
         };
         REQUIRE(ob.getAuditList().size() == 1);
         REQUIRE(ob.getAuditList()[0].equals_to(expAudit));

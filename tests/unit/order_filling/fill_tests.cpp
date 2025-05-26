@@ -18,7 +18,7 @@ TEST_CASE("Order filling", "[order filling][fill]")
         ob.placeOrder(sell50);
         auto actual{ob.placeOrder(buy50)};
 
-        Trade expTrade{nullptr, buy50.get_id(), sell50.get_id(), 50, 5, time_point(), Order::Side::BUY};
+        Trade expTrade{nullptr, buy50.get_id(), sell50.get_id(), 50, 5, utils::now(), Order::Side::BUY};
         OrderResult expected{
             *buy50.get_id(),
             OrderResult::FILLED,
@@ -43,7 +43,7 @@ TEST_CASE("Order filling", "[order filling][fill]")
         ob.placeOrder(buy50);
         auto actual{ob.placeOrder(sell50)};
 
-        Trade expTrade{nullptr, buy50.get_id(), sell50.get_id(), 50, 5, time_point(), Order::Side::SELL};
+        Trade expTrade{nullptr, buy50.get_id(), sell50.get_id(), 50, 5, utils::now(), Order::Side::SELL};
         OrderResult expected{
             *sell50.get_id(), 
             OrderResult::FILLED, 
@@ -114,7 +114,7 @@ TEST_CASE("Order filling", "[order filling][fill]")
         ob.placeOrder(sell50);
         auto actual{ob.placeOrder(buyMarket)};
 
-        Trade expTrade{nullptr, buyMarket.get_id(), sell50.get_id(), 50, 5, time_point(), Order::Side::BUY};
+        Trade expTrade{nullptr, buyMarket.get_id(), sell50.get_id(), 50, 5, utils::now(), Order::Side::BUY};
         OrderResult expected{
             *buyMarket.get_id(),
             OrderResult::FILLED,
@@ -140,7 +140,7 @@ TEST_CASE("Order filling", "[order filling][fill]")
         auto actual2{ob.placeOrder(Order::makeMarketBuy(5))};
         auto it{ob.getIDPool().find(actual2.order_id)};
 
-        Trade expTrade2{nullptr, &(*it), sell50.get_id(), 50, 5, time_point(), Order::Side::BUY};
+        Trade expTrade2{nullptr, &(*it), sell50.get_id(), 50, 5, utils::now(), Order::Side::BUY};
         OrderResult expected2{
             actual2.order_id,
             OrderResult::FILLED,
@@ -164,7 +164,7 @@ TEST_CASE("Order filling", "[order filling][fill]")
         ob.placeOrder(buy50);
         auto actual{ob.placeOrder(sellMarket)};
 
-        Trade expTrade{nullptr, buy50.get_id(), sellMarket.get_id(), 50, 5, time_point(), Order::Side::SELL};
+        Trade expTrade{nullptr, buy50.get_id(), sellMarket.get_id(), 50, 5, utils::now(), Order::Side::SELL};
         OrderResult expected{
             *sellMarket.get_id(),
             OrderResult::FILLED,
@@ -190,7 +190,7 @@ TEST_CASE("Order filling", "[order filling][fill]")
         auto actual2{ob.placeOrder(Order::makeMarketSell(5))};
         auto it{ob.getIDPool().find(actual2.order_id)};
 
-        Trade expTrade2{nullptr, buy50.get_id(), &(*it), 50, 5, time_point(), Order::Side::SELL};
+        Trade expTrade2{nullptr, buy50.get_id(), &(*it), 50, 5, utils::now(), Order::Side::SELL};
         OrderResult expected2{
             actual2.order_id,
             OrderResult::FILLED,

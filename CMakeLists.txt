@@ -72,6 +72,9 @@ target_link_libraries(run_tests PRIVATE orderbook Catch2::Catch2)
 
 # Create a playground executable for manual testing
 add_executable(playground src/main.cpp)
+target_include_directories(playground PRIVATE
+    ${PROJECT_SOURCE_DIR}/tests
+)
 target_link_libraries(playground PRIVATE orderbook)
 
 # Register tests with CTest

@@ -69,9 +69,9 @@ TEST_CASE("Check time priority", "[order filling][time priority]")
         ob.placeOrder(sell51_3);
         auto actual{ob.placeOrder(buy51)};
 
-        Trade expTrade1{nullptr, buy51.get_id(), sell51_1.get_id(), 51, 5, time_point(), Order::Side::BUY};
-        Trade expTrade2{nullptr, buy51.get_id(), sell51_2.get_id(), 51, 10, time_point(), Order::Side::BUY};
-        Trade expTrade3{nullptr, buy51.get_id(), sell51_3.get_id(), 51, 2, time_point(), Order::Side::BUY};
+        Trade expTrade1{nullptr, buy51.get_id(), sell51_1.get_id(), 51, 5, utils::now(), Order::Side::BUY};
+        Trade expTrade2{nullptr, buy51.get_id(), sell51_2.get_id(), 51, 10, utils::now(), Order::Side::BUY};
+        Trade expTrade3{nullptr, buy51.get_id(), sell51_3.get_id(), 51, 2, utils::now(), Order::Side::BUY};
 
         OrderResult expected{
             *buy51.get_id(),
@@ -98,9 +98,9 @@ TEST_CASE("Check time priority", "[order filling][time priority]")
         ob.placeOrder(buy50_3);
         auto actual{ob.placeOrder(sell50)};
 
-        Trade expTrade1{nullptr, buy50_1.get_id(), sell50.get_id(), 50, 5, time_point(), Order::Side::SELL};
-        Trade expTrade2{nullptr, buy50_2.get_id(), sell50.get_id(), 50, 10, time_point(), Order::Side::SELL};
-        Trade expTrade3{nullptr, buy50_3.get_id(), sell50.get_id(), 50, 2, time_point(), Order::Side::SELL};
+        Trade expTrade1{nullptr, buy50_1.get_id(), sell50.get_id(), 50, 5, utils::now(), Order::Side::SELL};
+        Trade expTrade2{nullptr, buy50_2.get_id(), sell50.get_id(), 50, 10, utils::now(), Order::Side::SELL};
+        Trade expTrade3{nullptr, buy50_3.get_id(), sell50.get_id(), 50, 2, utils::now(), Order::Side::SELL};
 
         OrderResult expected{
             *sell50.get_id(),
@@ -127,9 +127,9 @@ TEST_CASE("Check time priority", "[order filling][time priority]")
         ob.placeOrder(sell51_3);
         auto actual{ob.placeOrder(buyMarket)};
 
-        Trade expTrade1{nullptr, buyMarket.get_id(), sell51_1.get_id(), 51, 5, time_point(), Order::Side::BUY};
-        Trade expTrade2{nullptr, buyMarket.get_id(), sell51_2.get_id(), 51, 10, time_point(), Order::Side::BUY};
-        Trade expTrade3{nullptr, buyMarket.get_id(), sell51_3.get_id(), 51, 2, time_point(), Order::Side::BUY};
+        Trade expTrade1{nullptr, buyMarket.get_id(), sell51_1.get_id(), 51, 5, utils::now(), Order::Side::BUY};
+        Trade expTrade2{nullptr, buyMarket.get_id(), sell51_2.get_id(), 51, 10, utils::now(), Order::Side::BUY};
+        Trade expTrade3{nullptr, buyMarket.get_id(), sell51_3.get_id(), 51, 2, utils::now(), Order::Side::BUY};
 
         OrderResult expected{
             *buyMarket.get_id(),
@@ -157,9 +157,9 @@ TEST_CASE("Check time priority", "[order filling][time priority]")
         ob.placeOrder(buy50_3);
         auto actual{ob.placeOrder(sellMarket)};
 
-        Trade expTrade1{nullptr, buy50_1.get_id(), sellMarket.get_id(), 50, 5, time_point(), Order::Side::SELL};
-        Trade expTrade2{nullptr, buy50_2.get_id(), sellMarket.get_id(), 50, 10, time_point(), Order::Side::SELL};
-        Trade expTrade3{nullptr, buy50_3.get_id(), sellMarket.get_id(), 50, 2, time_point(), Order::Side::SELL};
+        Trade expTrade1{nullptr, buy50_1.get_id(), sellMarket.get_id(), 50, 5, utils::now(), Order::Side::SELL};
+        Trade expTrade2{nullptr, buy50_2.get_id(), sellMarket.get_id(), 50, 10, utils::now(), Order::Side::SELL};
+        Trade expTrade3{nullptr, buy50_3.get_id(), sellMarket.get_id(), 50, 2, utils::now(), Order::Side::SELL};
 
         OrderResult expected{
             *sellMarket.get_id(),

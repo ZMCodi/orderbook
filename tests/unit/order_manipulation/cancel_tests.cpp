@@ -74,7 +74,7 @@ TEST_CASE("Order cancellation", "[order manipulation][cancellation]")
         REQUIRE(checkOBState(ob, expState));
 
         OrderAudit expAudit{
-            id, time_point(), -1
+            id, utils::now(), -1
         };
         REQUIRE(ob.getAuditList().size() == 1);
         REQUIRE(ob.getAuditList()[0].equals_to(expAudit));
@@ -105,7 +105,7 @@ TEST_CASE("Order cancellation", "[order manipulation][cancellation]")
         REQUIRE(checkOBState(ob, expState));
 
         OrderAudit expAudit{
-            id, time_point(), -1
+            id, utils::now(), -1
         };
         REQUIRE(ob.getAuditList().size() == 1);
         REQUIRE(ob.getAuditList()[0].equals_to(expAudit));
@@ -128,7 +128,7 @@ TEST_CASE("Order cancellation", "[order manipulation][cancellation]")
 
         REQUIRE(actual.equals_to(expected));
 
-        Trade expTrade{nullptr, id, sell50_2.get_id(), 50, 3, time_point(), Order::Side::SELL};
+        Trade expTrade{nullptr, id, sell50_2.get_id(), 50, 3, utils::now(), Order::Side::SELL};
         OrderBookState expState{
             bid_map(), ask_map(), id_map(),
             trade_list{expTrade}, orders{buy50, sell50_2},
@@ -138,7 +138,7 @@ TEST_CASE("Order cancellation", "[order manipulation][cancellation]")
         REQUIRE(checkOBState(ob, expState));
 
         OrderAudit expAudit{
-            id, time_point(), -1
+            id, utils::now(), -1
         };
         REQUIRE(ob.getAuditList().size() == 1);
         REQUIRE(ob.getAuditList()[0].equals_to(expAudit));
@@ -161,7 +161,7 @@ TEST_CASE("Order cancellation", "[order manipulation][cancellation]")
 
         REQUIRE(actual.equals_to(expected));
 
-        Trade expTrade{nullptr, buy50_2.get_id(), id, 50, 3, time_point(), Order::Side::BUY};
+        Trade expTrade{nullptr, buy50_2.get_id(), id, 50, 3, utils::now(), Order::Side::BUY};
         OrderBookState expState{
             bid_map(), ask_map(), id_map(),
             trade_list{expTrade}, orders{sell50, buy50_2},
@@ -171,7 +171,7 @@ TEST_CASE("Order cancellation", "[order manipulation][cancellation]")
         REQUIRE(checkOBState(ob, expState));
 
         OrderAudit expAudit{
-            id, time_point(), -1
+            id, utils::now(), -1
         };
         REQUIRE(ob.getAuditList().size() == 1);
         REQUIRE(ob.getAuditList()[0].equals_to(expAudit));

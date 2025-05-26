@@ -61,7 +61,7 @@ TEST_CASE("Increase order volume", "[order manipulation][increase volume]")
 
         // internally represented as a buy50 cancel and new order
         OrderAudit expAudit{
-            buy50.get_id(), time_point(), -1
+            buy50.get_id(), utils::now(), -1
         };
         REQUIRE(ob.getAuditList().size() == 1);
         REQUIRE(ob.getAuditList()[0].equals_to(expAudit));
@@ -113,7 +113,7 @@ TEST_CASE("Increase order volume", "[order manipulation][increase volume]")
         REQUIRE(checkOBState(ob, expState));
 
         OrderAudit expAudit{
-            sell50.get_id(), time_point(), -1
+            sell50.get_id(), utils::now(), -1
         };
         REQUIRE(ob.getAuditList().size() == 1);
         REQUIRE(ob.getAuditList()[0].equals_to(expAudit));
@@ -124,7 +124,7 @@ TEST_CASE("Increase order volume", "[order manipulation][increase volume]")
         ob.placeOrder(buy50);
         // this fills 3/5 of buy50's volume
         ob.placeOrder(sell50_2);
-        Trade expTrade{nullptr, buy50.get_id(), sell50_2.get_id(), 50, 3, time_point(), Order::Side::SELL};
+        Trade expTrade{nullptr, buy50.get_id(), sell50_2.get_id(), 50, 3, utils::now(), Order::Side::SELL};
 
         ob.placeOrder(buy50_2);
 
@@ -170,7 +170,7 @@ TEST_CASE("Increase order volume", "[order manipulation][increase volume]")
         REQUIRE(checkOBState(ob, expState));
 
         OrderAudit expAudit{
-            buy50.get_id(), time_point(), -1
+            buy50.get_id(), utils::now(), -1
         };
         REQUIRE(ob.getAuditList().size() == 1);
         REQUIRE(ob.getAuditList()[0].equals_to(expAudit));
@@ -181,7 +181,7 @@ TEST_CASE("Increase order volume", "[order manipulation][increase volume]")
         ob.placeOrder(sell50);
         // this fills 3/5 of sell50's volume
         ob.placeOrder(buy50_2);
-        Trade expTrade{nullptr, buy50_2.get_id(), sell50.get_id(), 50, 3, time_point(), Order::Side::BUY};
+        Trade expTrade{nullptr, buy50_2.get_id(), sell50.get_id(), 50, 3, utils::now(), Order::Side::BUY};
 
         ob.placeOrder(sell50_2);
 
@@ -227,7 +227,7 @@ TEST_CASE("Increase order volume", "[order manipulation][increase volume]")
         REQUIRE(checkOBState(ob, expState));
 
         OrderAudit expAudit{
-            sell50.get_id(), time_point(), -1
+            sell50.get_id(), utils::now(), -1
         };
         REQUIRE(ob.getAuditList().size() == 1);
         REQUIRE(ob.getAuditList()[0].equals_to(expAudit));
