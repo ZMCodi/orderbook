@@ -450,27 +450,93 @@ OrderResult OrderBook::cancelOrder(const uuids::uuid* id)
     return {*id, OrderResult::CANCELLED, trades(), nullptr, msg.str()};
 }
 
+OrderResult OrderBook::cancelOrder(const uuids::uuid& id)
+{
+    // find uuid in idPool first and get pointer
+    auto it{idPool.find(id)};
+
+    if (it == idPool.end())
+    {
+        throw std::invalid_argument{"ID does not exist"};
+    }
+
+    return cancelOrder(&(*it));
+}
+
 OrderResult OrderBook::modifyVolume(const uuids::uuid* id, int volume)
 {
-    [[maybe_unused]] auto lol = volume * 2;
-    return {*id, OrderResult::FILLED, trades(), nullptr, ""};
+    if (volume <= 0)
+    {
+        throw std::invalid_argument{"Volume has to be positive"};
+    }
+
+    auto [price, itr, side] = idMap.at(id); // unpack the OrderLocation
+    auto vol{itr->volume};
+    auto delta{vol - volume};
+    auto tickPrice{utils::convertTick(price, tickSize)};
+
+    totalVolume -= delta;
+
+    if (delta == 0) // unchanged
+    {
+        return {*id, OrderResult::REJECTED, trades{}, &(*itr), "Volume unchanged"};
+    }
+
+    // return OrderResult
+    if (delta > 0)
+    {
+        // decrease volume maintain time priority
+        if (side == Order::Side::BUY)
+        {
+            itr->volume -= delta;
+            bidMap.at(tickPrice).volume -= delta;
+
+        } else if (side == Order::Side::SELL)
+        {
+            itr->volume -= delta;
+            askMap.at(tickPrice).volume -= delta;
+        }
+
+        auditList.emplace_back(id, utils::now(), delta);
+
+        std::stringstream msg;
+        msg << "Volume decreased from " << vol << " to " << volume;
+        return {*id, OrderResult::MODIFIED, trades{}, &(*itr), msg.str()};
+
+    } else // cancel and replace
+    {
+        Order replace{*itr}; // copy with modified volume
+        replace.volume -= delta;
+        auto cb{replace.callbackFn};
+
+        cancelOrder(id); // cancel
+        auto placeRes{placeOrder(replace, cb)}; // replace
+
+        std::stringstream msg;
+        msg << "Volume increased from " << vol << " to " << volume
+        << ". New ID generated.";
+        return {*placeRes.remainingOrder->id, OrderResult::MODIFIED, trades{},
+                placeRes.remainingOrder, msg.str()};
+    }
+}
+
+OrderResult OrderBook::modifyVolume(const uuids::uuid& id, int volume)
+{
+    // find uuid in idPool first and get pointer
+    auto it{idPool.find(id)};
+
+    if (it == idPool.end())
+    {
+        throw std::invalid_argument{"ID does not exist"};
+    }
+
+    return modifyVolume(&(*it), volume);
 }
 
 OrderResult OrderBook::modifyPrice(const uuids::uuid* id, double price)
 {
     [[maybe_unused]] auto lol = price * 2;
     return {*id, OrderResult::FILLED, trades(), nullptr, ""};
-}
-
-OrderResult OrderBook::cancelOrder(const uuids::uuid& id)
-{
-    return {id, OrderResult::FILLED, trades(), nullptr, ""};
-}
-
-OrderResult OrderBook::modifyVolume(const uuids::uuid& id, int volume)
-{
-    [[maybe_unused]] auto lol = volume * 2;
-    return {id, OrderResult::FILLED, trades(), nullptr, ""};
 }
 
 OrderResult OrderBook::modifyPrice(const uuids::uuid& id, double price)

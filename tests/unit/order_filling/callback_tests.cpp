@@ -207,4 +207,9 @@ TEST_CASE("Callback function notification", "[order filling][callbacks]")
         REQUIRE(tradeIDs[0] == id4);
         REQUIRE(tradeIDs.size() == 2); // old callback is not called
     }
+
+    SECTION("Modifying order retains callbacks")
+    {
+        
+    }
 }

@@ -142,24 +142,35 @@ int main()
 
     ob.placeOrder(buy50);
     auto id = buy50.get_id();
-    ob.placeOrder(sell50_2); // this will partially fill buy50
-    // auto actual{ob.cancelOrder(id)};
+    ob.placeOrder(buy50_2);
+    auto actual{ob.modifyVolume(id, 2)};
 
-    // OrderResult expected{
-    //     *id,
-    //     OrderResult::CANCELLED,
-    //     trades(),
-    //     nullptr,
-    //     "Order cancelled with 2 unfilled shares"
-    // };
+    [[maybe_unused]] OrderResult expected{
+        *id,
+        OrderResult::MODIFIED,
+        trades(),
+        &ob.getOrderByID(id),
+        "Volume decreased from 5 to 2"
+    };
 
-    Trade expTrade{nullptr, id, sell50_2.get_id(), 50, 3, utils::now(), Order::Side::SELL};
+    buy50.volume = 2; // ob doesnt change original object
+
+    bid_map expBM{
+        {50.0, PriceLevel{5, order_list{buy50, buy50_2}}}
+    };
+
+    id_map expIDM{
+        {id, OrderLocation{50.0, expBM.at(50.0).orders.begin(), Order::Side::BUY}},
+        {buy50_2.get_id(), OrderLocation{50.0, ++expBM.at(50.0).orders.begin(), Order::Side::BUY}},
+    };
+
+    buy50.volume = 5; // reset for orderList
     OrderBookState expState{
-        bid_map(), ask_map(), id_map(),
-        trade_list{expTrade}, orders{buy50, sell50_2},
-        -1, -1, 50, 0
+        expBM, ask_map(), expIDM,
+        trade_list(), orders{buy50, buy50_2},
+        50, -1, -1, 5
     };
 
     std::cout << "actual: " << ob.getState();
-    std::cout << "\nexpected: " << expState;
+    std::cout << "\n\nexpected: " << expState;
 }

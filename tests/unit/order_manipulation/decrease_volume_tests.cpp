@@ -65,12 +65,12 @@ TEST_CASE("Decrease order volume", "[order manipulation][decrease volume]")
         buy50.volume = 2; // ob doesnt change original object
 
         bid_map expBM{
-            {50.0, PriceLevel{5, order_list{buy50, buy50_2}}}
+            {5000, PriceLevel{5, order_list{buy50, buy50_2}}}
         };
 
         id_map expIDM{
-            {id, OrderLocation{50.0, expBM.at(50.0).orders.begin(), Order::Side::BUY}},
-            {buy50_2.get_id(), OrderLocation{50.0, ++expBM.at(50.0).orders.begin(), Order::Side::BUY}},
+            {id, OrderLocation{50.0, expBM.at(5000).orders.begin(), Order::Side::BUY}},
+            {buy50_2.get_id(), OrderLocation{50.0, ++expBM.at(5000).orders.begin(), Order::Side::BUY}},
         };
 
         buy50.volume = 5; // reset for orderList
@@ -109,12 +109,12 @@ TEST_CASE("Decrease order volume", "[order manipulation][decrease volume]")
         sell50.volume = 2; // ob doesnt change original object
 
         ask_map expAM{
-            {50.0, PriceLevel{5, order_list{sell50, sell50_2}}}
+            {5000, PriceLevel{5, order_list{sell50, sell50_2}}}
         };
 
         id_map expIDM{
-            {id, OrderLocation{50.0, expAM.at(50.0).orders.begin(), Order::Side::SELL}},
-            {sell50_2.get_id(), OrderLocation{50.0, ++expAM.at(50.0).orders.begin(), Order::Side::SELL}},
+            {id, OrderLocation{50.0, expAM.at(5000).orders.begin(), Order::Side::SELL}},
+            {sell50_2.get_id(), OrderLocation{50.0, ++expAM.at(5000).orders.begin(), Order::Side::SELL}},
         };
 
         sell50.volume = 5; // reset for orderList
@@ -157,12 +157,12 @@ TEST_CASE("Decrease order volume", "[order manipulation][decrease volume]")
         buy50.volume = 1; // ob doesnt change original object
 
         bid_map expBM{
-            {50.0, PriceLevel{4, order_list{buy50, buy50_2}}}
+            {5000, PriceLevel{4, order_list{buy50, buy50_2}}}
         };
 
         id_map expIDM{
-            {id, OrderLocation{50.0, expBM.at(50.0).orders.begin(), Order::Side::BUY}},
-            {buy50_2.get_id(), OrderLocation{50.0, ++expBM.at(50.0).orders.begin(), Order::Side::BUY}},
+            {id, OrderLocation{50.0, expBM.at(5000).orders.begin(), Order::Side::BUY}},
+            {buy50_2.get_id(), OrderLocation{50.0, ++expBM.at(5000).orders.begin(), Order::Side::BUY}},
         };
 
         buy50.volume = 5; // reset for orderList
@@ -205,12 +205,12 @@ TEST_CASE("Decrease order volume", "[order manipulation][decrease volume]")
         sell50.volume = 1;
 
         ask_map expAM{
-            {50.0, PriceLevel{4, order_list{sell50, sell50_2}}}
+            {5000, PriceLevel{4, order_list{sell50, sell50_2}}}
         };
 
         id_map expIDM{
-            {id, OrderLocation{50.0, expAM.at(50.0).orders.begin(), Order::Side::SELL}},
-            {sell50_2.get_id(), OrderLocation{50.0, ++expAM.at(50.0).orders.begin(), Order::Side::SELL}},
+            {id, OrderLocation{50.0, expAM.at(5000).orders.begin(), Order::Side::SELL}},
+            {sell50_2.get_id(), OrderLocation{50.0, ++expAM.at(5000).orders.begin(), Order::Side::SELL}},
         };
 
         sell50.volume = 5; // reset for orderList
