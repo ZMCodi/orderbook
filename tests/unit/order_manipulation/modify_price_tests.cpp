@@ -24,12 +24,33 @@ TEST_CASE("Price modification", "[order manipulation][price modification]")
         REQUIRE_THROWS(ob.modifyPrice(sell50.get_id(), -1));
     }
 
+    SECTION("Changing price to same value does nothing")
+    {
+        ob.placeOrder(buy50);
+        id = buy50.get_id();
+        auto actual{ob.modifyPrice(id, 50)};
+
+        OrderResult expected{
+            *id,
+            OrderResult::REJECTED, // modification rejected
+            trades(),
+            &ob.getOrderByID(id),
+            "Price unchanged"
+        };
+
+        REQUIRE(actual.equals_to(expected));
+        REQUIRE(ob.getOrderByID(id).price == 50);
+        REQUIRE(ob.getAuditList().empty());
+    }
+
     SECTION("Modify price full limit buy")
     {
         ob.placeOrder(buy50);
         ob.placeOrder(buy45);
         auto actual{ob.modifyPrice(buy50.get_id(), 45)};
-        id = &actual.order_id;
+        auto it{ob.getIDPool().find(actual.order_id)};
+
+        id = &(*it);
         REQUIRE(*id != *buy50.get_id()); // ensure new order
         const Order& newOrder{ob.getOrderByID(id)};
 
@@ -51,12 +72,12 @@ TEST_CASE("Price modification", "[order manipulation][price modification]")
         REQUIRE(newOrder.timestamp > buy50.timestamp);
 
         bid_map expBM{
-            {45.0, PriceLevel{10, order_list{buy45, newOrder}}}
+            {4500, PriceLevel{10, order_list{buy45, newOrder}}}
         };
 
         id_map expIDM{
-            {id, OrderLocation{45.0, ++expBM.at(45.0).orders.begin(), Order::Side::BUY}},
-            {buy45.get_id(), OrderLocation{45.0, expBM.at(45.0).orders.begin(), Order::Side::BUY}},
+            {id, OrderLocation{45.0, ++expBM.at(4500).orders.begin(), Order::Side::BUY}},
+            {buy45.get_id(), OrderLocation{45.0, expBM.at(4500).orders.begin(), Order::Side::BUY}},
         };
 
         OrderBookState expState{
@@ -80,7 +101,9 @@ TEST_CASE("Price modification", "[order manipulation][price modification]")
         ob.placeOrder(sell50);
         ob.placeOrder(sell60);
         auto actual{ob.modifyPrice(sell50.get_id(), 60)};
-        id = &actual.order_id;
+        auto it{ob.getIDPool().find(actual.order_id)};
+
+        id = &(*it);
         REQUIRE(*id != *sell50.get_id()); // ensure new order
         const Order& newOrder{ob.getOrderByID(id)};
 
@@ -102,12 +125,12 @@ TEST_CASE("Price modification", "[order manipulation][price modification]")
         REQUIRE(newOrder.timestamp > sell50.timestamp);
 
         ask_map expAM{
-            {60.0, PriceLevel{15, order_list{sell60, newOrder}}}
+            {6000, PriceLevel{15, order_list{sell60, newOrder}}}
         };
 
         id_map expIDM{
-            {id, OrderLocation{60.0, ++expAM.at(60.0).orders.begin(), Order::Side::SELL}},
-            {sell60.get_id(), OrderLocation{60.0, expAM.at(60.0).orders.begin(), Order::Side::SELL}},
+            {id, OrderLocation{60.0, ++expAM.at(6000).orders.begin(), Order::Side::SELL}},
+            {sell60.get_id(), OrderLocation{60.0, expAM.at(6000).orders.begin(), Order::Side::SELL}},
         };
 
         OrderBookState expState{
@@ -134,7 +157,9 @@ TEST_CASE("Price modification", "[order manipulation][price modification]")
 
         ob.placeOrder(buy45);
         auto actual{ob.modifyPrice(buy50.get_id(), 45)};
-        id = &actual.order_id;
+        auto it{ob.getIDPool().find(actual.order_id)};
+
+        id = &(*it);
         REQUIRE(*id != *buy50.get_id()); // ensure new order
         const Order& newOrder{ob.getOrderByID(id)};
 
@@ -156,12 +181,12 @@ TEST_CASE("Price modification", "[order manipulation][price modification]")
         REQUIRE(newOrder.timestamp > buy50.timestamp);
 
         bid_map expBM{
-            {45.0, PriceLevel{7, order_list{buy45, newOrder}}}
+            {4500, PriceLevel{7, order_list{buy45, newOrder}}}
         };
 
         id_map expIDM{
-            {id, OrderLocation{45.0, ++expBM.at(45.0).orders.begin(), Order::Side::BUY}},
-            {buy45.get_id(), OrderLocation{45.0, expBM.at(45.0).orders.begin(), Order::Side::BUY}},
+            {id, OrderLocation{45.0, ++expBM.at(4500).orders.begin(), Order::Side::BUY}},
+            {buy45.get_id(), OrderLocation{45.0, expBM.at(4500).orders.begin(), Order::Side::BUY}},
         };
 
         OrderBookState expState{
@@ -188,7 +213,9 @@ TEST_CASE("Price modification", "[order manipulation][price modification]")
 
         ob.placeOrder(sell60);
         auto actual{ob.modifyPrice(sell50.get_id(), 60)};
-        id = &actual.order_id;
+        auto it{ob.getIDPool().find(actual.order_id)};
+
+        id = &(*it);
         REQUIRE(*id != *sell50.get_id()); // ensure new order
         const Order& newOrder{ob.getOrderByID(id)};
 
@@ -210,12 +237,12 @@ TEST_CASE("Price modification", "[order manipulation][price modification]")
         REQUIRE(newOrder.timestamp > sell50.timestamp);
 
         ask_map expAM{
-            {60.0, PriceLevel{12, order_list{sell60, newOrder}}}
+            {6000, PriceLevel{12, order_list{sell60, newOrder}}}
         };
 
         id_map expIDM{
-            {id, OrderLocation{60.0, ++expAM.at(60.0).orders.begin(), Order::Side::SELL}},
-            {sell60.get_id(), OrderLocation{60.0, expAM.at(60.0).orders.begin(), Order::Side::SELL}},
+            {id, OrderLocation{60.0, ++expAM.at(6000).orders.begin(), Order::Side::SELL}},
+            {sell60.get_id(), OrderLocation{60.0, expAM.at(6000).orders.begin(), Order::Side::SELL}},
         };
 
         OrderBookState expState{
