@@ -259,4 +259,47 @@ TEST_CASE("Price modification", "[order manipulation][price modification]")
         REQUIRE(ob.getAuditList().size() == 1);
         REQUIRE(ob.getAuditList()[0].equals_to(expAudit));
     }
+
+    SECTION("Changing price to a better price can trigger matches")
+    {
+        // no matches here
+        ob.placeOrder(buy50);
+        ob.placeOrder(buy45);
+        ob.placeOrder(sell60);
+
+        // this causes sell60 to match buy50 and buy45
+        auto actual{ob.modifyPrice(sell60.get_id(), 45)};
+        auto it{ob.getIDPool().find(actual.order_id)};
+
+        id = &(*it);
+        Order newOrder{Order::Side::SELL, 10, Order::Type::LIMIT, 45};
+        newOrder.id = id;
+
+        Trade expTrade1{nullptr, buy50.get_id(), id, 50, 5, time_point(), Order::Side::SELL};
+        Trade expTrade2{nullptr, buy45.get_id(), id, 45, 5, time_point(), Order::Side::SELL};
+
+        OrderResult expected{
+            *id,
+            OrderResult::MODIFIED,
+            trades{expTrade1, expTrade2},
+            nullptr,
+            "Price changed from 60 to 45. New ID generated."
+        };
+
+        REQUIRE(actual.equals_to(expected));
+
+        OrderBookState expState{
+            bid_map{}, ask_map{}, id_map{},
+            trade_list{expTrade1, expTrade2}, orders{buy50, buy45, sell60, newOrder},
+            -1, -1, 45, 0
+        };
+
+        REQUIRE(checkOBState(ob, expState));
+
+        OrderAudit expAudit{
+            sell60.get_id(), time_point(), -1
+        };
+        REQUIRE(ob.getAuditList().size() == 1);
+        REQUIRE(ob.getAuditList()[0].equals_to(expAudit));
+    }
 }

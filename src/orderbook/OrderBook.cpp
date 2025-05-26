@@ -560,7 +560,7 @@ OrderResult OrderBook::modifyPrice(const uuids::uuid* id, double price)
     msg << "Price changed from " << prc << " to " << price
     << ". New ID generated.";
 
-    return {*placeRes.remainingOrder->id, OrderResult::MODIFIED, trades{},
+    return {placeRes.order_id, OrderResult::MODIFIED, placeRes.trades,
             placeRes.remainingOrder, msg.str()};
 }
 
