@@ -38,11 +38,11 @@ TEST_CASE("UUID reference overloads", "[orderbook][uuid reference]")
 
     SECTION("modifyVolume with reference")
     {
-        auto result{ob.modifyVolume(buy_id_copy, 10)};
+        auto result{ob.modifyVolume(buy_id_copy, 3)};
 
         REQUIRE(result.status == OrderResult::MODIFIED);
         REQUIRE(result.order_id == buy_id_copy);
-        REQUIRE(ob.getOrderByID(buy50.get_id()).volume == 10);
+        REQUIRE(ob.getOrderByID(buy50.get_id()).volume == 3);
     }
 
     SECTION("modifyPrice with reference")

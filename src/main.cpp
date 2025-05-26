@@ -134,46 +134,19 @@ inline void OrderBook::clear()
 int main()
 {
     [[maybe_unused]] OrderBook ob{};
-    [[maybe_unused]] Order buy50{Order::Side::BUY, 5,  Order::Type::LIMIT, 50};
-    [[maybe_unused]] Order buy50_2{Order::Side::BUY, 3,  Order::Type::LIMIT, 50};
+    [[maybe_unused]] Order buy50{Order::Side::BUY, 2, Order::Type::LIMIT, 50};
+    [[maybe_unused]] Order buy51{Order::Side::BUY, 2, Order::Type::LIMIT, 51};
+    [[maybe_unused]] Order buy52{Order::Side::BUY, 2, Order::Type::LIMIT, 52};
+    [[maybe_unused]] Order buy53{Order::Side::BUY, 2, Order::Type::LIMIT, 53};
+    [[maybe_unused]] Order buyBig53{Order::Side::BUY, 8, Order::Type::LIMIT, 53};
+    [[maybe_unused]] Order buyMarket{Order::Side::BUY, 8, Order::Type::MARKET};
 
-    [[maybe_unused]] Order sell50{Order::Side::SELL, 5,  Order::Type::LIMIT, 50};
-    [[maybe_unused]] Order sell50_2{Order::Side::SELL, 3,  Order::Type::LIMIT, 50};
+    [[maybe_unused]] Order sell50{Order::Side::SELL, 2, Order::Type::LIMIT, 50};
+    [[maybe_unused]] Order sell51{Order::Side::SELL, 2, Order::Type::LIMIT, 51};
+    [[maybe_unused]] Order sell52{Order::Side::SELL, 2, Order::Type::LIMIT, 52};
+    [[maybe_unused]] Order sell53{Order::Side::SELL, 2, Order::Type::LIMIT, 53};
+    [[maybe_unused]] Order sellBig50{Order::Side::SELL, 8, Order::Type::LIMIT, 50};
+    [[maybe_unused]] Order sellMarket{Order::Side::SELL, 8, Order::Type::MARKET};
 
-    ob.placeOrder(sell50);
-    ob.placeOrder(sell50_2);
-    auto actual{ob.modifyVolume(sell50.get_id(), 10)};
-    auto it{ob.getIDPool().find(actual.order_id)};
-
-    auto id = &(*it);
-    const Order& newOrder{ob.getOrderByID(id)};
-
-    OrderResult expected{
-        *id,
-        OrderResult::MODIFIED,
-        trades(),
-        &newOrder,
-        "Volume increased from 5 to 10. New ID generated."
-    };
-
-
-    // check fields are copied properly
-
-    ask_map expAM{
-        {5000, PriceLevel{13, order_list{sell50_2, newOrder}}}
-    };
-
-    id_map expIDM{
-        {id, OrderLocation{50.0, ++expAM.at(5000).orders.begin(), Order::Side::SELL}},
-        {sell50_2.get_id(), OrderLocation{50.0, expAM.at(5000).orders.begin(), Order::Side::SELL}},
-    };
-
-    OrderBookState expState{
-        bid_map(), expAM, expIDM,
-        trade_list(), orders{sell50, sell50_2, newOrder},
-        50, -1, -1, 13
-    };
-
-    std::cout << "\n\nactual: " << ob.getState();
-    std::cout << "\n\nexpected: " << expState;
+    
 }

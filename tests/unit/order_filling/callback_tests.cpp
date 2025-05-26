@@ -210,6 +210,25 @@ TEST_CASE("Callback function notification", "[order filling][callbacks]")
 
     SECTION("Modifying order retains callbacks")
     {
+        // decrease volume
+        ob.placeOrder(buyBig53, callbackFn);
+        ob.modifyVolume(buyBig53.get_id(), 2);
+        auto id1{ob.placeOrder(sell51).trades.at(0).get_id()};
+        REQUIRE(callback_count == 1);
+        REQUIRE(tradeIDs[0] == id1);
 
+        // increase volume
+        ob.placeOrder(sell53, callbackFn);
+        ob.modifyVolume(sell53.get_id(), 8);
+        auto id2{ob.placeOrder(buyBig53).trades.at(0).get_id()};
+        REQUIRE(callback_count == 2);
+        REQUIRE(tradeIDs[1] == id2);
+
+        // change price
+        ob.placeOrder(buy50, callbackFn);
+        ob.modifyPrice(buy50.get_id(), 52);
+        auto id3{ob.placeOrder(sell52).trades.at(0).get_id()};
+        REQUIRE(callback_count == 3);
+        REQUIRE(tradeIDs[2] == id3);
     }
 }

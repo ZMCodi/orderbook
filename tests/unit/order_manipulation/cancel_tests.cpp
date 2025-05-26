@@ -37,7 +37,15 @@ TEST_CASE("Order cancellation", "[order manipulation][cancellation]")
         ob.placeOrder(buy50_2);
         id = buy50_2.get_id();
         REQUIRE_NOTHROW(ob.cancelOrder(id));
+
+        ob.clear();
+        ob.placeOrder(buy50_2);
+        id = buy50_2.get_id();
         REQUIRE_NOTHROW(ob.modifyPrice(id, 50));
+
+        ob.clear();
+        ob.placeOrder(buy50_2);
+        id = buy50_2.get_id();
         REQUIRE_NOTHROW(ob.modifyVolume(id, 50));
     }
 
