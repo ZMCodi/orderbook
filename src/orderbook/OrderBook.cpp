@@ -141,7 +141,7 @@ void OrderBook::genTrade(const Order& buyer, const Order& seller, double price,
     marketPrice = price;
 }
 
-order_list OrderBook::ordersAt(double priceLevel)
+const order_list& OrderBook::ordersAt(double priceLevel)
 {
     tick_t tickPrice{utils::convertTick(priceLevel, tickSize)};
 
@@ -157,12 +157,12 @@ order_list OrderBook::ordersAt(double priceLevel)
     return OrderBook::emptyOrders;
 }
 
-order_list OrderBook::bidsAt(double priceLevel)
+const order_list& OrderBook::bidsAt(double priceLevel)
 {
     return ordersAt(priceLevel);
 }
 
-order_list OrderBook::asksAt(double priceLevel)
+const order_list& OrderBook::asksAt(double priceLevel)
 {
     return ordersAt(priceLevel);
 }
@@ -183,27 +183,41 @@ int OrderBook::volumeAt(double priceLevel)
     return 0;
 }
 
-// OPTIMIZE: this could probably be just one loop
 // center around best bid/ask
 OrderBook::Depth OrderBook::getDepth(size_t levels)
 {
-    // get bids first
+    // auto bids{getLevels(bidMap, levels)};
+    // auto asks{getLevels(askMap, levels)};
     std::vector<OrderBook::Level> bids{};
-    size_t i{};
-    for (auto it{bidMap.begin()}; it != bidMap.end(); ++it)
-    {
-        if (i >= levels) {break;}
-        bids.emplace_back(it->first * tickSize, it->second.volume, it->second.orders.size());
-        ++i;
-    }
-
-    // get asks
     std::vector<OrderBook::Level> asks{};
-    i = 0;
-    for (auto it{askMap.begin()}; it != askMap.end(); ++it)
+
+    auto bidIt{bidMap.begin()};
+    auto askIt{askMap.begin()};
+    size_t i{};
+
+    while (true)
     {
-        if (i >= levels) {break;}
-        asks.emplace_back(it->first * tickSize, it->second.volume, it->second.orders.size());
+        if (i >= levels) {break;} // got `level` levels
+        if (bidIt == bidMap.end() && askIt == askMap.end()) {break;} // both iterators are at end
+
+        if (bidIt != bidMap.end()) // add and increment as long as we haven't reached the end
+        {
+            bids.emplace_back(
+                bidIt->first * tickSize, bidIt->second.volume,
+                bidIt->second.orders.size()
+            );
+            ++bidIt;
+        }
+
+        if (askIt != askMap.end())
+        {
+            asks.emplace_back(
+                askIt->first * tickSize, askIt->second.volume,
+                askIt->second.orders.size()
+            );
+            ++askIt;
+        }
+
         ++i;
     }
 
@@ -218,74 +232,17 @@ OrderBook::Depth OrderBook::getDepthAtPrice(double price, size_t levels)
 
     if (price < bestBid) // centered around a bid price
     {
-        // start at best bid and go until `levels` levels below the price
-        // iterate and find the level of the price after it (in case the price itself doesnt exist)
-        auto endIt{bidMap.begin()};
-        while (endIt != bidMap.end())
-        {
-            if (endIt->first * tickSize < price) // found the first level after
-            {
-                // move it the remaining levels
-                // it should end one step over for a half open range
-                if (std::distance(endIt, bidMap.end()) >= static_cast<int>(levels))
-                {
-                    // make sure we dont advance past the end iterator here
-                    std::advance(endIt, levels);
-                } else
-                {
-                    endIt = bidMap.end();
-                }
-                break;
-            }
-            ++endIt;
-        }
 
-        // bids should be everything from best bid to the end iterator
-        for (auto it{bidMap.begin()}; it != endIt; ++it)
-        {
-            bids.emplace_back(it->first * tickSize, it->second.volume, it->second.orders.size());
-        }
+        bids = getLevelsAtPrice(bidMap, levels, price);
 
-        size_t i{};
         // for asks just go `levels` level from best ask
-        for (auto it{askMap.begin()}; it != askMap.end(); ++it)
-        {
-            if (i >= levels) {break;}
-            asks.emplace_back(it->first * tickSize, it->second.volume, it->second.orders.size());
-            ++i;
-        }
+        asks = getLevels(askMap, levels);
 
     } else if (price > bestAsk) // centered around an ask price
     {
         // logic here is basically the same
-        auto endIt{askMap.begin()};
-        while (endIt != askMap.end())
-        {
-            if (endIt->first * tickSize > price)
-            {
-                if (std::distance(endIt, askMap.end()) >= static_cast<int>(levels))
-                {
-                    std::advance(endIt, levels);
-                } else
-                {
-                    endIt = askMap.end();
-                }
-            }
-            ++endIt;
-        }
-
-        for (auto it{askMap.begin()}; it != endIt; ++it)
-        {
-            asks.emplace_back(it->first * tickSize, it->second.volume, it->second.orders.size());
-        }
-
-        size_t i{};
-        for (auto it{bidMap.begin()}; it != bidMap.end(); ++it)
-        {
-            if (i >= levels) {break;}
-            bids.emplace_back(it->first * tickSize, it->second.volume, it->second.orders.size());
-            ++i;
-        }
+        asks = getLevelsAtPrice(askMap, levels, price);
+        bids = getLevels(bidMap, levels);
 
     } else // centered around best bid/ask or gap in between
     {
@@ -303,21 +260,11 @@ OrderBook::Depth OrderBook::getDepthInRange(double minPrice, double maxPrice)
 
     if (maxPrice >= bestAsk && minPrice >= bestAsk) // whole range is just in asks
     {
-        for (auto it{askMap.begin()}; it != askMap.end(); ++it)
-        {
-            if (it->first * tickSize < minPrice) {continue;} // not yet reached min
-            if (it->first * tickSize > maxPrice) {break;} // overshot max
-            asks.emplace_back(it->first * tickSize, it->second.volume, it->second.orders.size());
-        }
+        asks = getLevelsOneSided(askMap, minPrice, maxPrice);
 
     } else if (minPrice <= bestBid && maxPrice <= bestBid) // whole range just in bids
     {
-        for (auto it{bidMap.begin()}; it != bidMap.end(); ++it)
-        {
-            if (it->first * tickSize < minPrice) {continue;} // not yet reached min
-            if (it->first * tickSize > maxPrice) {break;} // overshot max
-            asks.emplace_back(it->first * tickSize, it->second.volume, it->second.orders.size());
-        }
+        bids = getLevelsOneSided(bidMap, minPrice, maxPrice);
 
     } else // go from best ask to max and best bid to min
     {

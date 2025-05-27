@@ -96,6 +96,7 @@ public:
         bool operator==(const Depth& other) const;
     };
 
+    // constructors
     OrderBook() = default;
     OrderBook(double tickSize) : tickSize(tickSize) {}
     OrderBook(const OrderBook&) = delete;
@@ -117,12 +118,12 @@ public:
 
     // orderbook query
     const Order& getOrderByID(const auto& _id);
-    order_list ordersAt(double priceLevel);
+    const order_list& ordersAt(double priceLevel);
     int volumeAt(double priceLevel);
 
     // legacy query
-    order_list bidsAt(double priceLevel);
-    order_list asksAt(double priceLevel);
+    const order_list& bidsAt(double priceLevel);
+    const order_list& asksAt(double priceLevel);
 
     // depth
     Depth getDepth(size_t levels);
@@ -153,7 +154,8 @@ private:
     auto dispatchBySide(Order::Side side, auto&& func);
     const uuids::uuid* getPointer(const auto& id, bool throws);
     template<bool Volume>
-    auto priceLevelQuery(const auto& orderMap, tick_t tickPrice);
+    auto priceLevelQuery(const auto& orderMap, tick_t tickPrice)
+        -> std::conditional_t<Volume, int, const order_list&>;
 
     OrderResult matchOrder(Order& order);
     template<Order::Type OrderType>
@@ -161,6 +163,10 @@ private:
 
     void genTrade(const Order& buyer, const Order& seller, double price,
                   int volume, Order::Side side, trades& generatedTrades);
+
+    std::vector<Level> getLevels(const auto& orderMap, size_t levels);
+    std::vector<Level> getLevelsAtPrice(const auto& orderMap, size_t levels, double price);
+    std::vector<Level> getLevelsOneSided(const auto& orderMap, double minPrice, double maxPrice);
 
     // internal data structures
     bid_map bidMap{}; // store active bids
@@ -484,10 +490,10 @@ const Order& OrderBook::getOrderByID(const auto& id_)
         throw std::invalid_argument{"Order is no longer active"};
     }
 }
-#include <iostream>
 
 template<bool Volume>
 auto OrderBook::priceLevelQuery(const auto& orderMap, tick_t tickPrice)
+    -> std::conditional_t<Volume, int, const order_list&>
 {
     auto it{orderMap.find(tickPrice)};
     if (it != orderMap.end())
@@ -499,8 +505,81 @@ auto OrderBook::priceLevelQuery(const auto& orderMap, tick_t tickPrice)
     else {return OrderBook::emptyOrders;}
 }
 
-// int OrderBook::volumeAtImpl(const auto& orderMap, tick_t tickPrice)
-// {
-//     auto it{orderMap.find(tick)}
-// }
+std::vector<OrderBook::Level> OrderBook::getLevels(const auto& orderMap, size_t levels)
+{
+    std::vector<OrderBook::Level> vlevels{};
+
+    // get all Levels until either map ends or there are enough levels
+    size_t i{};
+    for (auto it{orderMap.begin()}; it != orderMap.end(); ++it)
+    {
+        if (i >= levels) {break;}
+        vlevels.emplace_back(it->first * tickSize,
+                             it->second.volume,
+                             it->second.orders.size());
+        ++i;
+    }
+
+    return vlevels;
+}
+
+std::vector<OrderBook::Level> OrderBook::getLevelsAtPrice(const auto& orderMap, size_t levels, double price)
+{
+    std::vector<OrderBook::Level> vlevels{};
+
+    auto endIt{orderMap.begin()};
+    auto startIt{orderMap.begin()};
+
+    // start at best bid/ask and go until `levels` levels below the price
+    // stop at the price after it in case `price` itself doesn't exist
+    // as we iterate, startIt adds the depths
+    while (endIt != orderMap.end())
+    {
+        if (endIt->first * tickSize < price) // found the first level after
+        {
+            // move endIt the remaining levels and end one step over for half open range
+            if (std::distance(endIt, orderMap.end()) >= static_cast<int>(levels))
+            {
+                std::advance(endIt, levels); // make sure to not advance past end() here
+            } else
+            {
+                endIt = orderMap.end();
+            }
+            break;
+        }
+
+        vlevels.emplace_back(startIt->first * tickSize,
+                             startIt->second.volume,
+                             startIt->second.orders.size());
+
+        ++startIt;
+        ++endIt;
+    }
+
+    // remaining levels should be whatever we skipped when advancing endIt
+    for (; startIt != endIt; ++startIt)
+    {
+        vlevels.emplace_back(startIt->first * tickSize,
+                             startIt->second.volume,
+                             startIt->second.orders.size());
+    }
+
+    return vlevels;
+}
+
+std::vector<OrderBook::Level> OrderBook::getLevelsOneSided(const auto& orderMap, double minPrice, double maxPrice)
+{
+    std::vector<OrderBook::Level> vlevels{};
+
+    for (auto it{orderMap.begin()}; it != orderMap.end(); ++it)
+    {
+        if (it->first * tickSize < minPrice) {continue;} // not yet reached min
+        if (it->first * tickSize > maxPrice) {break;} // overshot max
+        vlevels.emplace_back(it->first * tickSize,
+                             it->second.volume,
+                             it->second.orders.size());
+    }
+
+    return vlevels;
+}
 
