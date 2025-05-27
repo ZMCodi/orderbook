@@ -45,6 +45,9 @@ Hence, I dived into template programming and changed `Trade` to `TradeImpl` whic
 
 Of course this came with a lot of rewriting the tests to reflect the new API but it wasn't that bad. I just had to make a specialized 'SFINAE copy constructor' that creates a `TradeCopy` from a `Trade`, redefine a 'SFINAE aggregate constructor' for `Trade`s to mirror the aggregate constructor and redefine the copy constructors for both. Then, the compiler took care of converting the `Trade` to `TradeCopy` when I pass it into a `trades` container.
 
+### v7
+Ah hell nah I just realized what am I even storing copies for here. If the code is used for trading sims or whatever over the network then the `OrderResult` will be serialized (and copied) before being sent anyways so I could just use references. Mayn ts pmo I'm gonna have to revert all of ts soon.
+
 ## Float precision
 I knew when I used float instead of double that it's gonna bite me in the ass some day, and today (23/5/2025) is that day
 
