@@ -115,7 +115,8 @@ OrderResult OrderBook::matchOrder(Order& order)
     // limit buy
     if (order.type == Order::Type::LIMIT && order.side == Order::Side::BUY)
     {
-        return matchLimitBuy(order, generatedTrades, default_);
+        // return matchLimitBuy(order, generatedTrades, default_);
+        return matchOrderTemplate<ask_map, Order::Type::LIMIT>(order, askMap);
     }
 
     // limit sell
