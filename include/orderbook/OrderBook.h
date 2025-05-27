@@ -154,6 +154,9 @@ private:
     static const order_list emptyOrders;
 
     // internal processing logic
+    template<typename MapType>
+    order_list::iterator storeOrder(Order& order, MapType& orderMap, tick_t tickPrice);
+
     OrderResult matchOrder(Order& order);
     template<typename MapType, Order::Type OrderType>
     OrderResult matchOrderTemplate(Order& order, MapType& orderMap);
@@ -296,4 +299,28 @@ OrderResult OrderBook::matchOrderTemplate(Order& order, MapType& orderMap)
 
         return {*order.id, OrderResult::PARTIALLY_FILLED, generatedTrades, nullptr, msg.str()};
     }
+}
+
+template<typename MapType>
+order_list::iterator OrderBook::storeOrder(Order& order, MapType& orderMap, tick_t tickPrice)
+{
+    constexpr Order::Side side = std::is_same_v<MapType, bid_map> ? Order::Side::BUY : Order::Side::SELL;
+
+    // update best bid/ask if better
+    if constexpr (side == Order::Side::BUY)
+    {
+        if (bestBid == -1 || order.price > bestBid) {bestBid = order.price;}
+    } else
+    {
+        if (bestAsk == -1 || order.price < bestAsk) {bestAsk = order.price;}
+    }
+
+    // add the order to the end of the orderlist
+    // and update volume at PriceLevel
+    PriceLevel& pLevel{orderMap[tickPrice]}; // creates an empty PriceLevel if doesnt exist
+    pLevel.volume += order.volume;
+    pLevel.orders.push_back(std::move(order));
+
+    // return iterator to the inserted order
+    return std::prev(pLevel.orders.end());
 }

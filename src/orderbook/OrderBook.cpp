@@ -96,29 +96,14 @@ OrderResult OrderBook::placeOrder(Order& order, callback callbackFn)
         // update relevant fields
         totalVolume += activeCopy.volume;
 
-        // put in bid/ask map
-        // some code duplication here since bid_map and ask_map are diff types
+        // put in bid/ask map and get iterator to the order in the map
         order_list::iterator activeItr;
         if (activeCopy.side == Order::Side::BUY)
         {
-            // update best bid if better
-            if (activeCopy.price > bestBid) {bestBid = activeCopy.price;}
-
-            // add the order to the end of the orderlist
-            // and update volume at PriceLevel
-            auto& pLevel{bidMap[tickPrice]}; // creates an empty PriceLevel if doesnt exist
-            pLevel.volume += activeCopy.volume;
-            pLevel.orders.push_back(std::move(activeCopy));
-            activeItr = std::prev(pLevel.orders.end());
+            activeItr = storeOrder(activeCopy, bidMap, tickPrice);
         } else
         {
-            // update best ask if better
-            if (bestAsk == -1 || activeCopy.price < bestAsk) {bestAsk = activeCopy.price;}
-
-            auto& pLevel{askMap[tickPrice]};
-            pLevel.volume += activeCopy.volume;
-            pLevel.orders.push_back(std::move(activeCopy));
-            activeItr = std::prev(pLevel.orders.end());
+            activeItr = storeOrder(activeCopy, askMap, tickPrice);
         }
 
         // add to idMap
