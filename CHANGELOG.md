@@ -78,6 +78,8 @@ What I plan to do is, get the tests passing first, set up some benchmark and tes
 Claude made some good points today. In the matching logic, they overlap quite a bit and the only difference is the map types are different (literally just the comparator but of course they aren't compatible lol) and some minor logic difference between limit and market orders. So what I could do is use templates like so
 ```cpp
 template<typename MapType, Order::Type OrderType>
-OrderResult matchOrder(Order& order, MapType& map, trades& generatedTrades, OrderResult& default_)
+OrderResult matchOrder(Order& order, MapType& orderMap)
 ```
 and I don't have to rewrite the same logic for `bid_map` and `ask_map`! Also just some `if constexpr` branches for the different matching logic and my code would be hella DRY. This can also be done with any logic that requires branching simply because of the map difference like inserting into orderbook and (maybe) depth.
+
+Made the optimization but now I'm considering the tradeoffs of using `OrderType` as a template parameter or just using runtime values from `order.type` (in `matchOrder`) so I'm noting this here so I can test in the benchmark. Claude said template would be better since it's a hot path but why not check anyways.
