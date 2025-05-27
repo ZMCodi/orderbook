@@ -18,11 +18,19 @@ int main()
     [[maybe_unused]] Order sellMarket{Order::Side::SELL, 5,  Order::Type::MARKET};
 
     // no matches here
-    ob.placeOrder(buy50);
-    ob.placeOrder(buy45);
-    ob.placeOrder(sell60);
+    ob.placeOrder(sell50);
+    std::cout << "sell50 id: " << *sell50.id;
+    auto actual{ob.placeOrder(buy50)};
 
-    // this causes sell60 to match buy50 and buy45
-    auto actual{ob.modifyPrice(sell60.get_id(), 45)}; // segfault here
-    std::cout << actual;
+    Trade expTrade{nullptr, buy50.get_id(), sell50.get_id(), 50, 5, utils::now(), Order::Side::BUY};
+    OrderResult expected{
+        *buy50.get_id(),
+        OrderResult::FILLED,
+        trades{expTrade},
+        nullptr,
+        "Order filled"
+    };
+
+    std::cout << "\n\nactual: " << actual;
+    std::cout << "\n\nexpected: " << expected;
 }

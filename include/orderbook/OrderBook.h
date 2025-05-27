@@ -155,15 +155,11 @@ private:
 
     // internal processing logic
     OrderResult matchOrder(Order& order);
-    OrderResult matchLimitBuy(Order& order, trades& generatedTrades, OrderResult& default_);
-    OrderResult matchLimitSell(Order& order, trades& generatedTrades, OrderResult& default_);
-    OrderResult matchMarketBuy(Order& order, trades& generatedTrades);
-    OrderResult matchMarketSell(Order& order, trades& generatedTrades);
+    template<typename MapType, Order::Type OrderType>
+    OrderResult matchOrderTemplate(Order& order, MapType& orderMap);
+
     void genTrade(const Order& buyer, const Order& seller, double price,
                   int volume, Order::Side side, trades& generatedTrades);
-
-    template<typename MapType, Order::Type OrderType>
-    OrderResult matchOrderTemplate(Order& order, MapType& orderMap); 
 
     // internal data structures
     bid_map bidMap{}; // store active bids
@@ -243,7 +239,7 @@ OrderResult OrderBook::matchOrderTemplate(Order& order, MapType& orderMap)
 
             // determine who is buyer/seller
             Order& buyer = side == Order::Side::BUY ? order : o;
-            Order& seller = side == Order::Side::SELL ? o : order;
+            Order& seller = side == Order::Side::BUY ? o : order;
 
             if (order.volume >= o.volume) // order gets partial filled by o
             {
