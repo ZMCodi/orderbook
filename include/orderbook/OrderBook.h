@@ -106,17 +106,16 @@ public:
     OrderResult placeOrder(Order& order, callback callbackFn = nullptr);
     OrderResult placeOrder(Order&& order, callback callbackFn = nullptr);
 
-    // OrderResult cancelOrder(const uuids::uuid* id);
-    OrderResult modifyVolume(const uuids::uuid* id, int volume);
+    // OrderResult modifyVolume(const uuids::uuid* id, int volume);
     OrderResult modifyPrice(const uuids::uuid* id, double price);
 
     // reference overload
-    // OrderResult cancelOrder(const uuids::uuid& id);
-    OrderResult modifyVolume(const uuids::uuid& id, int volume);
+    // OrderResult modifyVolume(const uuids::uuid& id, int volume);
     OrderResult modifyPrice(const uuids::uuid& id, double price);
 
     // templates
     OrderResult cancelOrder(auto&& id_);
+    OrderResult modifyVolume(auto&& id_, int volume);
 
     bool registerCallback(const uuids::uuid* id, callback callbackFn);
     bool removeCallback(const uuids::uuid* id);
@@ -361,4 +360,58 @@ OrderResult OrderBook::cancelOrder(auto&& id_)
     std::stringstream msg;
     msg << "Order cancelled with " << vol << " unfilled shares";
     return {*id, OrderResult::CANCELLED, trades(), nullptr, msg.str()};
+}
+
+OrderResult OrderBook::modifyVolume(auto&& id_, int volume)
+{
+    if (volume <= 0)
+    {
+        throw std::invalid_argument{"Volume has to be positive"};
+    }
+
+    const uuids::uuid* id{getPointer(id_, true)};
+
+    auto [price, itr, side] = idMap.at(id); // unpack the OrderLocation
+    auto vol{itr->volume};
+    auto delta{vol - volume};
+    auto tickPrice{utils::convertTick(price, tickSize)};
+
+
+    if (delta == 0) // unchanged
+    {
+        return {*id, OrderResult::REJECTED, trades{}, &(*itr), "Volume unchanged"};
+    }
+
+    // return OrderResult
+    if (delta > 0)
+    {
+        totalVolume -= delta;
+
+        // decrease volume maintain time priority
+        dispatchBySide(side, [&](auto& orderMap){
+            itr->volume -= delta;
+            orderMap.at(tickPrice).volume -= delta;
+        });
+
+        auditList.emplace_back(id, utils::now(), delta);
+
+        std::stringstream msg;
+        msg << "Volume decreased from " << vol << " to " << volume;
+        return {*id, OrderResult::MODIFIED, trades{}, &(*itr), msg.str()};
+
+    } else // cancel and replace
+    {
+        Order replace{*itr}; // copy with modified volume
+        replace.volume -= delta;
+        auto cb{replace.callbackFn};
+
+        cancelOrder(id); // cancel
+        auto placeRes{placeOrder(replace, cb)}; // replace
+
+        std::stringstream msg;
+        msg << "Volume increased from " << vol << " to " << volume
+        << ". New ID generated.";
+        return {*placeRes.remainingOrder->id, OrderResult::MODIFIED, trades{},
+                placeRes.remainingOrder, msg.str()};
+    }
 }
