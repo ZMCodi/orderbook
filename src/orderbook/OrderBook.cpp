@@ -141,48 +141,6 @@ void OrderBook::genTrade(const Order& buyer, const Order& seller, double price,
     marketPrice = price;
 }
 
-bool OrderBook::registerCallback(const uuids::uuid* id, callback callbackFn)
-{
-    // check if order is still active
-    auto it{idMap.find(id)};
-
-    if (it == idMap.end()) {return false;} // order is no longer active
-
-    it->second.itr->callbackFn = callbackFn; // assign the callback
-    return true;
-}
-
-bool OrderBook::registerCallback(const uuids::uuid& id, callback callbackFn)
-{
-    // find uuid in idPool first and get pointer
-    auto it{idPool.find(id)};
-
-    if (it == idPool.end()) {return false;} // not a valid uuid
-
-    return registerCallback(&(*it), callbackFn);
-}
-
-bool OrderBook::removeCallback(const uuids::uuid* id)
-{
-    // check if order is still active
-    auto it{idMap.find(id)};
-
-    if (it == idMap.end()) {return false;} // order is no longer active
-
-    it->second.itr->callbackFn = nullptr; // assign the callback
-    return true;
-}
-
-bool OrderBook::removeCallback(const uuids::uuid& id)
-{
-    // find uuid in idPool first and get pointer
-    auto it{idPool.find(id)};
-
-    if (it == idPool.end()) {return false;} // not a valid uuid
-
-    return removeCallback(&(*it));
-}
-
 const order_list& OrderBook::bidsAt(double priceLevel)
 {
     tick_t tickPrice{utils::convertTick(priceLevel, tickSize)};
@@ -209,30 +167,6 @@ const order_list& OrderBook::asksAt(double priceLevel)
     }
 
     return it->second.orders;
-}
-
-const Order& OrderBook::getOrderByID(const uuids::uuid* id)
-{
-    try
-    {
-        return *idMap.at(id).itr;
-    } catch (const std::out_of_range&)
-    {
-        throw std::invalid_argument{"Order is no longer active"};
-    }
-}
-
-const Order& OrderBook::getOrderByID(const uuids::uuid& id)
-{
-    // look in the idPool first if the id exists
-    auto it{idPool.find(id)};
-
-    if (it == idPool.end())
-    {
-        throw std::invalid_argument{"ID does not exist"};
-    }
-
-    return getOrderByID(&(*it));
 }
 
 int OrderBook::volumeAt(double priceLevel)

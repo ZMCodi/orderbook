@@ -106,30 +106,22 @@ public:
     OrderResult placeOrder(Order& order, callback callbackFn = nullptr);
     OrderResult placeOrder(Order&& order, callback callbackFn = nullptr);
 
-    // OrderResult modifyPrice(const uuids::uuid* id, double price);
+    // modification
+    OrderResult cancelOrder(const auto& id_);
+    OrderResult modifyVolume(const auto& id_, int volume);
+    OrderResult modifyPrice(const auto& id_, double price);
 
-    // reference overload
-    // OrderResult modifyPrice(const uuids::uuid& id, double price);
+    // callbacks
+    bool registerCallback(const auto& id_, callback callbackFn);
+    bool removeCallback(const auto& id_);
 
-    // templates
-    OrderResult cancelOrder(auto&& id_);
-    OrderResult modifyVolume(auto&& id_, int volume);
-    OrderResult modifyPrice(auto&& id_, double price);
-
-    bool registerCallback(const uuids::uuid* id, callback callbackFn);
-    bool removeCallback(const uuids::uuid* id);
-
-    // reference overload
-    bool registerCallback(const uuids::uuid& id, callback callbackFn);
-    bool removeCallback(const uuids::uuid& id);
-
+    // orderbook query
     const order_list& bidsAt(double priceLevel);
     const order_list& asksAt(double priceLevel);
     int volumeAt(double priceLevel);
+    const Order& getOrderByID(const auto& _id);
 
-    const Order& getOrderByID(const uuids::uuid* id);
-    const Order& getOrderByID(const uuids::uuid& id);
-
+    // depth
     Depth getDepth(size_t levels);
     Depth getDepthAtPrice(double price, size_t levels);
     Depth getDepthInRange(double maxPrice, double minPrice);
@@ -312,7 +304,7 @@ const uuids::uuid* OrderBook::getPointer(auto&& id, bool throws)
     // id passed in is a reference
     if constexpr (std::is_same_v<std::decay_t<decltype(id)>, uuids::uuid>)
     {
-        id_pool::iterator it{idPool.find(id)};
+        id_pool::iterator it{idPool.find(std::forward<decltype(id)>(id))};
 
         if (it == idPool.end()) // not found
         {
@@ -327,7 +319,7 @@ const uuids::uuid* OrderBook::getPointer(auto&& id, bool throws)
     }
 }
 
-OrderResult OrderBook::cancelOrder(auto&& id_)
+OrderResult OrderBook::cancelOrder(const auto& id_)
 {
     const uuids::uuid* id{getPointer(id_, true)};
 
@@ -361,7 +353,7 @@ OrderResult OrderBook::cancelOrder(auto&& id_)
     return {*id, OrderResult::CANCELLED, trades(), nullptr, msg.str()};
 }
 
-OrderResult OrderBook::modifyVolume(auto&& id_, int volume)
+OrderResult OrderBook::modifyVolume(const auto& id_, int volume)
 {
     if (volume <= 0)
     {
@@ -415,7 +407,7 @@ OrderResult OrderBook::modifyVolume(auto&& id_, int volume)
     }
 }
 
-OrderResult OrderBook::modifyPrice(auto&& id_, double price)
+OrderResult OrderBook::modifyPrice(const auto& id_, double price)
 {
     if (price <= 0)
     {
@@ -445,4 +437,43 @@ OrderResult OrderBook::modifyPrice(auto&& id_, double price)
 
     return {placeRes.order_id, OrderResult::MODIFIED, placeRes.trades,
             placeRes.remainingOrder, msg.str()};
+}
+
+bool OrderBook::registerCallback(const auto& id_, callback callbackFn)
+{
+    const uuids::uuid* id{getPointer(id_, false)};
+
+    // check if order is still active
+    auto it{idMap.find(id)};
+
+    if (it == idMap.end()) {return false;} // order is no longer active
+
+    it->second.itr->callbackFn = callbackFn; // assign the callback
+    return true;
+}
+
+bool OrderBook::removeCallback(const auto& id_)
+{
+    const uuids::uuid* id{getPointer(id_, false)};
+
+    // check if order is still active
+    auto it{idMap.find(id)};
+
+    if (it == idMap.end()) {return false;} // order is no longer active
+
+    it->second.itr->callbackFn = nullptr; // assign the callback
+    return true;
+}
+
+const Order& OrderBook::getOrderByID(const auto& id_)
+{
+    const uuids::uuid* id{getPointer(id_, true)};
+
+    try
+    {
+        return *idMap.at(id).itr;
+    } catch (const std::out_of_range&)
+    {
+        throw std::invalid_argument{"Order is no longer active"};
+    }
 }
