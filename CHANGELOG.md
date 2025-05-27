@@ -45,9 +45,6 @@ Hence, I dived into template programming and changed `Trade` to `TradeImpl` whic
 
 Of course this came with a lot of rewriting the tests to reflect the new API but it wasn't that bad. I just had to make a specialized 'SFINAE copy constructor' that creates a `TradeCopy` from a `Trade`, redefine a 'SFINAE aggregate constructor' for `Trade`s to mirror the aggregate constructor and redefine the copy constructors for both. Then, the compiler took care of converting the `Trade` to `TradeCopy` when I pass it into a `trades` container.
 
-### v7
-Ah hell nah I just realized what am I even storing copies for here. If the code is used for trading sims or whatever over the network then the `OrderResult` will be serialized (and copied) before being sent anyways so I could just use references. Mayn ts pmo I'm gonna have to revert all of ts soon.
-
 ## Float precision
 I knew when I used float instead of double that it's gonna bite me in the ass some day, and today (23/5/2025) is that day
 
@@ -88,3 +85,10 @@ and I don't have to rewrite the same logic for `bid_map` and `ask_map`! Also jus
 Made the optimization but now I'm considering the tradeoffs of using `OrderType` as a template parameter or just using runtime values from `order.type` (in `matchOrder`) so I'm noting this here so I can test in the benchmark. Claude said template would be better since it's a hot path but why not check anyways.
 
 Another consideration is breaking up big complex functions (`placeOrder`, `matchOrderTemplate`) into smaller more understandable chunks. Function calls might incur some overhead but compilers are good at inlining so we'll have to benchmark it.
+
+### Network vs Internal
+Ah hell nah I just realized what am I even storing copies for here. If the code is used for trading sims or whatever over the network then the `OrderResult` will be serialized (and copied) before being sent anyways so I could just use references. Mayn ts pmo I'm gonna have to revert all of ts soon.
+
+Now that I've given it more thought, for this phase, returning copies would still be good since I will be testing internally and object lifetime is an actual concern. However, when we move this to a server for actual market sims or whatever, then returning copies would be slow. When it gets to that point, we can always just template `OrderResult` to hold copies or refs based on a template parameter.
+
+Also, most orderbook visualizations use depth a lot like every 100ms or so. If it comes to that, I might have to track depth internally after every order place and match instead of recalculating it everytime with the depth functions.
