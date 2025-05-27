@@ -31,6 +31,7 @@ TEST_CASE("Check time priority", "[order filling][time priority]")
         REQUIRE(buy50_1.timestamp < buy50_2.timestamp);
         REQUIRE(buy50_2.timestamp < buy50_3.timestamp);
         REQUIRE(compareOrderLists(ob.bidsAt(50.0), order_list{buy50_1, buy50_2, buy50_3}));
+        REQUIRE(compareOrderLists(ob.ordersAt(50.0), order_list{buy50_1, buy50_2, buy50_3}));
     }
 
     SECTION("Time priority for sell")
@@ -42,6 +43,7 @@ TEST_CASE("Check time priority", "[order filling][time priority]")
         REQUIRE(sell51_1.timestamp < sell51_2.timestamp);
         REQUIRE(sell51_2.timestamp < sell51_3.timestamp);
         REQUIRE(compareOrderLists(ob.asksAt(51.0), order_list{sell51_1, sell51_2, sell51_3}));
+        REQUIRE(compareOrderLists(ob.ordersAt(51.0), order_list{sell51_1, sell51_2, sell51_3}));
     }
 
     SECTION("Time priority for mixed orders")
@@ -60,6 +62,8 @@ TEST_CASE("Check time priority", "[order filling][time priority]")
         REQUIRE(buy50_3.timestamp < sell51_3.timestamp);
         REQUIRE(compareOrderLists(ob.bidsAt(50.0), order_list{buy50_1, buy50_2, buy50_3}));
         REQUIRE(compareOrderLists(ob.asksAt(51.0), order_list{sell51_1, sell51_2, sell51_3}));
+        REQUIRE(compareOrderLists(ob.ordersAt(50.0), order_list{buy50_1, buy50_2, buy50_3}));
+        REQUIRE(compareOrderLists(ob.ordersAt(51.0), order_list{sell51_1, sell51_2, sell51_3}));
     }
 
     SECTION("Buy limit orders fill based on time priority")
@@ -190,6 +194,7 @@ TEST_CASE("Check time priority", "[order filling][time priority]")
         // sell51_1 is filled, sell51_2 is partially filled
         sell51_2.volume = 5; // remaining volume after partial fill
         REQUIRE(compareOrderLists(ob.asksAt(51.0), order_list{sell51_2, sell51_3}));
+        REQUIRE(compareOrderLists(ob.ordersAt(51.0), order_list{sell51_2, sell51_3}));
         REQUIRE(sell51_2.volume == 5);
         REQUIRE(sell51_3.volume == 2);
     }
@@ -204,6 +209,7 @@ TEST_CASE("Check time priority", "[order filling][time priority]")
         // buy50_1 is filled, buy50_2 is partially filled
         buy50_2.volume = 5; // remaining volume after partial fill
         REQUIRE(compareOrderLists(ob.bidsAt(50.0), order_list{buy50_2, buy50_3}));
+        REQUIRE(compareOrderLists(ob.ordersAt(50.0), order_list{buy50_2, buy50_3}));
         REQUIRE(buy50_2.volume == 5);
         REQUIRE(buy50_3.volume == 2);
     }
@@ -218,6 +224,7 @@ TEST_CASE("Check time priority", "[order filling][time priority]")
         // sell51_1 is filled, sell51_2 is partially filled
         sell51_2.volume = 5; // remaining volume after partial fill
         REQUIRE(compareOrderLists(ob.asksAt(51.0), order_list{sell51_2, sell51_3}));
+        REQUIRE(compareOrderLists(ob.ordersAt(51.0), order_list{sell51_2, sell51_3}));
         REQUIRE(sell51_2.volume == 5);
         REQUIRE(sell51_3.volume == 2);
     }
@@ -232,6 +239,7 @@ TEST_CASE("Check time priority", "[order filling][time priority]")
         // buy50_1 is filled, buy50_2 is partially filled
         buy50_2.volume = 5; // remaining volume after partial fill
         REQUIRE(compareOrderLists(ob.bidsAt(50.0), order_list{buy50_2, buy50_3}));
+        REQUIRE(compareOrderLists(ob.ordersAt(50.0), order_list{buy50_2, buy50_3}));
         REQUIRE(buy50_2.volume == 5);
         REQUIRE(buy50_3.volume == 2);
     }
@@ -250,5 +258,7 @@ TEST_CASE("Check time priority", "[order filling][time priority]")
 
         REQUIRE(compareOrderLists(ob.bidsAt(50.0), order_list{buy50_1, buy50_3}));
         REQUIRE(compareOrderLists(ob.asksAt(51.0), order_list{sell51_1, sell51_3}));
+        REQUIRE(compareOrderLists(ob.ordersAt(50.0), order_list{buy50_1, buy50_3}));
+        REQUIRE(compareOrderLists(ob.ordersAt(51.0), order_list{sell51_1, sell51_3}));
     }
 }

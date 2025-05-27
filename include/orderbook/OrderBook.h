@@ -116,10 +116,13 @@ public:
     bool removeCallback(const auto& id_);
 
     // orderbook query
-    const order_list& bidsAt(double priceLevel);
-    const order_list& asksAt(double priceLevel);
-    int volumeAt(double priceLevel);
     const Order& getOrderByID(const auto& _id);
+    order_list ordersAt(double priceLevel);
+    int volumeAt(double priceLevel);
+
+    // legacy query
+    order_list bidsAt(double priceLevel);
+    order_list asksAt(double priceLevel);
 
     // depth
     Depth getDepth(size_t levels);
@@ -148,7 +151,9 @@ private:
 
     // internal processing logic
     auto dispatchBySide(Order::Side side, auto&& func);
-    const uuids::uuid* getPointer(auto&& id, bool throws);
+    const uuids::uuid* getPointer(const auto& id, bool throws);
+    template<bool Volume>
+    auto priceLevelQuery(const auto& orderMap, tick_t tickPrice);
 
     OrderResult matchOrder(Order& order);
     template<Order::Type OrderType>
@@ -299,7 +304,7 @@ auto OrderBook::dispatchBySide(Order::Side side, auto&& func)
     return side == Order::Side::BUY ? func(bidMap) : func(askMap);
 }
 
-const uuids::uuid* OrderBook::getPointer(auto&& id, bool throws)
+const uuids::uuid* OrderBook::getPointer(const auto& id, bool throws)
 {
     // id passed in is a reference
     if constexpr (std::is_same_v<std::decay_t<decltype(id)>, uuids::uuid>)
@@ -402,6 +407,7 @@ OrderResult OrderBook::modifyVolume(const auto& id_, int volume)
         std::stringstream msg;
         msg << "Volume increased from " << vol << " to " << volume
         << ". New ID generated.";
+
         return {*placeRes.remainingOrder->id, OrderResult::MODIFIED, trades{},
                 placeRes.remainingOrder, msg.str()};
     }
@@ -423,11 +429,12 @@ OrderResult OrderBook::modifyPrice(const auto& id_, double price)
         return {*id, OrderResult::REJECTED, trades{}, &(*itr), "Price unchanged"};
     }
 
-    // cancel and replace
+    // create new order with updated price
     auto ord{*itr};
     Order replace{side, ord.volume, ord.type, price};
     auto cb{itr->callbackFn};
 
+    // cancel and replace
     cancelOrder(id);
     auto placeRes{placeOrder(replace, cb)};
 
@@ -477,3 +484,23 @@ const Order& OrderBook::getOrderByID(const auto& id_)
         throw std::invalid_argument{"Order is no longer active"};
     }
 }
+#include <iostream>
+
+template<bool Volume>
+auto OrderBook::priceLevelQuery(const auto& orderMap, tick_t tickPrice)
+{
+    auto it{orderMap.find(tickPrice)};
+    if (it != orderMap.end())
+    {
+        if constexpr (Volume) {return it->second.volume;}
+        else {return it->second.orders;}
+    }
+    if constexpr (Volume) {return 0;}
+    else {return OrderBook::emptyOrders;}
+}
+
+// int OrderBook::volumeAtImpl(const auto& orderMap, tick_t tickPrice)
+// {
+//     auto it{orderMap.find(tick)}
+// }
+

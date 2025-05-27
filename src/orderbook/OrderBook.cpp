@@ -71,8 +71,8 @@ OrderResult OrderBook::placeOrder(Order& order, callback callbackFn)
         // dispatchBySide passes the appropriate map based on order type
         order_list::iterator activeItr;
         dispatchBySide(activeCopy.side, [&](auto& orderMap){
-            constexpr Order::Side side = std::is_same_v<decltype(orderMap), bid_map&> ?
-                Order::Side::BUY 
+            constexpr Order::Side side = std::is_same_v<decltype(orderMap), bid_map&>
+                ? Order::Side::BUY 
                 : Order::Side::SELL;
 
             // update best bid/ask if better
@@ -141,52 +141,43 @@ void OrderBook::genTrade(const Order& buyer, const Order& seller, double price,
     marketPrice = price;
 }
 
-const order_list& OrderBook::bidsAt(double priceLevel)
+order_list OrderBook::ordersAt(double priceLevel)
 {
     tick_t tickPrice{utils::convertTick(priceLevel, tickSize)};
-    auto it{bidMap.find(tickPrice)};
 
-    // if no bids, return empty list
-    if (it == bidMap.end())
+    // determine to check at bidMap or askMap
+    if (bestBid != -1 && priceLevel <= bestBid) // bidMap
     {
-        return OrderBook::emptyOrders;
+        return priceLevelQuery<false>(bidMap, tickPrice);
+    } else if (bestAsk != -1 && priceLevel >= bestAsk) // askMap
+    {
+        return priceLevelQuery<false>(askMap, tickPrice);
     }
 
-    return it->second.orders;
+    return OrderBook::emptyOrders;
 }
 
-const order_list& OrderBook::asksAt(double priceLevel)
+order_list OrderBook::bidsAt(double priceLevel)
 {
-    tick_t tickPrice{utils::convertTick(priceLevel, tickSize)};
-    auto it{askMap.find(tickPrice)};
+    return ordersAt(priceLevel);
+}
 
-    // if no asks, return empty list
-    if (it == askMap.end())
-    {
-        return OrderBook::emptyOrders;
-    }
-
-    return it->second.orders;
+order_list OrderBook::asksAt(double priceLevel)
+{
+    return ordersAt(priceLevel);
 }
 
 int OrderBook::volumeAt(double priceLevel)
 {
     tick_t tickPrice{utils::convertTick(priceLevel, tickSize)};
+
     // determine to check at bidMap or askMap
     if (bestBid != -1 && priceLevel <= bestBid)
     {
-        auto it{bidMap.find(tickPrice)};
-        if (it != bidMap.end())
-        {
-            return it->second.volume;
-        }
+        return priceLevelQuery<true>(bidMap, tickPrice);
     } else if (bestAsk != -1 && priceLevel >= bestAsk)
     {
-        auto it{askMap.find(tickPrice)};
-        if (it != askMap.end())
-        {
-            return it->second.volume;
-        }
+        return priceLevelQuery<true>(askMap, tickPrice);
     }
 
     return 0;

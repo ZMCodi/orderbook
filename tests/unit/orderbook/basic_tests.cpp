@@ -137,6 +137,12 @@ TEST_CASE("OrderBook", "[orderbook][basic]")
         REQUIRE(compareOrderLists(ob.asksAt(55.00), order_list()));
         REQUIRE(compareOrderLists(ob.asksAt(60.00), order_list()));
 
+        // new ordersAt tests
+        REQUIRE(compareOrderLists(ob.ordersAt(50.00), order_list()));
+        REQUIRE(compareOrderLists(ob.ordersAt(45.00), order_list()));
+        REQUIRE(compareOrderLists(ob.ordersAt(55.00), order_list()));
+        REQUIRE(compareOrderLists(ob.ordersAt(60.00), order_list()));
+
         ob.placeOrder(buy50);
         ob.placeOrder(buy45);
         ob.placeOrder(sell55);
@@ -146,6 +152,11 @@ TEST_CASE("OrderBook", "[orderbook][basic]")
         REQUIRE(compareOrderLists(ob.bidsAt(45.00), order_list{buy45}));
         REQUIRE(compareOrderLists(ob.asksAt(55.00), order_list{sell55}));
         REQUIRE(compareOrderLists(ob.asksAt(60.00), order_list{sell60}));
+
+        REQUIRE(compareOrderLists(ob.ordersAt(50.00), order_list{buy50}));
+        REQUIRE(compareOrderLists(ob.ordersAt(45.00), order_list{buy45}));
+        REQUIRE(compareOrderLists(ob.ordersAt(55.00), order_list{sell55}));
+        REQUIRE(compareOrderLists(ob.ordersAt(60.00), order_list{sell60}));
     }
 
     SECTION("Price level precision")
@@ -171,6 +182,10 @@ TEST_CASE("OrderBook", "[orderbook][basic]")
         REQUIRE(compareOrderLists(ob.bidsAt(50.01), order_list{order5001_1, order5001_2, order5001_3}));
         REQUIRE(compareOrderLists(ob.bidsAt(50.02), order_list{order5002_1}));
 
+        REQUIRE(compareOrderLists(ob.ordersAt(50.00), order_list()));
+        REQUIRE(compareOrderLists(ob.ordersAt(50.01), order_list{order5001_1, order5001_2, order5001_3}));
+        REQUIRE(compareOrderLists(ob.ordersAt(50.02), order_list{order5002_1}));
+
         // now for an ob with a different precision
         OrderBook ob2{0.001};
 
@@ -189,6 +204,10 @@ TEST_CASE("OrderBook", "[orderbook][basic]")
         REQUIRE(compareOrderLists(ob2.bidsAt(50.01), order_list{order5001_1, order5001_2}, 0.001));
         REQUIRE(compareOrderLists(ob2.bidsAt(50.010), order_list{order5001_1, order5001_2}, 0.001));
         REQUIRE(compareOrderLists(ob2.bidsAt(50.016), order_list{order5001_3}, 0.001));
+
+        REQUIRE(compareOrderLists(ob2.ordersAt(50.01), order_list{order5001_1, order5001_2}, 0.001));
+        REQUIRE(compareOrderLists(ob2.ordersAt(50.010), order_list{order5001_1, order5001_2}, 0.001));
+        REQUIRE(compareOrderLists(ob2.ordersAt(50.016), order_list{order5001_3}, 0.001));
     }
 
     SECTION("Small and large prices")
@@ -203,9 +222,11 @@ TEST_CASE("OrderBook", "[orderbook][basic]")
 
         auto truncPrice{utils::trunc(max_price, 0.01)};
         REQUIRE(compareOrderLists(ob.bidsAt(truncPrice), order_list{order1}));
+        REQUIRE(compareOrderLists(ob.ordersAt(truncPrice), order_list{order1}));
         REQUIRE(ob.getOrderByID(order1.get_id()).price == Catch::Approx(truncPrice).epsilon(0.01));
 
         REQUIRE(compareOrderLists(ob.bidsAt(0.01), order_list{order2}));
+        REQUIRE(compareOrderLists(ob.ordersAt(0.01), order_list{order2}));
         REQUIRE(ob.getOrderByID(order2.get_id()).price == Catch::Approx(0.01).epsilon(0.01));
     }
 

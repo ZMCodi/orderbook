@@ -34,6 +34,7 @@ TEST_CASE("UUID reference overloads", "[orderbook][uuid reference]")
         REQUIRE(result.status == OrderResult::CANCELLED);
         REQUIRE(result.order_id == buy_id_copy);
         REQUIRE(ob.bidsAt(50.0).empty());
+        REQUIRE(ob.ordersAt(50.0).empty());
     }
 
     SECTION("modifyVolume with reference")
@@ -53,6 +54,8 @@ TEST_CASE("UUID reference overloads", "[orderbook][uuid reference]")
         REQUIRE(result.status == OrderResult::MODIFIED);
         REQUIRE(ob.bidsAt(50.0).empty());
         REQUIRE(!ob.bidsAt(45.0).empty());
+        REQUIRE(ob.ordersAt(50.0).empty());
+        REQUIRE(!ob.ordersAt(45.0).empty());
     }
 
     SECTION("registerCallback with reference")
