@@ -163,33 +163,14 @@ OrderResult OrderBook::cancelOrder(const uuids::uuid* id)
     totalVolume -= vol;
     idMap.erase(id);
 
+    // remove order from bid/ask map and update best bid/ask
     if (side == Order::Side::BUY)
     {
-        bidMap.at(tickPrice).volume -= vol;
-        bidMap.at(tickPrice).orders.erase(itr);
-
-        if (bidMap.at(tickPrice).orders.empty()) // if that was the last order at that level
-        {
-            bidMap.erase(tickPrice);
-        }
-
-        // update bestBid
-        if (bidMap.empty()) {bestBid = -1;}
-        else {bestBid = bidMap.begin()->first * tickSize;}
+        removeOrder(bidMap, tickPrice, itr, vol);
 
     } else if (side == Order::Side::SELL)
     {
-        askMap.at(tickPrice).volume -= vol;
-        askMap.at(tickPrice).orders.erase(itr);
-
-        if (askMap.at(tickPrice).orders.empty())
-        {
-            askMap.erase(tickPrice);
-        }
-
-        // update bestAsk
-        if (askMap.empty()) {bestAsk = -1;}
-        else {bestAsk = askMap.begin()->first * tickSize;}
+        removeOrder(askMap, tickPrice, itr, vol);
     }
 
     // update auditList

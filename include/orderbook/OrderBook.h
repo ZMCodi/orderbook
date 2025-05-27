@@ -155,6 +155,7 @@ private:
 
     // internal processing logic
     order_list::iterator storeOrder(Order& order, auto& orderMap, tick_t tickPrice);
+    void removeOrder(auto& orderMap, tick_t tickPrice, auto& itr, int vol);
 
     OrderResult matchOrder(Order& order);
     template<Order::Type OrderType>
@@ -321,4 +322,18 @@ order_list::iterator OrderBook::storeOrder(Order& order, auto& orderMap, tick_t 
 
     // return iterator to the inserted order
     return std::prev(pLevel.orders.end());
+}
+
+void OrderBook::removeOrder(auto& orderMap, tick_t tickPrice, auto& itr, int vol)
+{
+    orderMap.at(tickPrice).volume -= vol;
+    orderMap.at(tickPrice).orders.erase(itr);
+
+    // clear pricelevel if now empty
+    if (orderMap.at(tickPrice).orders.empty()) {orderMap.erase(tickPrice);}
+
+    // update best bid/ask
+    double& bid_or_ask = std::is_same_v<decltype(orderMap), bid_map&> ? bestBid : bestAsk;
+    if (orderMap.empty()) {bid_or_ask = -1;}
+    else {bid_or_ask = orderMap.begin()->first * tickSize;}
 }
