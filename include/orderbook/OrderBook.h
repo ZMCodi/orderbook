@@ -106,16 +106,15 @@ public:
     OrderResult placeOrder(Order& order, callback callbackFn = nullptr);
     OrderResult placeOrder(Order&& order, callback callbackFn = nullptr);
 
-    // OrderResult modifyVolume(const uuids::uuid* id, int volume);
-    OrderResult modifyPrice(const uuids::uuid* id, double price);
+    // OrderResult modifyPrice(const uuids::uuid* id, double price);
 
     // reference overload
-    // OrderResult modifyVolume(const uuids::uuid& id, int volume);
-    OrderResult modifyPrice(const uuids::uuid& id, double price);
+    // OrderResult modifyPrice(const uuids::uuid& id, double price);
 
     // templates
     OrderResult cancelOrder(auto&& id_);
     OrderResult modifyVolume(auto&& id_, int volume);
+    OrderResult modifyPrice(auto&& id_, double price);
 
     bool registerCallback(const uuids::uuid* id, callback callbackFn);
     bool removeCallback(const uuids::uuid* id);
@@ -414,4 +413,36 @@ OrderResult OrderBook::modifyVolume(auto&& id_, int volume)
         return {*placeRes.remainingOrder->id, OrderResult::MODIFIED, trades{},
                 placeRes.remainingOrder, msg.str()};
     }
+}
+
+OrderResult OrderBook::modifyPrice(auto&& id_, double price)
+{
+    if (price <= 0)
+    {
+        throw std::invalid_argument{"Price has to be positive"};
+    }
+
+    const uuids::uuid* id{getPointer(id_, true)};
+
+    auto [prc, itr, side] = idMap.at(id);
+
+    if (prc == price)
+    {
+        return {*id, OrderResult::REJECTED, trades{}, &(*itr), "Price unchanged"};
+    }
+
+    // cancel and replace
+    auto ord{*itr};
+    Order replace{side, ord.volume, ord.type, price};
+    auto cb{itr->callbackFn};
+
+    cancelOrder(id);
+    auto placeRes{placeOrder(replace, cb)};
+
+    std::stringstream msg;
+    msg << "Price changed from " << prc << " to " << price
+    << ". New ID generated.";
+
+    return {placeRes.order_id, OrderResult::MODIFIED, placeRes.trades,
+            placeRes.remainingOrder, msg.str()};
 }

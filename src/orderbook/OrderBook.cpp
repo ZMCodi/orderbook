@@ -141,49 +141,6 @@ void OrderBook::genTrade(const Order& buyer, const Order& seller, double price,
     marketPrice = price;
 }
 
-OrderResult OrderBook::modifyPrice(const uuids::uuid* id, double price)
-{
-    if (price <= 0)
-    {
-        throw std::invalid_argument{"Price has to be positive"};
-    }
-
-    auto [prc, itr, side] = idMap.at(id);
-
-    if (prc == price)
-    {
-        return {*id, OrderResult::REJECTED, trades{}, &(*itr), "Price unchanged"};
-    }
-
-    // cancel and replace
-    auto ord{*itr};
-    Order replace{side, ord.volume, ord.type, price};
-    auto cb{itr->callbackFn};
-
-    cancelOrder(id);
-    auto placeRes{placeOrder(replace, cb)};
-
-    std::stringstream msg;
-    msg << "Price changed from " << prc << " to " << price
-    << ". New ID generated.";
-
-    return {placeRes.order_id, OrderResult::MODIFIED, placeRes.trades,
-            placeRes.remainingOrder, msg.str()};
-}
-
-OrderResult OrderBook::modifyPrice(const uuids::uuid& id, double price)
-{
-    // find uuid in idPool first and get pointer
-    auto it{idPool.find(id)};
-
-    if (it == idPool.end())
-    {
-        throw std::invalid_argument{"ID does not exist"};
-    }
-
-    return modifyPrice(&(*it), price);
-}
-
 bool OrderBook::registerCallback(const uuids::uuid* id, callback callbackFn)
 {
     // check if order is still active
