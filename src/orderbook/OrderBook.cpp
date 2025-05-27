@@ -3,35 +3,6 @@
 
 const order_list OrderBook::emptyOrders{};
 
-inline std::ostream& operator<<(std::ostream& out, const Order& o)
-{
-    std::stringstream str;
-    str << "Order(id: " << *o.id << ", side: ";
-
-    if (o.side == Order::Side::BUY)
-    {
-        str << "BUY, ";
-    } else if (o.side == Order::Side::SELL)
-    {
-        str << "SELL, ";
-    }
-
-    str << "vol: " << o.volume << ", type: ";
-
-    if (o.type == Order::Type::LIMIT)
-    {
-        str << "LIMIT, ";
-    } else if (o.type == Order::Type::MARKET)
-    {
-        str << "MARKET, ";
-    }
-
-    str << "price: " << std::fixed << o.price << ", timestamp: "
-    << o.timestamp << ")";
-
-    return out << str.str();
-}
-
 bool OrderAudit::equals_to(const OrderAudit& other) const
 {
     return id == other.id
@@ -97,14 +68,31 @@ OrderResult OrderBook::placeOrder(Order& order, callback callbackFn)
         totalVolume += activeCopy.volume;
 
         // put in bid/ask map and get iterator to the order in the map
+        // dispatchBySide passes the appropriate map based on order type
         order_list::iterator activeItr;
-        if (activeCopy.side == Order::Side::BUY)
-        {
-            activeItr = storeOrder(activeCopy, bidMap, tickPrice);
-        } else
-        {
-            activeItr = storeOrder(activeCopy, askMap, tickPrice);
-        }
+        activeItr = dispatchBySide(activeCopy.side, [&](auto& orderMap){
+            constexpr Order::Side side = std::is_same_v<decltype(orderMap), bid_map&> ?
+                Order::Side::BUY 
+                : Order::Side::SELL;
+
+            // update best bid/ask if better
+            if constexpr (side == Order::Side::BUY)
+            {
+                if (bestBid == -1 || activeCopy.price > bestBid) {bestBid = activeCopy.price;}
+            } else
+            {
+                if (bestAsk == -1 || activeCopy.price < bestAsk) {bestAsk = activeCopy.price;}
+            }
+
+            // add the order to the end of the orderlist
+            // and update volume at PriceLevel
+            PriceLevel& pLevel{orderMap[tickPrice]}; // creates an empty PriceLevel if doesnt exist
+            pLevel.volume += activeCopy.volume;
+            pLevel.orders.push_back(std::move(activeCopy));
+
+            // return iterator to the inserted order
+            return std::prev(pLevel.orders.end());
+        });
 
         // add to idMap
         idMap[order.id] = OrderLocation{truncPrice, activeItr, order.side};
@@ -164,14 +152,18 @@ OrderResult OrderBook::cancelOrder(const uuids::uuid* id)
     idMap.erase(id);
 
     // remove order from bid/ask map and update best bid/ask
-    if (side == Order::Side::BUY)
-    {
-        removeOrder(bidMap, tickPrice, itr, vol);
+    dispatchBySide(side, [&](auto& orderMap){
+        orderMap.at(tickPrice).volume -= vol;
+        orderMap.at(tickPrice).orders.erase(itr);
 
-    } else if (side == Order::Side::SELL)
-    {
-        removeOrder(askMap, tickPrice, itr, vol);
-    }
+        // clear pricelevel if now empty
+        if (orderMap.at(tickPrice).orders.empty()) {orderMap.erase(tickPrice);}
+
+        // update best bid/ask
+        double& bid_or_ask = std::is_same_v<decltype(orderMap), bid_map&> ? bestBid : bestAsk;
+        if (orderMap.empty()) {bid_or_ask = -1;}
+        else {bid_or_ask = orderMap.begin()->first * tickSize;}
+    });
 
     // update auditList
     auditList.emplace_back(id, utils::now(), -1);
@@ -218,16 +210,10 @@ OrderResult OrderBook::modifyVolume(const uuids::uuid* id, int volume)
         totalVolume -= delta;
 
         // decrease volume maintain time priority
-        if (side == Order::Side::BUY)
-        {
+        dispatchBySide(side, [&](auto& orderMap){
             itr->volume -= delta;
-            bidMap.at(tickPrice).volume -= delta;
-
-        } else if (side == Order::Side::SELL)
-        {
-            itr->volume -= delta;
-            askMap.at(tickPrice).volume -= delta;
-        }
+            orderMap.at(tickPrice).volume -= delta;
+        });
 
         auditList.emplace_back(id, utils::now(), delta);
 

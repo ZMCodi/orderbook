@@ -154,6 +154,7 @@ private:
     static const order_list emptyOrders;
 
     // internal processing logic
+    auto dispatchBySide(Order::Side side, auto&& func);
     order_list::iterator storeOrder(Order& order, auto& orderMap, tick_t tickPrice);
     void removeOrder(auto& orderMap, tick_t tickPrice, auto& itr, int vol);
 
@@ -301,39 +302,7 @@ OrderResult OrderBook::matchOrderTemplate(Order& order, auto& orderMap)
     }
 }
 
-order_list::iterator OrderBook::storeOrder(Order& order, auto& orderMap, tick_t tickPrice)
+auto OrderBook::dispatchBySide(Order::Side side, auto&& func)
 {
-    constexpr Order::Side side = std::is_same_v<decltype(orderMap), bid_map&> ? Order::Side::BUY : Order::Side::SELL;
-
-    // update best bid/ask if better
-    if constexpr (side == Order::Side::BUY)
-    {
-        if (bestBid == -1 || order.price > bestBid) {bestBid = order.price;}
-    } else
-    {
-        if (bestAsk == -1 || order.price < bestAsk) {bestAsk = order.price;}
-    }
-
-    // add the order to the end of the orderlist
-    // and update volume at PriceLevel
-    PriceLevel& pLevel{orderMap[tickPrice]}; // creates an empty PriceLevel if doesnt exist
-    pLevel.volume += order.volume;
-    pLevel.orders.push_back(std::move(order));
-
-    // return iterator to the inserted order
-    return std::prev(pLevel.orders.end());
-}
-
-void OrderBook::removeOrder(auto& orderMap, tick_t tickPrice, auto& itr, int vol)
-{
-    orderMap.at(tickPrice).volume -= vol;
-    orderMap.at(tickPrice).orders.erase(itr);
-
-    // clear pricelevel if now empty
-    if (orderMap.at(tickPrice).orders.empty()) {orderMap.erase(tickPrice);}
-
-    // update best bid/ask
-    double& bid_or_ask = std::is_same_v<decltype(orderMap), bid_map&> ? bestBid : bestAsk;
-    if (orderMap.empty()) {bid_or_ask = -1;}
-    else {bid_or_ask = orderMap.begin()->first * tickSize;}
+    return side == Order::Side::BUY ? func(bidMap) : func(askMap);
 }
