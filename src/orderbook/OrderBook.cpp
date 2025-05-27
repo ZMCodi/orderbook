@@ -70,7 +70,7 @@ OrderResult OrderBook::placeOrder(Order& order, callback callbackFn)
         // put in bid/ask map and get iterator to the order in the map
         // dispatchBySide passes the appropriate map based on order type
         order_list::iterator activeItr;
-        activeItr = dispatchBySide(activeCopy.side, [&](auto& orderMap){
+        dispatchBySide(activeCopy.side, [&](auto& orderMap){
             constexpr Order::Side side = std::is_same_v<decltype(orderMap), bid_map&> ?
                 Order::Side::BUY 
                 : Order::Side::SELL;
@@ -90,8 +90,8 @@ OrderResult OrderBook::placeOrder(Order& order, callback callbackFn)
             pLevel.volume += activeCopy.volume;
             pLevel.orders.push_back(std::move(activeCopy));
 
-            // return iterator to the inserted order
-            return std::prev(pLevel.orders.end());
+            // point iterator to the inserted order
+           activeItr = std::prev(pLevel.orders.end());
         });
 
         // add to idMap
@@ -107,7 +107,7 @@ OrderResult OrderBook::placeOrder(Order&& order, callback callbackFn)
     return placeOrder(order, callbackFn);
 }
 
-// core matching logic
+// matching logic dispatcher
 OrderResult OrderBook::matchOrder(Order& order)
 {
     switch (order.type) {
@@ -139,51 +139,6 @@ void OrderBook::genTrade(const Order& buyer, const Order& seller, double price,
     // internal bookkeeping
     tradeList.push_back(trade);
     marketPrice = price;
-}
-
-OrderResult OrderBook::cancelOrder(const uuids::uuid* id)
-{
-    auto [price, itr, side] = idMap.at(id); // unpack the OrderLocation
-    auto tickPrice{utils::convertTick(price, tickSize)};
-    auto vol{itr->volume};
-
-    // update volume and idMap
-    totalVolume -= vol;
-    idMap.erase(id);
-
-    // remove order from bid/ask map and update best bid/ask
-    dispatchBySide(side, [&](auto& orderMap){
-        orderMap.at(tickPrice).volume -= vol;
-        orderMap.at(tickPrice).orders.erase(itr);
-
-        // clear pricelevel if now empty
-        if (orderMap.at(tickPrice).orders.empty()) {orderMap.erase(tickPrice);}
-
-        // update best bid/ask
-        double& bid_or_ask = std::is_same_v<decltype(orderMap), bid_map&> ? bestBid : bestAsk;
-        if (orderMap.empty()) {bid_or_ask = -1;}
-        else {bid_or_ask = orderMap.begin()->first * tickSize;}
-    });
-
-    // update auditList
-    auditList.emplace_back(id, utils::now(), -1);
-
-    std::stringstream msg;
-    msg << "Order cancelled with " << vol << " unfilled shares";
-    return {*id, OrderResult::CANCELLED, trades(), nullptr, msg.str()};
-}
-
-OrderResult OrderBook::cancelOrder(const uuids::uuid& id)
-{
-    // find uuid in idPool first and get pointer
-    auto it{idPool.find(id)};
-
-    if (it == idPool.end())
-    {
-        throw std::invalid_argument{"ID does not exist"};
-    }
-
-    return cancelOrder(&(*it));
 }
 
 OrderResult OrderBook::modifyVolume(const uuids::uuid* id, int volume)

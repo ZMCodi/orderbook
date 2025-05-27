@@ -106,14 +106,17 @@ public:
     OrderResult placeOrder(Order& order, callback callbackFn = nullptr);
     OrderResult placeOrder(Order&& order, callback callbackFn = nullptr);
 
-    OrderResult cancelOrder(const uuids::uuid* id);
+    // OrderResult cancelOrder(const uuids::uuid* id);
     OrderResult modifyVolume(const uuids::uuid* id, int volume);
     OrderResult modifyPrice(const uuids::uuid* id, double price);
 
     // reference overload
-    OrderResult cancelOrder(const uuids::uuid& id);
+    // OrderResult cancelOrder(const uuids::uuid& id);
     OrderResult modifyVolume(const uuids::uuid& id, int volume);
     OrderResult modifyPrice(const uuids::uuid& id, double price);
+
+    // templates
+    OrderResult cancelOrder(auto&& id_);
 
     bool registerCallback(const uuids::uuid* id, callback callbackFn);
     bool removeCallback(const uuids::uuid* id);
@@ -155,8 +158,7 @@ private:
 
     // internal processing logic
     auto dispatchBySide(Order::Side side, auto&& func);
-    order_list::iterator storeOrder(Order& order, auto& orderMap, tick_t tickPrice);
-    void removeOrder(auto& orderMap, tick_t tickPrice, auto& itr, int vol);
+    const uuids::uuid* getPointer(auto&& id, bool throws);
 
     OrderResult matchOrder(Order& order);
     template<Order::Type OrderType>
@@ -221,7 +223,7 @@ OrderResult OrderBook::matchOrderTemplate(Order& order, auto& orderMap)
     // start at best bid/ask
     for (auto mapIt{orderMap.begin()}; mapIt != orderMap.end();/*increment logic is complex*/)
     {
-        // end map walking logic
+        // end map walking logic only for limit since market will keep matching
         if constexpr (OrderType == Order::Type::LIMIT)
         {
             if constexpr(side == Order::Side::BUY) // limit buy
@@ -267,7 +269,7 @@ OrderResult OrderBook::matchOrderTemplate(Order& order, auto& orderMap)
                 order.volume = 0;
             }
 
-            if (order.volume == 0) {break;}
+            if (order.volume == 0) {break;} // order is filled
         }
 
         // clear level if no more orders left and increment
@@ -305,4 +307,58 @@ OrderResult OrderBook::matchOrderTemplate(Order& order, auto& orderMap)
 auto OrderBook::dispatchBySide(Order::Side side, auto&& func)
 {
     return side == Order::Side::BUY ? func(bidMap) : func(askMap);
+}
+
+const uuids::uuid* OrderBook::getPointer(auto&& id, bool throws)
+{
+    // id passed in is a reference
+    if constexpr (std::is_same_v<std::decay_t<decltype(id)>, uuids::uuid>)
+    {
+        id_pool::iterator it{idPool.find(id)};
+
+        if (it == idPool.end()) // not found
+        {
+            if (throws) {throw std::invalid_argument{"ID does not exist"};}
+            return nullptr;
+        }
+
+        return &(*it);
+    } else // already a pointer
+    {
+        return id;
+    }
+}
+
+OrderResult OrderBook::cancelOrder(auto&& id_)
+{
+    const uuids::uuid* id{getPointer(id_, true)};
+
+    auto [price, itr, side] = idMap.at(id); // unpack the OrderLocation
+    auto tickPrice{utils::convertTick(price, tickSize)};
+    auto vol{itr->volume};
+
+    // update volume and idMap
+    totalVolume -= vol;
+    idMap.erase(id);
+
+    // remove order from bid/ask map and update best bid/ask
+    dispatchBySide(side, [&](auto& orderMap){
+        orderMap.at(tickPrice).volume -= vol;
+        orderMap.at(tickPrice).orders.erase(itr);
+
+        // clear pricelevel if now empty
+        if (orderMap.at(tickPrice).orders.empty()) {orderMap.erase(tickPrice);}
+
+        // update best bid/ask
+        double& bid_or_ask = std::is_same_v<decltype(orderMap), bid_map&> ? bestBid : bestAsk;
+        if (orderMap.empty()) {bid_or_ask = -1;}
+        else {bid_or_ask = orderMap.begin()->first * tickSize;}
+    });
+
+    // update auditList
+    auditList.emplace_back(id, utils::now(), -1);
+
+    std::stringstream msg;
+    msg << "Order cancelled with " << vol << " unfilled shares";
+    return {*id, OrderResult::CANCELLED, trades(), nullptr, msg.str()};
 }
