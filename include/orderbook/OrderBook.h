@@ -154,12 +154,11 @@ private:
     static const order_list emptyOrders;
 
     // internal processing logic
-    template<typename MapType>
-    order_list::iterator storeOrder(Order& order, MapType& orderMap, tick_t tickPrice);
+    order_list::iterator storeOrder(Order& order, auto& orderMap, tick_t tickPrice);
 
     OrderResult matchOrder(Order& order);
-    template<typename MapType, Order::Type OrderType>
-    OrderResult matchOrderTemplate(Order& order, MapType& orderMap);
+    template<Order::Type OrderType>
+    OrderResult matchOrderTemplate(Order& order, auto& orderMap);
 
     void genTrade(const Order& buyer, const Order& seller, double price,
                   int volume, Order::Side side, trades& generatedTrades);
@@ -181,8 +180,8 @@ private:
     const double tickSize{0.01};
 };
 
-template<typename MapType, Order::Type OrderType>
-OrderResult OrderBook::matchOrderTemplate(Order& order, MapType& orderMap)
+template<Order::Type OrderType>
+OrderResult OrderBook::matchOrderTemplate(Order& order, auto& orderMap)
 {
     OrderResult default_{*order.id, OrderResult::PLACED, trades{}, nullptr, "Order placed"};
     OrderResult rejected{*order.id, OrderResult::REJECTED, trades{}, nullptr, "Not enough liquidity"};
@@ -191,7 +190,7 @@ OrderResult OrderBook::matchOrderTemplate(Order& order, MapType& orderMap)
     // convenience variable to easily track what type of order we're working with
     // buy order will walk askMap, sell order will walk bidMap
     // use ternary here because side has to be initialized using constexpr
-    constexpr Order::Side side = std::is_same_v<MapType, ask_map> ? Order::Side::BUY : Order::Side::SELL;
+    constexpr Order::Side side = std::is_same_v<decltype(orderMap), ask_map&> ? Order::Side::BUY : Order::Side::SELL;
 
     if constexpr (OrderType == Order::Type::MARKET)
     {
@@ -301,10 +300,9 @@ OrderResult OrderBook::matchOrderTemplate(Order& order, MapType& orderMap)
     }
 }
 
-template<typename MapType>
-order_list::iterator OrderBook::storeOrder(Order& order, MapType& orderMap, tick_t tickPrice)
+order_list::iterator OrderBook::storeOrder(Order& order, auto& orderMap, tick_t tickPrice)
 {
-    constexpr Order::Side side = std::is_same_v<MapType, bid_map> ? Order::Side::BUY : Order::Side::SELL;
+    constexpr Order::Side side = std::is_same_v<decltype(orderMap), bid_map&> ? Order::Side::BUY : Order::Side::SELL;
 
     // update best bid/ask if better
     if constexpr (side == Order::Side::BUY)

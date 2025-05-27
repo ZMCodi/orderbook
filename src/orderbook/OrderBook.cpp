@@ -125,12 +125,12 @@ OrderResult OrderBook::matchOrder(Order& order)
     switch (order.type) {
         case Order::Type::LIMIT:
             return order.side == Order::Side::BUY 
-                ? matchOrderTemplate<ask_map, Order::Type::LIMIT>(order, askMap)
-                : matchOrderTemplate<bid_map, Order::Type::LIMIT>(order, bidMap);
+                ? matchOrderTemplate<Order::Type::LIMIT>(order, askMap)
+                : matchOrderTemplate<Order::Type::LIMIT>(order, bidMap);
         case Order::Type::MARKET:
             return order.side == Order::Side::BUY
-                ? matchOrderTemplate<ask_map, Order::Type::MARKET>(order, askMap)
-                : matchOrderTemplate<bid_map, Order::Type::MARKET>(order, bidMap);
+                ? matchOrderTemplate<Order::Type::MARKET>(order, askMap)
+                : matchOrderTemplate<Order::Type::MARKET>(order, bidMap);
     }
 
     return {*order.id, OrderResult::REJECTED, trades{}, nullptr, "Something went wrong"};
