@@ -116,6 +116,17 @@ void benchmark(int argc, char* argv[])
 
 int main(int argc, char* argv[])
 {
-    benchmark(argc, argv);
+    [[maybe_unused]] auto lol = argv[argc];
+
+    Order buy50_1{Order::Side::BUY, 5, Order::Type::LIMIT, 50};
+    Order buy50_2{Order::Side::BUY, 10, Order::Type::LIMIT, 50};
+    Order buy50_3{Order::Side::BUY, 2, Order::Type::LIMIT, 50};
+
+    OrderBook ob{};
+    ob.placeOrder(buy50_1);
+    ob.placeOrder(buy50_2);
+    ob.placeOrder(buy50_3);
+
+    std::cout << "buy50_1: " << buy50_1.timestamp << ", buy50_2: " << buy50_2.timestamp << ", buy50_3: " << buy50_3.timestamp;
 
 }

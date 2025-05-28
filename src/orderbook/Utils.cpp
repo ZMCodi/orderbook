@@ -1,7 +1,7 @@
 #include <cmath>
 #include "orderbook/Utils.h"
 
-time_ utils::now() {return std::chrono::system_clock::now();}
+time_ utils::now() {return std::chrono::high_resolution_clock::now();}
 
 double utils::trunc(double price, double tickSize)
 {
