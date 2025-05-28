@@ -5,10 +5,11 @@
 #include "libraries/Timer.h"
 
 #include <fstream>
-int main(int argc, char* argv[])
+
+void benchmark(int argc, char* argv[])
 {
     // Default to 1000 if no arguments provided
-    int iterations = 1'000;
+    [[maybe_unused]] int iterations = 1'000;
 
     // If argument provided, try to convert to int
     if (argc > 1)
@@ -73,24 +74,33 @@ int main(int argc, char* argv[])
     std::cout << "Time (before prep): " << seconds << " s (" 
           << ms << " ms, "
           << us << " µs, "
-          << ns << " ns)\n";
+          << ns << " ns)\n\n";
 
     // prep and clear for actual run
-    auto preppedOrders{ob.getState().orderList};
-    ob.clear();
-    [[maybe_unused]] Timer timer{};
+    seconds = 0;
 
-    for (auto& order : preppedOrders)
+    for (int i{}; i < 5; ++i)
     {
-        ob.placeOrder(order);
+        // recopy every time bcs market orders get modified in place
+        auto preppedOrders{ob.getState().orderList};
+        ob.clear();
+
+        Timer timer{};
+
+        for (auto& order : preppedOrders)
+        {
+            ob.placeOrder(order);
+        }
+
+        seconds += timer.elapsed();
     }
 
-    seconds = timer.elapsed();
+    seconds /= 5;
     ms = seconds * 1000;
     us = seconds * 1'000'000;
     ns = seconds * 1'000'000'000;
 
-    std::cout << "Time (after prep): " << seconds << " s (" 
+    std::cout << "Time (5 iterations): " << seconds << " s (" 
           << ms << " ms, "
           << us << " µs, "
           << ns << " ns)\n";
@@ -102,4 +112,10 @@ int main(int argc, char* argv[])
     std::cout << "\nBest Bid: " << state.bestBid << ", Best Ask: " << state.bestAsk
     << ", Market Price: " << state.marketPrice << ", Total Volume: " << state.totalVolume;
     // std::cout << "\nFinal state: " << state;
+}
+
+int main(int argc, char* argv[])
+{
+    benchmark(argc, argv);
+
 }
