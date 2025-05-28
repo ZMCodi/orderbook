@@ -54,7 +54,9 @@ OrderResult OrderBook::placeOrder(Order& order, callback callbackFn)
 
     // local active copy that is actually processed with truncated price
     Order activeCopy{order, tickSize};
-    if (callbackFn) {activeCopy.callbackFn = callbackFn;}
+    activeCopy.callbackFn = callbackFn;
+
+    // for storing
     double truncPrice{activeCopy.price};
     tick_t tickPrice{utils::convertTick(truncPrice, tickSize)};
 
@@ -186,8 +188,6 @@ int OrderBook::volumeAt(double priceLevel)
 // center around best bid/ask
 OrderBook::Depth OrderBook::getDepth(size_t levels)
 {
-    // auto bids{getLevels(bidMap, levels)};
-    // auto asks{getLevels(askMap, levels)};
     std::vector<OrderBook::Level> bids{};
     std::vector<OrderBook::Level> asks{};
 

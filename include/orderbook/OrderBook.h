@@ -150,20 +150,21 @@ private:
     // for empty pricelevels
     static const order_list emptyOrders;
 
-    // internal processing logic
+    // internal helper functions
     auto dispatchBySide(Order::Side side, auto&& func);
     const uuids::uuid* getPointer(const auto& id, bool throws);
     template<bool Volume>
     auto priceLevelQuery(const auto& orderMap, tick_t tickPrice)
         -> std::conditional_t<Volume, int, const order_list&>;
 
+    // match processing logic
     OrderResult matchOrder(Order& order);
     template<Order::Type OrderType>
     OrderResult matchOrderTemplate(Order& order, auto& orderMap);
-
     void genTrade(const Order& buyer, const Order& seller, double price,
                   int volume, Order::Side side, trades& generatedTrades);
 
+    // depth helpers
     std::vector<Level> getLevels(const auto& orderMap, size_t levels);
     std::vector<Level> getLevelsAtPrice(const auto& orderMap, size_t levels, double price);
     std::vector<Level> getLevelsOneSided(const auto& orderMap, double minPrice, double maxPrice);
@@ -242,6 +243,7 @@ OrderResult OrderBook::matchOrderTemplate(Order& order, auto& orderMap)
         order_list& orders{mapIt->second.orders};
         for (auto orderIt{orders.begin()}; orderIt != orders.end();/*increment logic is complex*/)
         {
+            if (order.volume == 0) {break;} // order is filled
             auto& o{*orderIt}; // current order being matched against
 
             // determine who is buyer/seller
@@ -270,7 +272,6 @@ OrderResult OrderBook::matchOrderTemplate(Order& order, auto& orderMap)
                 order.volume = 0;
             }
 
-            if (order.volume == 0) {break;} // order is filled
         }
 
         // clear level if no more orders left and increment

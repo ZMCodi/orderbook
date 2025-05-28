@@ -242,11 +242,11 @@ inline std::ostream& operator<<(std::ostream& out, const OrderResult& o)
 inline std::ostream& operator<<(std::ostream& out, order_list olist)
 {
     std::stringstream str;
-    str << "[";
+    str << "[\n\t";
 
     for (auto itr{olist.begin()}; itr != olist.end(); ++itr) {
         str << *itr;
-        str << ", ";
+        str << ",\n\t";
     }
 
     str << "]";
@@ -270,7 +270,7 @@ inline std::ostream& operator<<(std::ostream& out, ask_map a)
         str << '\t' << it->first << ": " << it->second << ",\n";
     }
 
-    str << "\n}";
+    str << "\n\t}";
     return out << str.str();
 }
 
@@ -284,7 +284,7 @@ inline std::ostream& operator<<(std::ostream& out, bid_map a)
         str << '\t' << it->first << ": " << it->second << ",\n";
     }
 
-    str << "\n}";
+    str << "\n\t}";
     return out << str.str();
 }
 
@@ -343,7 +343,7 @@ inline std::ostream& operator<<(std::ostream& out, id_map i)
         str << '\t' << *it->first << ": " << it->second << ",\n";
     }
 
-    str << "\n}";
+    str << "\n\t}";
 
     return out << str.str();
 }
@@ -351,16 +351,16 @@ inline std::ostream& operator<<(std::ostream& out, id_map i)
 inline std::ostream& operator<<(std::ostream& out, trade_list t)
 {
     std::stringstream str;
-    str << "[";
+    str << "[\n\t";
 
     for (size_t i = 0; i < t.size(); ++i) {
         str << t[i];
         if (i < t.size() - 1) {
-            str << ", ";
+            str << ",\n\t";
         }
     }
 
-    str << "]";
+    str << "\n\t]";
     out << str.str();
     return out;
 }
@@ -368,16 +368,16 @@ inline std::ostream& operator<<(std::ostream& out, trade_list t)
 inline std::ostream& operator<<(std::ostream& out, orders o)
 {
     std::stringstream str;
-    str << "[";
+    str << "[\n\t";
 
     for (size_t i = 0; i < o.size(); ++i) {
         str << o[i];
         if (i < o.size() - 1) {
-            str << ", ";
+            str << ",\n\t";
         }
     }
 
-    str << "]";
+    str << "\n\t]";
     out << str.str();
     return out;
 }
@@ -386,15 +386,15 @@ inline std::ostream& operator<<(std::ostream& out, OrderBookState s)
 {
     std::stringstream str;
     str << "State(\n";
+    str << "\tbestBid: " << s.bestBid
+    << ", bestAsk: " << s.bestAsk
+    << ", marketPrice: " << s.marketPrice
+    << ", totalVolume: " << s.totalVolume << ",\n";
     str << "\tbidMap: " << s.bidMap << ",\n";
     str << "\taskMap: " << s.askMap << ",\n";
     str << "\tidMap: " << s.idMap << ",\n";
     str << "\ttradeList: " << s.tradeList << ",\n";
-    str << "\torderList: " << s.orderList << ",\n";
-    str << "\tbestBid: " << s.bestBid
-    << ", bestAsk: " << s.bestAsk
-    << ", marketPrice: " << s.marketPrice
-    << ", totalVolume: " << s.totalVolume << "\n)";
+    str << "\torderList: " << s.orderList << "\n)";
 
     return out << str.str();
 }
