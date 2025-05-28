@@ -25,16 +25,17 @@ int main(int argc, char* argv[])
     }
 
     OrderBook ob{};
-    [[maybe_unused]] Timer timer{};
+    [[maybe_unused]] Timer noPrepTimer{};
     [[maybe_unused]] long long volIn{};
 
+    // prep the orders first
     for (int i{}; i < iterations; ++i)
     {
         // place orders around market price
         double price{};
         try
         {
-            price = std::max(0.1, ob.getMarketPrice() * (1 + (Random::get(-5, 5) / 100.0)));
+            price = std::max(25.0 + Random::get(-5, 5), ob.getMarketPrice() * (1 + (Random::get(-5, 5) / 100.0)));
         } catch (std::exception&) 
         {
             // or around 50 if market price is not set
@@ -61,22 +62,44 @@ int main(int argc, char* argv[])
         }
     }
 
-    double seconds{timer.elapsed()};
+    double seconds{noPrepTimer.elapsed()};
     double ms{seconds * 1000};
     double us{seconds * 1'000'000};
     double ns{seconds * 1'000'000'000};
 
-    std::ofstream out{"state.txt"};
+    std::ofstream out{"perf.txt"};
     std::cout.rdbuf(out.rdbuf());
 
-    std::cout << "Time: " << seconds << " s (" 
+    std::cout << "Time (before prep): " << seconds << " s (" 
           << ms << " ms, "
           << us << " µs, "
           << ns << " ns)\n";
-    
+
+    // prep and clear for actual run
+    auto preppedOrders{ob.getState().orderList};
+    ob.clear();
+    [[maybe_unused]] Timer timer{};
+
+    for (auto& order : preppedOrders)
+    {
+        ob.placeOrder(order);
+    }
+
+    seconds = timer.elapsed();
+    ms = seconds * 1000;
+    us = seconds * 1'000'000;
+    ns = seconds * 1'000'000'000;
+
+    std::cout << "Time (after prep): " << seconds << " s (" 
+          << ms << " ms, "
+          << us << " µs, "
+          << ns << " ns)\n";
+
     auto state{ob.getState()};
     std::cout << "Orders processed: " << state.orderList.size();
     std::cout << ", Trades generated: " << state.tradeList.size();
     std::cout << ", Total volume processed: " << volIn;
-    std::cout << "\nFinal state: " << state;
+    std::cout << "\nBest Bid: " << state.bestBid << ", Best Ask: " << state.bestAsk
+    << ", Market Price: " << state.marketPrice << ", Total Volume: " << state.totalVolume;
+    // std::cout << "\nFinal state: " << state;
 }

@@ -1,0 +1,4 @@
+Time (before prep): 117.021 s (117021 ms, 1.17021e+08 µs, 1.17021e+11 ns)
+Time (after prep): 77.4825 s (77482.5 ms, 7.74825e+07 µs, 7.74825e+10 ns)
+Orders processed: 100000000, Trades generated: 97693867, Total volume processed: 25249692169
+Best Bid: 4278.41, Best Ask: 4770.14, Market Price: 4770.14, Total Volume: 11290
