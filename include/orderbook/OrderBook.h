@@ -157,6 +157,10 @@ private:
     auto priceLevelQuery(const auto& orderMap, tick_t tickPrice)
         -> std::conditional_t<Volume, int, const order_list&>;
 
+    // placing order processing logic
+    void stampOrder(Order& order);
+    order_list::iterator storeOrder(Order& order, auto& orderMap, tick_t tickPrice);
+
     // match processing logic
     OrderResult matchOrder(Order& order);
     template<Order::Type OrderType>
@@ -186,6 +190,31 @@ private:
     const double tickSize{0.01};
 };
 
+order_list::iterator OrderBook::storeOrder(Order& order, auto& orderMap, tick_t tickPrice)
+{
+    constexpr Order::Side side = std::is_same_v<decltype(orderMap), bid_map&> 
+    ? Order::Side::BUY 
+    : Order::Side::SELL;
+
+    // update best bid/ask if better
+    if constexpr (side == Order::Side::BUY)
+    {
+        if (bestBid == -1 || order.price > bestBid) {bestBid = order.price;}
+    } else
+    {
+        if (bestAsk == -1 || order.price < bestAsk) {bestAsk = order.price;}
+    }
+
+    // add the order to the end of the orderlist
+    // and update volume at PriceLevel
+    PriceLevel& pLevel{orderMap[tickPrice]}; // creates an empty PriceLevel if doesnt exist
+    pLevel.volume += order.volume;
+    pLevel.orders.push_back(std::move(order));
+
+    // return iterator to the inserted order
+    return std::prev(pLevel.orders.end());
+}
+
 template<Order::Type OrderType>
 OrderResult OrderBook::matchOrderTemplate(Order& order, auto& orderMap)
 {
@@ -196,7 +225,8 @@ OrderResult OrderBook::matchOrderTemplate(Order& order, auto& orderMap)
     // convenience variable to easily track what type of order we're working with
     // buy order will walk askMap, sell order will walk bidMap
     // use ternary here because side has to be initialized using constexpr
-    constexpr Order::Side side = std::is_same_v<decltype(orderMap), ask_map&> ? Order::Side::BUY : Order::Side::SELL;
+    constexpr Order::Side side = std::is_same_v<decltype(orderMap), ask_map&>
+    ? Order::Side::BUY : Order::Side::SELL;
 
     if constexpr (OrderType == Order::Type::MARKET)
     {

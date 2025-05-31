@@ -26,13 +26,8 @@ bool OrderBook::Depth::operator==(const Depth& other) const
     && std::abs(marketPrice - other.marketPrice) < 0.0001;
 }
 
-OrderResult OrderBook::placeOrder(Order& order, callback callbackFn)
+void OrderBook::stampOrder(Order& order)
 {
-    if (order.volume <= 0) 
-    {
-        throw std::invalid_argument{"Volume has to be positive"};
-    }
-
     // generate a unique id and timestamp for the order
     auto id{utils::uuid_generator()};
     time_ ts{utils::now()};
@@ -44,6 +39,16 @@ OrderResult OrderBook::placeOrder(Order& order, callback callbackFn)
     order.id = &(*it);
     order.timestamp = ts;
     orderList.push_back(order); // bookkeeping
+}
+
+OrderResult OrderBook::placeOrder(Order& order, callback callbackFn)
+{
+    if (order.volume <= 0) 
+    {
+        throw std::invalid_argument{"Volume has to be positive"};
+    }
+
+    stampOrder(order);
 
     // for market orders, no need for a copy
     if (order.type == Order::Type::MARKET) 
@@ -70,31 +75,9 @@ OrderResult OrderBook::placeOrder(Order& order, callback callbackFn)
         totalVolume += activeCopy.volume;
 
         // put in bid/ask map and get iterator to the order in the map
-        // dispatchBySide passes the appropriate map based on order type
-        order_list::iterator activeItr;
-        dispatchBySide(activeCopy.side, [&](auto& orderMap){
-            constexpr Order::Side side = std::is_same_v<decltype(orderMap), bid_map&>
-                ? Order::Side::BUY 
-                : Order::Side::SELL;
-
-            // update best bid/ask if better
-            if constexpr (side == Order::Side::BUY)
-            {
-                if (bestBid == -1 || activeCopy.price > bestBid) {bestBid = activeCopy.price;}
-            } else
-            {
-                if (bestAsk == -1 || activeCopy.price < bestAsk) {bestAsk = activeCopy.price;}
-            }
-
-            // add the order to the end of the orderlist
-            // and update volume at PriceLevel
-            PriceLevel& pLevel{orderMap[tickPrice]}; // creates an empty PriceLevel if doesnt exist
-            pLevel.volume += activeCopy.volume;
-            pLevel.orders.push_back(std::move(activeCopy));
-
-            // point iterator to the inserted order
-           activeItr = std::prev(pLevel.orders.end());
-        });
+        auto activeItr{dispatchBySide(activeCopy.side, [&](auto& orderMap){
+            return storeOrder(activeCopy, orderMap, tickPrice);
+        })};
 
         // add to idMap
         idMap[order.id] = OrderLocation{truncPrice, activeItr, order.side};

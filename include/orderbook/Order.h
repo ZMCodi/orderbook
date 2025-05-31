@@ -41,6 +41,25 @@ struct Order
     static Order makeStopLimitBuy(int volume, double price, double stopPrice);
     static Order makeStopLimitSell(int volume, double price, double stopPrice);
 
+    // convenience comparisons
+    bool isBuy() {return side == Side::BUY;}
+    bool isSell() {return side == Side::SELL;}
+
+    bool isLimit() {return type == Type::LIMIT;}
+    bool isMarket() {return type == Type::MARKET;}
+    bool isStop() {return type == Type::STOP;}
+    bool isStopLimit() {return type == Type::STOP_LIMIT;}
+
+    bool isLimitBuy() {return isLimit() && isBuy();}
+    bool isLimitSell() {return isLimit() && isSell();}
+    bool isMarketBuy() {return isMarket() && isBuy();}
+    bool isMarketSell() {return isMarket() && isSell();}
+
+    bool isStopBuy() {return isStop() && isBuy();}
+    bool isStopSell() {return isStop() && isSell();}
+    bool isStopLimitBuy() {return isStopLimit() && isBuy();}
+    bool isStopLimitSell() {return isStopLimit() && isSell();}
+
     bool equals_to(const Order& other) const; // for testing
     callback getCallback() const {return callbackFn;} // for testing
     bool operator==(const Order& other) const;
