@@ -159,7 +159,7 @@ private:
 
     // placing order processing logic
     void stampOrder(Order& order);
-    order_list::iterator storeOrder(Order& order, auto& orderMap, tick_t tickPrice);
+    void storeActiveOrder(Order& order, auto& orderMap, tick_t tickPrice, OrderResult& result);
 
     // match processing logic
     OrderResult matchOrder(Order& order);
@@ -190,8 +190,10 @@ private:
     const double tickSize{0.01};
 };
 
-order_list::iterator OrderBook::storeOrder(Order& order, auto& orderMap, tick_t tickPrice)
+void OrderBook::storeActiveOrder(Order& order, auto& orderMap, tick_t tickPrice, OrderResult& result)
 {
+    totalVolume += order.volume;
+
     constexpr Order::Side side = std::is_same_v<decltype(orderMap), bid_map&> 
     ? Order::Side::BUY 
     : Order::Side::SELL;
@@ -211,8 +213,12 @@ order_list::iterator OrderBook::storeOrder(Order& order, auto& orderMap, tick_t 
     pLevel.volume += order.volume;
     pLevel.orders.push_back(std::move(order));
 
-    // return iterator to the inserted order
-    return std::prev(pLevel.orders.end());
+    // get iterator to the inserted order
+    auto activeItr{std::prev(pLevel.orders.end())};
+
+    // add to idMap and update pointer in result
+    idMap[order.id] = OrderLocation{tickPrice * tickSize, activeItr, order.side};
+    result.remainingOrder = &(*activeItr);
 }
 
 template<Order::Type OrderType>

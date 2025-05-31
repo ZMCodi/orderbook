@@ -51,7 +51,7 @@ OrderResult OrderBook::placeOrder(Order& order, callback callbackFn)
     stampOrder(order);
 
     // for market orders, no need for a copy
-    if (order.type == Order::Type::MARKET) 
+    if (order.isMarket()) 
     {
         order.callbackFn = callbackFn;
         return matchOrder(order);
@@ -62,8 +62,7 @@ OrderResult OrderBook::placeOrder(Order& order, callback callbackFn)
     activeCopy.callbackFn = callbackFn;
 
     // for storing
-    double truncPrice{activeCopy.price};
-    tick_t tickPrice{utils::convertTick(truncPrice, tickSize)};
+    tick_t tickPrice{utils::convertTick(activeCopy.price, tickSize)};
 
     // match with existing orders and return result
     auto result{matchOrder(activeCopy)};
@@ -71,17 +70,10 @@ OrderResult OrderBook::placeOrder(Order& order, callback callbackFn)
     // if order remains unfilled
     if (activeCopy.volume > 0)
     {
-        // update relevant fields
-        totalVolume += activeCopy.volume;
-
-        // put in bid/ask map and get iterator to the order in the map
-        auto activeItr{dispatchBySide(activeCopy.side, [&](auto& orderMap){
-            return storeOrder(activeCopy, orderMap, tickPrice);
-        })};
-
-        // add to idMap
-        idMap[order.id] = OrderLocation{truncPrice, activeItr, order.side};
-        result.remainingOrder = &(*activeItr); // result points to remaining order
+        // store in bid/ask map and update any relevant fields
+        dispatchBySide(activeCopy.side, [&](auto& orderMap){
+            storeActiveOrder(activeCopy, orderMap, tickPrice, result);
+        });
     }
 
     return result;
@@ -105,10 +97,8 @@ OrderResult OrderBook::matchOrder(Order& order)
                 ? matchOrderTemplate<Order::Type::MARKET>(order, askMap)
                 : matchOrderTemplate<Order::Type::MARKET>(order, bidMap);
         default:
-            return {};
+            return {*order.id, OrderResult::REJECTED, trades{}, nullptr, "Something went wrong"};
     }
-
-    return {*order.id, OrderResult::REJECTED, trades{}, nullptr, "Something went wrong"};
 }
 
 void OrderBook::genTrade(const Order& buyer, const Order& seller, double price,
