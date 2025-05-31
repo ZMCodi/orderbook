@@ -6,13 +6,13 @@ TEST_CASE("ID generation", "[orderbook][id]")
 {
     OrderBook ob{};
 
-    Order buy50{Order::Side::BUY, 3,  Order::Type::LIMIT, 50};
-    Order buy45{Order::Side::BUY, 5,  Order::Type::LIMIT, 45};
-    Order buyMarket{Order::Side::BUY, 10,  Order::Type::MARKET};
+    Order buy50{Order::makeLimitBuy(3, 50)};
+    Order buy45{Order::makeLimitBuy(5, 45)};
+    Order buyMarket{Order::makeMarketBuy(10)};
 
-    Order sell50{Order::Side::SELL, 3,  Order::Type::LIMIT, 50};
-    Order sell60{Order::Side::SELL, 10, Order::Type::LIMIT, 60};
-    Order sellMarket{Order::Side::SELL, 5,  Order::Type::MARKET};
+    Order sell50{Order::makeLimitSell(3, 50)};
+    Order sell60{Order::makeLimitSell(10, 60)};
+    Order sellMarket{Order::makeMarketSell(5)};
 
     SECTION("ID is generated strictly after placing an order")
     {

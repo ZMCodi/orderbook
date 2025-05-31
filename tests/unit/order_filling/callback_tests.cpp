@@ -7,19 +7,19 @@ TEST_CASE("Callback function notification", "[order filling][callbacks]")
 {
     OrderBook ob{};
 
-    Order buy50{Order::Side::BUY, 2, Order::Type::LIMIT, 50};
-    Order buy51{Order::Side::BUY, 2, Order::Type::LIMIT, 51};
-    Order buy52{Order::Side::BUY, 2, Order::Type::LIMIT, 52};
-    Order buy53{Order::Side::BUY, 2, Order::Type::LIMIT, 53};
-    Order buyBig53{Order::Side::BUY, 8, Order::Type::LIMIT, 53};
-    Order buyMarket{Order::Side::BUY, 8, Order::Type::MARKET};
+    Order buy50{Order::makeLimitBuy(2, 50)};
+    Order buy51{Order::makeLimitBuy(2, 51)};
+    Order buy52{Order::makeLimitBuy(2, 52)};
+    Order buy53{Order::makeLimitBuy(2, 53)};
+    Order buyBig53{Order::makeLimitBuy(8, 53)};
+    Order buyMarket{Order::makeMarketBuy(8)};
 
-    Order sell50{Order::Side::SELL, 2, Order::Type::LIMIT, 50};
-    Order sell51{Order::Side::SELL, 2, Order::Type::LIMIT, 51};
-    Order sell52{Order::Side::SELL, 2, Order::Type::LIMIT, 52};
-    Order sell53{Order::Side::SELL, 2, Order::Type::LIMIT, 53};
-    Order sellBig50{Order::Side::SELL, 8, Order::Type::LIMIT, 50};
-    Order sellMarket{Order::Side::SELL, 8, Order::Type::MARKET};
+    Order sell50{Order::makeLimitSell(2, 50)};
+    Order sell51{Order::makeLimitSell(2, 51)};
+    Order sell52{Order::makeLimitSell(2, 52)};
+    Order sell53{Order::makeLimitSell(2, 53)};
+    Order sellBig50{Order::makeLimitSell(8, 50)};
+    Order sellMarket{Order::makeMarketSell(8)};
 
     int callback_count{};
     std::vector<uuids::uuid> tradeIDs{};

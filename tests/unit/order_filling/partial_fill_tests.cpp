@@ -5,13 +5,13 @@
 TEST_CASE("Partial filling orders", "[order filling][partial filling]")
 {
     OrderBook ob{};
-    Order buy50{Order::Side::BUY, 5, Order::Type::LIMIT, 50};
-    Order buy55{Order::Side::BUY, 3, Order::Type::LIMIT, 55};
-    Order buyMarket{Order::Side::BUY, 5, Order::Type::MARKET};
+    Order buy50{Order::makeLimitBuy(5, 50)};
+    Order buy55{Order::makeLimitBuy(3, 55)};
+    Order buyMarket{Order::makeMarketBuy(5)};
 
-    Order sell50{Order::Side::SELL, 3, Order::Type::LIMIT, 50};
-    Order sell55{Order::Side::SELL, 5, Order::Type::LIMIT, 55};
-    Order sellMarket{Order::Side::SELL, 5, Order::Type::MARKET};
+    Order sell50{Order::makeLimitSell(3, 50)};
+    Order sell55{Order::makeLimitSell(5, 55)};
+    Order sellMarket{Order::makeMarketSell(5)};
 
     const uuids::uuid* id;
 

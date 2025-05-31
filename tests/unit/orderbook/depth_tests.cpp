@@ -7,19 +7,19 @@ TEST_CASE("Depth", "[orderbook][depth]")
     OrderBook ob{};
 
     // Setup some test orders at various price levels
-    Order buyLow{Order::Side::BUY, 5, Order::Type::LIMIT, 45};
-    Order buyLow2{Order::Side::BUY, 5, Order::Type::LIMIT, 45};
-    Order buyLow3{Order::Side::BUY, 5, Order::Type::LIMIT, 45};
-    Order buyMid{Order::Side::BUY, 3, Order::Type::LIMIT, 50};
-    Order buyMid2{Order::Side::BUY, 3, Order::Type::LIMIT, 50};
-    Order buyHigh{Order::Side::BUY, 7, Order::Type::LIMIT, 55};
+    Order buyLow{Order::makeLimitBuy(5, 45)};
+    Order buyLow2{Order::makeLimitBuy(5, 45)};
+    Order buyLow3{Order::makeLimitBuy(5, 45)};
+    Order buyMid{Order::makeLimitBuy(3, 50)};
+    Order buyMid2{Order::makeLimitBuy(3, 50)};
+    Order buyHigh{Order::makeLimitBuy(7, 55)};
 
-    Order sellLow{Order::Side::SELL, 4, Order::Type::LIMIT, 60};
-    Order sellLow2{Order::Side::SELL, 4, Order::Type::LIMIT, 60};
-    Order sellLow3{Order::Side::SELL, 4, Order::Type::LIMIT, 60};
-    Order sellMid{Order::Side::SELL, 6, Order::Type::LIMIT, 65};
-    Order sellMid2{Order::Side::SELL, 6, Order::Type::LIMIT, 65};
-    Order sellHigh{Order::Side::SELL, 8, Order::Type::LIMIT, 70};
+    Order sellLow{Order::makeLimitSell(4, 60)};
+    Order sellLow2{Order::makeLimitSell(4, 60)};
+    Order sellLow3{Order::makeLimitSell(4, 60)};
+    Order sellMid{Order::makeLimitSell(6, 65)};
+    Order sellMid2{Order::makeLimitSell(6, 65)};
+    Order sellHigh{Order::makeLimitSell(8, 70)};
 
     // Place orders to populate the book
     ob.placeOrder(buyLow);

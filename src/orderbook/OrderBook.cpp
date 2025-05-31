@@ -121,6 +121,8 @@ OrderResult OrderBook::matchOrder(Order& order)
             return order.side == Order::Side::BUY
                 ? matchOrderTemplate<Order::Type::MARKET>(order, askMap)
                 : matchOrderTemplate<Order::Type::MARKET>(order, bidMap);
+        default:
+            return {};
     }
 
     return {*order.id, OrderResult::REJECTED, trades{}, nullptr, "Something went wrong"};

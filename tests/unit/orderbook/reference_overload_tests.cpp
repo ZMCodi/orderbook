@@ -6,8 +6,8 @@ TEST_CASE("UUID reference overloads", "[orderbook][uuid reference]")
 {
     OrderBook ob{};
 
-    Order buy50{Order::Side::BUY, 5, Order::Type::LIMIT, 50};
-    Order sell60{Order::Side::SELL, 10, Order::Type::LIMIT, 60};
+    Order buy50{Order::makeLimitBuy(5, 50)};
+    Order sell60{Order::makeLimitSell(10, 60)};
 
     // initialize uuids
     ob.placeOrder(buy50);

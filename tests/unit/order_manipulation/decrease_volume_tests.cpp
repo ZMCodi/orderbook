@@ -5,11 +5,11 @@
 TEST_CASE("Decrease order volume", "[order manipulation][decrease volume]")
 {
     OrderBook ob{};
-    Order buy50{Order::Side::BUY, 5,  Order::Type::LIMIT, 50};
-    Order buy50_2{Order::Side::BUY, 3,  Order::Type::LIMIT, 50};
+    Order buy50{Order::makeLimitBuy(5, 50)};
+    Order buy50_2{Order::makeLimitBuy(3, 50)};
 
-    Order sell50{Order::Side::SELL, 5,  Order::Type::LIMIT, 50};
-    Order sell50_2{Order::Side::SELL, 3,  Order::Type::LIMIT, 50};
+    Order sell50{Order::makeLimitSell(5, 50)};
+    Order sell50_2{Order::makeLimitSell(3, 50)};
 
     const uuids::uuid* id;
 

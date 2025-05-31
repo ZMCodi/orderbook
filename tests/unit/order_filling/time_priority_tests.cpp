@@ -6,21 +6,21 @@ TEST_CASE("Check time priority", "[order filling][time priority]")
 {
     OrderBook ob{};
 
-    Order buy50_1{Order::Side::BUY, 5, Order::Type::LIMIT, 50};
-    Order buy50_2{Order::Side::BUY, 10, Order::Type::LIMIT, 50};
-    Order buy50_3{Order::Side::BUY, 2, Order::Type::LIMIT, 50};
-    Order buy51{Order::Side::BUY, 17, Order::Type::LIMIT, 51};
-    Order buy51Small{Order::Side::BUY, 10, Order::Type::LIMIT, 51};
-    Order buyMarket{Order::Side::BUY, 17, Order::Type::MARKET};
-    Order buyMarketSmall{Order::Side::BUY, 10, Order::Type::MARKET};
+    Order buy50_1{Order::makeLimitBuy(5, 50)};
+    Order buy50_2{Order::makeLimitBuy(10, 50)};
+    Order buy50_3{Order::makeLimitBuy(2, 50)};
+    Order buy51{Order::makeLimitBuy(17, 51)};
+    Order buy51Small{Order::makeLimitBuy(10, 51)};
+    Order buyMarket{Order::makeMarketBuy(17)};
+    Order buyMarketSmall{Order::makeMarketBuy(10)};
 
-    Order sell51_1{Order::Side::SELL, 5, Order::Type::LIMIT, 51};
-    Order sell51_2{Order::Side::SELL, 10, Order::Type::LIMIT, 51};
-    Order sell51_3{Order::Side::SELL, 2, Order::Type::LIMIT, 51};
-    Order sell50{Order::Side::SELL, 17, Order::Type::LIMIT, 50};
-    Order sell50Small{Order::Side::SELL, 10, Order::Type::LIMIT, 50};
-    Order sellMarket{Order::Side::SELL, 17, Order::Type::MARKET};
-    Order sellMarketSmall{Order::Side::SELL, 10, Order::Type::MARKET};
+    Order sell51_1{Order::makeLimitSell(5, 51)};
+    Order sell51_2{Order::makeLimitSell(10, 51)};
+    Order sell51_3{Order::makeLimitSell(2, 51)};
+    Order sell50{Order::makeLimitSell(17, 50)};
+    Order sell50Small{Order::makeLimitSell(10, 50)};
+    Order sellMarket{Order::makeMarketSell(17)};
+    Order sellMarketSmall{Order::makeMarketSell(10)};
 
     SECTION("Time priority for buy")
     {

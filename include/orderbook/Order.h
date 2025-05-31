@@ -26,16 +26,20 @@ struct Order
     enum class Type
     {
         LIMIT,
-        MARKET
+        MARKET,
+        STOP,
+        STOP_LIMIT,
     };
-
-    Order(Side side, int volume, Type type, double price = -1);
 
     // factory functions
     static Order makeLimitBuy(int volume, double price);
     static Order makeLimitSell(int volume, double price);
     static Order makeMarketBuy(int volume);
     static Order makeMarketSell(int volume);
+    static Order makeStopBuy(int volume, double stopPrice);
+    static Order makeStopSell(int volume, double stopPrice);
+    static Order makeStopLimitBuy(int volume, double price, double stopPrice);
+    static Order makeStopLimitSell(int volume, double price, double stopPrice);
 
     bool equals_to(const Order& other) const; // for testing
     callback getCallback() const {return callbackFn;} // for testing
@@ -47,12 +51,14 @@ struct Order
     int volume;
     const Type type;
     const double price;
+    const double stopPrice;
     time_ timestamp;
 
     friend class OrderBook;
     friend Order truncPrice(const Order& order, double tickSize); // helper for testing
 
 private:
+    Order(Side side, int volume, Type type, double price, double stopPrice = -1);
     Order(const Order& order, double tickSize);
     void notify(TradeCopy trade) const;
 

@@ -5,13 +5,13 @@
 TEST_CASE("Order filling", "[order filling][fill]")
 {
     OrderBook ob{};
-    Order buy50{Order::Side::BUY, 5, Order::Type::LIMIT, 50};
-    Order buy45{Order::Side::BUY, 5, Order::Type::LIMIT, 45};
-    Order buyMarket{Order::Side::BUY, 5, Order::Type::MARKET};
+    Order buy50{Order::makeLimitBuy(5, 50)};
+    Order buy45{Order::makeLimitBuy(5, 45)};
+    Order buyMarket{Order::makeMarketBuy(5)};
 
-    Order sell50{Order::Side::SELL, 5, Order::Type::LIMIT, 50};
-    Order sell55{Order::Side::SELL, 5, Order::Type::LIMIT, 55};
-    Order sellMarket{Order::Side::SELL, 5, Order::Type::MARKET};
+    Order sell50{Order::makeLimitSell(5, 50)};
+    Order sell55{Order::makeLimitSell(5, 55)};
+    Order sellMarket{Order::makeMarketSell(5)};
 
     SECTION("Fill limit buy order")
     {

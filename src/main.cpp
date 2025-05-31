@@ -78,8 +78,9 @@ void benchmark(int argc, char* argv[])
 
     // prep and clear for actual run
     seconds = 0;
+    std::cout << "sizeof(Order): " << sizeof(Order);
 
-    for (int i{}; i < 5; ++i)
+    for (int i{}; i < 10; ++i)
     {
         // recopy every time bcs market orders get modified in place
         auto preppedOrders{ob.getState().orderList};
@@ -95,12 +96,12 @@ void benchmark(int argc, char* argv[])
         seconds += timer.elapsed();
     }
 
-    seconds /= 5;
+    seconds /= 10;
     ms = seconds * 1000;
     us = seconds * 1'000'000;
     ns = seconds * 1'000'000'000;
 
-    std::cout << "Time (5 iterations): " << seconds << " s (" 
+    std::cout << "\nTime (10 iterations): " << seconds << " s (" 
           << ms << " ms, "
           << us << " µs, "
           << ns << " ns)\n";
@@ -117,16 +118,6 @@ void benchmark(int argc, char* argv[])
 int main(int argc, char* argv[])
 {
     [[maybe_unused]] auto lol = argv[argc];
-
-    Order buy50_1{Order::Side::BUY, 5, Order::Type::LIMIT, 50};
-    Order buy50_2{Order::Side::BUY, 10, Order::Type::LIMIT, 50};
-    Order buy50_3{Order::Side::BUY, 2, Order::Type::LIMIT, 50};
-
-    OrderBook ob{};
-    ob.placeOrder(buy50_1);
-    ob.placeOrder(buy50_2);
-    ob.placeOrder(buy50_3);
-
-    std::cout << "buy50_1: " << buy50_1.timestamp << ", buy50_2: " << buy50_2.timestamp << ", buy50_3: " << buy50_3.timestamp;
+    benchmark(argc, argv);
 
 }

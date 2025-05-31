@@ -1,5 +1,6 @@
-Time (before prep): 0.766654 s (766.654 ms, 766654 µs, 7.66654e+08 ns)
+Time (before prep): 10.9213 s (10921.3 ms, 1.09213e+07 µs, 1.09213e+10 ns)
 
-Time (5 iterations): 0.524421 s (524.421 ms, 524421 µs, 5.24421e+08 ns)
-Orders processed: 1000000, Trades generated: 975518, Total volume processed: 252520122
-Best Bid: 37.85, Best Ask: 38.98, Market Price: 37.85, Total Volume: 1710
+sizeof(Order): 80
+Time (10 iterations): 6.72074 s (6720.74 ms, 6.72074e+06 µs, 6.72074e+09 ns)
+Orders processed: 10000000, Trades generated: 9773762, Total volume processed: 2524484527
+Best Bid: 4209.19, Best Ask: 4419.64, Market Price: 4209.19, Total Volume: 9554

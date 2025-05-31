@@ -7,10 +7,11 @@ TEST_CASE("Order", "[order]")
 {
     SECTION("Basic order initialization checks")
     {
-        Order order1{Order::Side::BUY, 1, Order::Type::LIMIT, 20};
-        Order order2{Order::Side::SELL, 1, Order::Type::LIMIT, 20};
-        Order order3{Order::Side::BUY, 1, Order::Type::MARKET};
-        Order order4{Order::Side::SELL, 1, Order::Type::MARKET};
+        Order order1{Order::makeLimitBuy(1, 20)};
+        Order order2{Order::makeLimitSell(1, 20)};
+        Order order3{Order::makeMarketBuy(1)};
+        Order order4{Order::makeMarketSell(1)};
+        // TODO: add stop and stop limit tests
 
         time_ epoch{};
 
@@ -19,6 +20,7 @@ TEST_CASE("Order", "[order]")
         REQUIRE(order1.volume == 1);
         REQUIRE(order1.type == Order::Type::LIMIT);
         REQUIRE(order1.price == Catch::Approx(20.0));
+        REQUIRE(order1.stopPrice == Catch::Approx(-1.0));
         REQUIRE(order1.timestamp == epoch);
         REQUIRE(!order1.getCallback());
 
@@ -27,6 +29,7 @@ TEST_CASE("Order", "[order]")
         REQUIRE(order2.volume == 1);
         REQUIRE(order2.type == Order::Type::LIMIT);
         REQUIRE(order2.price == Catch::Approx(20.0));
+        REQUIRE(order1.stopPrice == Catch::Approx(-1.0));
         REQUIRE(order2.timestamp == epoch);
         REQUIRE(!order2.getCallback());
 
@@ -35,6 +38,7 @@ TEST_CASE("Order", "[order]")
         REQUIRE(order3.volume == 1);
         REQUIRE(order3.type == Order::Type::MARKET);
         REQUIRE(order3.price == Catch::Approx(-1.0));
+        REQUIRE(order1.stopPrice == Catch::Approx(-1.0));
         REQUIRE(order3.timestamp == epoch);
         REQUIRE(!order3.getCallback());
 
@@ -43,77 +47,53 @@ TEST_CASE("Order", "[order]")
         REQUIRE(order4.volume == 1);
         REQUIRE(order4.type == Order::Type::MARKET);
         REQUIRE(order4.price == Catch::Approx(-1.0));
+        REQUIRE(order1.stopPrice == Catch::Approx(-1.0));
         REQUIRE(order4.timestamp == epoch);
         REQUIRE(order4.getCallback() == nullptr);
     }
 
-    SECTION("Market order with a price throws an error")
-    {
-        REQUIRE_THROWS(Order{Order::Side::BUY, 3, Order::Type::MARKET, 50});
-        REQUIRE_THROWS(Order{Order::Side::SELL, 3, Order::Type::MARKET, 50});
-    }
-
-    SECTION("Limit order without a price throws an error")
-    {
-        REQUIRE_THROWS(Order{Order::Side::BUY, 3, Order::Type::LIMIT});
-        REQUIRE_THROWS(Order{Order::Side::SELL, 3, Order::Type::LIMIT});
-    }
-
     SECTION("Zero or negative volume orders throws an error")
     {
-        REQUIRE_THROWS(Order{Order::Side::BUY, 0, Order::Type::LIMIT, 20});
-        REQUIRE_THROWS(Order{Order::Side::SELL, 0, Order::Type::LIMIT, 20});
-        REQUIRE_THROWS(Order{Order::Side::BUY, 0, Order::Type::MARKET});
-        REQUIRE_THROWS(Order{Order::Side::SELL, 0, Order::Type::MARKET});
+        REQUIRE_THROWS(Order::makeLimitBuy(0, 20));
+        REQUIRE_THROWS(Order::makeLimitSell(0, 20));
+        REQUIRE_THROWS(Order::makeMarketBuy(0));
+        REQUIRE_THROWS(Order::makeMarketSell(0));
 
-        REQUIRE_THROWS(Order{Order::Side::BUY, -1, Order::Type::LIMIT, 20});
-        REQUIRE_THROWS(Order{Order::Side::SELL, -1, Order::Type::LIMIT, 20});
-        REQUIRE_THROWS(Order{Order::Side::BUY, -1, Order::Type::MARKET});
-        REQUIRE_THROWS(Order{Order::Side::SELL, -1, Order::Type::MARKET});
+        REQUIRE_THROWS(Order::makeLimitBuy(-1, 20));
+        REQUIRE_THROWS(Order::makeLimitSell(-1, 20));
+        REQUIRE_THROWS(Order::makeMarketBuy(-1));
+        REQUIRE_THROWS(Order::makeMarketSell(-1));
     }
 
     SECTION("Zero or negative price limit orders throws an error")
     {
-        REQUIRE_THROWS(Order{Order::Side::BUY, 20, Order::Type::LIMIT, 0});
-        REQUIRE_THROWS(Order{Order::Side::SELL, 20, Order::Type::LIMIT, 0});
-        REQUIRE_THROWS(Order{Order::Side::BUY, 20, Order::Type::LIMIT, -1});
-        REQUIRE_THROWS(Order{Order::Side::SELL, 20, Order::Type::LIMIT, -1});
+        REQUIRE_THROWS(Order::makeLimitBuy(20, 0));
+        REQUIRE_THROWS(Order::makeLimitSell(20, 0));
+        REQUIRE_THROWS(Order::makeLimitBuy(20, -1));
+        REQUIRE_THROWS(Order::makeLimitSell(20, -1));
 
     }
 
     SECTION("Order handles large and small volumes")
     {
         int max_vol{std::numeric_limits<int>::max()};
-        REQUIRE_NOTHROW(Order{Order::Side::BUY, max_vol, Order::Type::LIMIT, 1});
-        REQUIRE_NOTHROW(Order{Order::Side::BUY, 1, Order::Type::LIMIT, 1});
-        REQUIRE_NOTHROW(Order{Order::Side::BUY, max_vol, Order::Type::MARKET});
-        REQUIRE_NOTHROW(Order{Order::Side::BUY, 1, Order::Type::MARKET});
+        REQUIRE_NOTHROW(Order::makeLimitBuy(max_vol, 1));
+        REQUIRE_NOTHROW(Order::makeLimitBuy(1, 1));
+        REQUIRE_NOTHROW(Order::makeMarketBuy(max_vol));
+        REQUIRE_NOTHROW(Order::makeMarketBuy(1));
     }
 
     SECTION("Order handles large and small prices")
     {
         double max_price{std::numeric_limits<double>::max()};
-        REQUIRE_NOTHROW(Order{Order::Side::BUY, 1, Order::Type::LIMIT, max_price});
-        REQUIRE_NOTHROW(Order{Order::Side::BUY, 1, Order::Type::LIMIT, 0.01});
-    }
-
-    SECTION("Create orders using factory function")
-    {
-        Order limitBuy{Order{Order::Side::BUY, 1, Order::Type::LIMIT, 50}};
-        Order limitSell{Order{Order::Side::SELL, 1, Order::Type::LIMIT, 50}};
-        Order marketBuy{Order{Order::Side::BUY, 1, Order::Type::MARKET}};
-        Order marketSell{Order{Order::Side::SELL, 1, Order::Type::MARKET}};
-
-        REQUIRE(Order::makeLimitBuy(1, 50).equals_to(limitBuy));
-        REQUIRE(Order::makeLimitSell(1, 50).equals_to(limitSell));
-        REQUIRE(Order::makeMarketBuy(1).equals_to(marketBuy));
-        REQUIRE(Order::makeMarketSell(1).equals_to(marketSell));
+        REQUIRE_NOTHROW(Order::makeLimitBuy(1, max_price));
+        REQUIRE_NOTHROW(Order::makeLimitBuy(1, 0.0001));
     }
 
     SECTION("Check price precision")
     {
-        Order order1{Order::Side::BUY, 1, Order::Type::LIMIT, 0.12};
-        Order order2{Order::Side::BUY, 1, Order::Type::LIMIT, 0.1234};
+        Order order1{Order::makeLimitBuy(1, 0.12)};
+        Order order2{Order::makeLimitBuy(1, 0.1234)};
 
         REQUIRE(!order1.equals_to(order2));
         REQUIRE(order1.price == Catch::Approx(0.12).epsilon(0.01)); // 2 dp average price precision

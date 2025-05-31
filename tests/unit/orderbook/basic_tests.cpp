@@ -5,18 +5,18 @@
 TEST_CASE("OrderBook", "[orderbook][basic]")
 {
     OrderBook ob{};
-    Order buy50{Order::Side::BUY, 3,  Order::Type::LIMIT, 50};
-    Order buy45{Order::Side::BUY, 5,  Order::Type::LIMIT, 45};
-    Order buyMarket{Order::Side::BUY, 5,  Order::Type::MARKET};
-    Order buy50_2{Order::Side::BUY, 10, Order::Type::LIMIT, 50};
-    Order buy50_3{Order::Side::BUY, 15, Order::Type::LIMIT, 50};
+    Order buy50{Order::makeLimitBuy(3, 50)};
+    Order buy45{Order::makeLimitBuy(5, 45)};
+    Order buy50_2{Order::makeLimitBuy(10, 50)};
+    Order buy50_3{Order::makeLimitBuy(15, 50)};
+    Order buyMarket{Order::makeMarketBuy(5)};
 
-    Order sell50{Order::Side::SELL, 3,  Order::Type::LIMIT, 50};
-    Order sell60{Order::Side::SELL, 10, Order::Type::LIMIT, 60};
-    Order sell55{Order::Side::SELL, 3,  Order::Type::LIMIT, 55};
-    Order sell60_2{Order::Side::SELL, 30, Order::Type::LIMIT, 60};
-    Order sell60_3{Order::Side::SELL, 27, Order::Type::LIMIT, 60};
-    Order sellMarket{Order::Side::SELL, 5,  Order::Type::MARKET};
+    Order sell50{Order::makeLimitSell(3,  50)};
+    Order sell60{Order::makeLimitSell(10, 60)};
+    Order sell55{Order::makeLimitSell(3,  55)};
+    Order sell60_2{Order::makeLimitSell(30, 60)};
+    Order sell60_3{Order::makeLimitSell(27, 60)};
+    Order sellMarket{Order::makeMarketSell(5)};
 
     std::vector<std::reference_wrapper<Order>> orders{
         buy50,  buy45,  buyMarket,  buy50_2,  buy50_3,
@@ -61,7 +61,7 @@ TEST_CASE("OrderBook", "[orderbook][basic]")
         REQUIRE_NOTHROW(ob.placeOrder(sell60));
         REQUIRE_NOTHROW(ob.placeOrder(buyMarket));
         REQUIRE_NOTHROW(ob.placeOrder(sellMarket));
-        REQUIRE_NOTHROW(ob.placeOrder({Order::Side::BUY, 5, Order::Type::LIMIT, 40}));
+        REQUIRE_NOTHROW(ob.placeOrder(Order::makeLimitBuy(5, 40)));
     }
 
     SECTION("Reject invalid orders")
