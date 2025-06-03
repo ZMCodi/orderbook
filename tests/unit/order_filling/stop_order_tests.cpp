@@ -6,6 +6,7 @@ TEST_CASE("Stop orders", "[order filling][stop]")
 {
     OrderBook ob{};
     Order SB55{Order::makeStopBuy(5, 55)};
+    Order SB60{Order::makeStopBuy(5, 60)};
     Order SLB50_55{Order::makeStopLimitBuy(5, 50, 55)};
 
     Order SS50{Order::makeStopSell(5, 50)};
@@ -93,9 +94,115 @@ TEST_CASE("Stop orders", "[order filling][stop]")
         REQUIRE(checkOBState(ob, expState));
     }
 
-    SECTION("Market price movements trigger stop orders correctly")
+    SECTION("Market price movements trigger stop buy orders correctly")
     {
+        // stop buy order: fully filled
+        ob.placeOrder(SB55);
 
+        Order buy57{Order::makeLimitBuy(3, 57)};
+        Order sell57{Order::makeLimitSell(8, 57)};
+
+        // this moves market price to 57, triggering SB55
+        // but sell57 still has 5 shares left which is filled by SB55
+        ob.placeOrder(buy57);
+        ob.placeOrder(sell57);
+
+        REQUIRE(ob.getStopMaps().first.empty());
+
+        Trade expTrade1{nullptr, buy57.id, sell57.id, 57, 3, utils::now(), Order::Side::SELL};
+        Trade expTrade2{nullptr, SB55.id, sell57.id, 57, 5, utils::now(), Order::Side::BUY};
+
+        OrderBookState expState{
+            bid_map(), ask_map(), id_map(),
+            trade_list{expTrade1, expTrade2},
+            orders{SB55, buy57, sell57},
+            -1, -1, 57, 0
+        };
+
+        REQUIRE(checkOBState(ob, expState));
+
+        ob.clear();
+
+        // stop buy order: partially filled, remaining volume cancelled
+        ob.placeOrder(SB55);
+
+        Order sell57Small{Order::makeLimitSell(5, 57)};
+
+        // MP moves to 57 and triggers SB55
+        // but only 2/5 gets filled by sell57Small
+        // and remaining 1 share cancelled
+        ob.placeOrder(buy57);
+        ob.placeOrder(sell57Small);
+
+        REQUIRE(ob.getStopMaps().first.empty());
+
+        Trade expTrade3{nullptr, buy57.id, sell57Small.id, 57, 3, utils::now(), Order::Side::SELL};
+        Trade expTrade4{nullptr, SB55.id, sell57Small.id, 57, 2, utils::now(), Order::Side::BUY};
+
+        OrderBookState expState2{
+            bid_map(), ask_map(), id_map(),
+            trade_list{expTrade3, expTrade4},
+            orders{SB55, buy57, sell57Small},
+            -1, -1, 57, 0
+        };
+
+        REQUIRE(checkOBState(ob, expState2));
+    }
+
+    SECTION("Market price movements trigger stop sell orders correctly")
+    {
+        // stop sell order: fully filled
+        Order SS50{Order::makeStopSell(5, 50)};
+        ob.placeOrder(SS50);
+
+        Order sell48{Order::makeLimitSell(3, 48)};
+        Order buy48{Order::makeLimitBuy(8, 48)};
+
+        // this moves market price to 48, triggering SS50
+        // but buy48 still has 5 shares left which is filled by SS50
+        ob.placeOrder(sell48);
+        ob.placeOrder(buy48);
+
+        REQUIRE(ob.getStopMaps().second.empty());
+
+        Trade expTrade1{nullptr, buy48.id, sell48.id, 48, 3, utils::now(), Order::Side::BUY};
+        Trade expTrade2{nullptr, buy48.id, SS50.id, 48, 5, utils::now(), Order::Side::SELL};
+
+        OrderBookState expState{
+            bid_map(), ask_map(), id_map(),
+            trade_list{expTrade1, expTrade2},
+            orders{SS50, sell48, buy48},
+            -1, -1, 48, 0
+        };
+
+        REQUIRE(checkOBState(ob, expState));
+
+        ob.clear();
+
+        // stop sell order: partially filled, remaining volume cancelled
+        ob.placeOrder(SS50);
+
+        Order buy48Small{Order::makeLimitBuy(5, 48)};
+
+        // MP moves to 48 and triggers SS50
+        // but only 2/5 gets filled by buy48Small
+        // and remaining 1 share cancelled
+        ob.placeOrder(sell48);
+        ob.placeOrder(buy48Small);
+
+        REQUIRE(ob.getStopMaps().second.empty());
+
+        Trade expTrade3{nullptr, buy48Small.id, sell48.id, 48, 3, utils::now(), Order::Side::BUY};
+        Trade expTrade4{nullptr, buy48Small.id, SS50.id, 48, 2, utils::now(), Order::Side::SELL};
+
+        OrderBookState expState2{
+            bid_map(), ask_map(), id_map(),
+            trade_list{expTrade3, expTrade4},
+            orders{SS50, sell48, buy48Small},
+            -1, -1, 48, 0
+        };
+
+        REQUIRE(checkOBState(ob, expState2));
     }
 
     SECTION("Misaligned stop orders trigger immediately")

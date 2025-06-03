@@ -338,6 +338,12 @@ OrderResult OrderBook::matchOrderTemplate(Order& order, auto& orderMap)
     if (orderMap.empty()) {bid_or_ask = -1;}
     else {bid_or_ask = orderMap.begin()->first * tickSize;}
 
+    // update market price based on last executed trade
+    if (!generatedTrades.empty())
+    {
+        marketPrice = generatedTrades.back().price;
+    }
+
     // return OrderResult
     if (order.volume == 0) // fully filled
     {

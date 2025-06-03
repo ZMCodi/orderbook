@@ -26,6 +26,8 @@ TEST_CASE("OrderBook", "[orderbook][basic]")
     SECTION("Empty orderbook state")
     {
         REQUIRE(checkOBState(ob, emptyState));
+        REQUIRE(ob.getStopMaps().first.empty());
+        REQUIRE(ob.getStopMaps().second.empty());
         REQUIRE(ob.getIDPool().empty());
 
         // check clear method
@@ -41,6 +43,8 @@ TEST_CASE("OrderBook", "[orderbook][basic]")
 
         ob.clear();
         REQUIRE(checkOBState(ob, emptyState));
+        REQUIRE(ob.getStopMaps().first.empty());
+        REQUIRE(ob.getStopMaps().second.empty());
         REQUIRE(ob.getIDPool().empty());
     }
 

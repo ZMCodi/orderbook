@@ -119,7 +119,6 @@ void OrderBook::genTrade(const Order& buyer, const Order& seller, double price,
 
     // internal bookkeeping
     tradeList.push_back(trade);
-    marketPrice = price;
 }
 
 const order_list& OrderBook::ordersAt(double priceLevel)

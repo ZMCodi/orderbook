@@ -124,6 +124,8 @@ inline void OrderBook::clear()
 {
     bidMap.clear();
     askMap.clear();
+    stopBuyMap.clear();
+    stopSellMap.clear();
     idMap.clear();
     tradeList.clear();
     orderList.clear();
