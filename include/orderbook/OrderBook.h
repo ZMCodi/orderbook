@@ -164,7 +164,7 @@ private:
     template<bool Volume>
     auto priceLevelQuery(const auto& orderMap, tick_t tickPrice)
         -> std::conditional_t<Volume, int, const order_list&>;
-    static Order::Side sideFromMap(OrderLocation::Map map);
+    static inline Order::Side sideFromMap(OrderLocation::Map map);
 
     // placing order processing logic
     void stampOrder(Order& order);
@@ -655,4 +655,3 @@ std::vector<OrderBook::Level> OrderBook::getLevelsOneSided(const auto& orderMap,
 
     return vlevels;
 }
-

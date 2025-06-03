@@ -76,12 +76,12 @@ TEST_CASE("Price modification", "[order manipulation][price modification]")
         };
 
         id_map expIDM{
-            {id, OrderLocation{45.0, ++expBM.at(4500).orders.begin(), Order::Side::BUY}},
-            {buy45.get_id(), OrderLocation{45.0, expBM.at(4500).orders.begin(), Order::Side::BUY}},
+            {id, OrderLocation{45.0, ++expBM.at(4500).orders.begin(), OrderLocation::BID}},
+            {buy45.get_id(), OrderLocation{45.0, expBM.at(4500).orders.begin(), OrderLocation::BID}},
         };
 
         OrderBookState expState{
-            expBM, ask_map(), expIDM,
+            expBM, ask_map(), stop_map(), expIDM,
             trade_list(), orders{buy50, buy45, newOrder},
             45, -1, -1, 10
         };
@@ -129,12 +129,12 @@ TEST_CASE("Price modification", "[order manipulation][price modification]")
         };
 
         id_map expIDM{
-            {id, OrderLocation{60.0, ++expAM.at(6000).orders.begin(), Order::Side::SELL}},
-            {sell60.get_id(), OrderLocation{60.0, expAM.at(6000).orders.begin(), Order::Side::SELL}},
+            {id, OrderLocation{60.0, ++expAM.at(6000).orders.begin(), OrderLocation::ASK}},
+            {sell60.get_id(), OrderLocation{60.0, expAM.at(6000).orders.begin(), OrderLocation::ASK}},
         };
 
         OrderBookState expState{
-            bid_map(), expAM, expIDM,
+            bid_map(), expAM, stop_map(), expIDM,
             trade_list(), orders{sell50, sell60, newOrder},
             -1, 60, -1, 15
         };
@@ -185,12 +185,12 @@ TEST_CASE("Price modification", "[order manipulation][price modification]")
         };
 
         id_map expIDM{
-            {id, OrderLocation{45.0, ++expBM.at(4500).orders.begin(), Order::Side::BUY}},
-            {buy45.get_id(), OrderLocation{45.0, expBM.at(4500).orders.begin(), Order::Side::BUY}},
+            {id, OrderLocation{45.0, ++expBM.at(4500).orders.begin(), OrderLocation::BID}},
+            {buy45.get_id(), OrderLocation{45.0, expBM.at(4500).orders.begin(), OrderLocation::BID}},
         };
 
         OrderBookState expState{
-            expBM, ask_map(), expIDM,
+            expBM, ask_map(), stop_map(), expIDM,
             trade_list{expTrade}, orders{buy50, sell50_2, buy45, newOrder},
             45, -1, 50, 7
         };
@@ -241,12 +241,12 @@ TEST_CASE("Price modification", "[order manipulation][price modification]")
         };
 
         id_map expIDM{
-            {id, OrderLocation{60.0, ++expAM.at(6000).orders.begin(), Order::Side::SELL}},
-            {sell60.get_id(), OrderLocation{60.0, expAM.at(6000).orders.begin(), Order::Side::SELL}},
+            {id, OrderLocation{60.0, ++expAM.at(6000).orders.begin(), OrderLocation::ASK}},
+            {sell60.get_id(), OrderLocation{60.0, expAM.at(6000).orders.begin(), OrderLocation::ASK}},
         };
 
         OrderBookState expState{
-            bid_map(), expAM, expIDM,
+            bid_map(), expAM, stop_map(), expIDM,
             trade_list{expTrade}, orders{sell50, buy50_2, sell60, newOrder},
             -1, 60, 50, 12
         };
@@ -289,7 +289,7 @@ TEST_CASE("Price modification", "[order manipulation][price modification]")
         REQUIRE(actual.equals_to(expected));
 
         OrderBookState expState{
-            bid_map{}, ask_map{}, id_map{},
+            bid_map(), ask_map(), stop_map(), id_map(),
             trade_list{expTrade1, expTrade2}, orders{buy50, buy45, sell60, newOrder},
             -1, -1, 45, 0
         };

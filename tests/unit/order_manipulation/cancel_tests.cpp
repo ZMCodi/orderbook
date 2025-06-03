@@ -66,7 +66,7 @@ TEST_CASE("Order cancellation", "[order manipulation][cancellation]")
         REQUIRE(actual.equals_to(expected));
 
         OrderBookState expState{
-            bid_map(), ask_map(), id_map(),
+            bid_map(), ask_map(), stop_map(), id_map(),
             trade_list(), orders{buy50},
             -1, -1, -1, 0
         };
@@ -97,7 +97,7 @@ TEST_CASE("Order cancellation", "[order manipulation][cancellation]")
         REQUIRE(actual.equals_to(expected));
 
         OrderBookState expState{
-            bid_map(), ask_map(), id_map(),
+            bid_map(), ask_map(), stop_map(), id_map(),
             trade_list(), orders{sell50},
             -1, -1, -1, 0
         };
@@ -130,7 +130,7 @@ TEST_CASE("Order cancellation", "[order manipulation][cancellation]")
 
         Trade expTrade{nullptr, id, sell50_2.get_id(), 50, 3, utils::now(), Order::Side::SELL};
         OrderBookState expState{
-            bid_map(), ask_map(), id_map(),
+            bid_map(), ask_map(), stop_map(), id_map(),
             trade_list{expTrade}, orders{buy50, sell50_2},
             -1, -1, 50, 0
         };
@@ -163,7 +163,7 @@ TEST_CASE("Order cancellation", "[order manipulation][cancellation]")
 
         Trade expTrade{nullptr, buy50_2.get_id(), id, 50, 3, utils::now(), Order::Side::BUY};
         OrderBookState expState{
-            bid_map(), ask_map(), id_map(),
+            bid_map(), ask_map(), stop_map(), id_map(),
             trade_list{expTrade}, orders{sell50, buy50_2},
             -1, -1, 50, 0
         };

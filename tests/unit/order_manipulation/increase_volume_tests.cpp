@@ -47,12 +47,12 @@ TEST_CASE("Increase order volume", "[order manipulation][increase volume]")
         };
 
         id_map expIDM{
-            {id, OrderLocation{50.0, ++expBM.at(5000).orders.begin(), Order::Side::BUY}},
-            {buy50_2.get_id(), OrderLocation{50.0, expBM.at(5000).orders.begin(), Order::Side::BUY}},
+            {id, OrderLocation{50.0, ++expBM.at(5000).orders.begin(), OrderLocation::BID}},
+            {buy50_2.get_id(), OrderLocation{50.0, expBM.at(5000).orders.begin(), OrderLocation::BID}},
         };
 
         OrderBookState expState{
-            expBM, ask_map(), expIDM,
+            expBM, ask_map(), stop_map(), expIDM,
             trade_list(), orders{buy50, buy50_2, newOrder},
             50, -1, -1, 13
         };
@@ -100,12 +100,12 @@ TEST_CASE("Increase order volume", "[order manipulation][increase volume]")
         };
 
         id_map expIDM{
-            {id, OrderLocation{50.0, ++expAM.at(5000).orders.begin(), Order::Side::SELL}},
-            {sell50_2.get_id(), OrderLocation{50.0, expAM.at(5000).orders.begin(), Order::Side::SELL}},
+            {id, OrderLocation{50.0, ++expAM.at(5000).orders.begin(), OrderLocation::ASK}},
+            {sell50_2.get_id(), OrderLocation{50.0, expAM.at(5000).orders.begin(), OrderLocation::ASK}},
         };
 
         OrderBookState expState{
-            bid_map(), expAM, expIDM,
+            bid_map(), expAM, stop_map(), expIDM,
             trade_list(), orders{sell50, sell50_2, newOrder},
             -1, 50, -1, 13
         };
@@ -157,12 +157,12 @@ TEST_CASE("Increase order volume", "[order manipulation][increase volume]")
         };
 
         id_map expIDM{
-            {id, OrderLocation{50.0, ++expBM.at(5000).orders.begin(), Order::Side::BUY}},
-            {buy50_2.get_id(), OrderLocation{50.0, expBM.at(5000).orders.begin(), Order::Side::BUY}},
+            {id, OrderLocation{50.0, ++expBM.at(5000).orders.begin(), OrderLocation::BID}},
+            {buy50_2.get_id(), OrderLocation{50.0, expBM.at(5000).orders.begin(), OrderLocation::BID}},
         };
 
         OrderBookState expState{
-            expBM, ask_map(), expIDM,
+            expBM, ask_map(), stop_map(), expIDM,
             trade_list{expTrade}, orders{buy50, sell50_2, buy50_2, newOrder},
             50, -1, 50, 13
         };
@@ -214,12 +214,12 @@ TEST_CASE("Increase order volume", "[order manipulation][increase volume]")
         };
 
         id_map expIDM{
-            {id, OrderLocation{50.0, ++expAM.at(5000).orders.begin(), Order::Side::SELL}},
-            {sell50_2.get_id(), OrderLocation{50.0, expAM.at(5000).orders.begin(), Order::Side::SELL}},
+            {id, OrderLocation{50.0, ++expAM.at(5000).orders.begin(), OrderLocation::ASK}},
+            {sell50_2.get_id(), OrderLocation{50.0, expAM.at(5000).orders.begin(), OrderLocation::ASK}},
         };
 
         OrderBookState expState{
-            bid_map(), expAM, expIDM,
+            bid_map(), expAM, stop_map(), expIDM,
             trade_list{expTrade}, orders{sell50, buy50_2, sell50_2, newOrder},
             -1, 50, 50, 13
         };

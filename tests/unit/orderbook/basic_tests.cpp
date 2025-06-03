@@ -26,7 +26,7 @@ TEST_CASE("OrderBook", "[orderbook][basic]")
     SECTION("Empty orderbook state")
     {
         OrderBookState expected{
-            bid_map(), ask_map(), id_map(),
+            bid_map(), ask_map(), stop_map(), id_map(),
             trade_list(), orders(),
             -1, -1, -1, 0
         };
@@ -38,6 +38,12 @@ TEST_CASE("OrderBook", "[orderbook][basic]")
         {
             ob.placeOrder(order);
         }
+
+        ob.placeOrder(Order::makeStopBuy(1, 20));
+        ob.placeOrder(Order::makeStopSell(1, 20));
+        ob.placeOrder(Order::makeStopLimitBuy(1, 20, 20));
+        ob.placeOrder(Order::makeStopLimitSell(1, 20, 20));
+
         ob.clear();
         REQUIRE(checkOBState(ob, expected));
         REQUIRE(ob.getIDPool().empty());
