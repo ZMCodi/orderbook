@@ -33,7 +33,7 @@ inline bool compareOrderLists(const order_list& first, const order_list& sec, do
 inline OrderBookState OrderBook::getState()
 {
     return {
-        bidMap, askMap, idMap, tradeList, orderList,
+        bidMap, askMap, stopMap, idMap, tradeList, orderList,
         bestBid, bestAsk, marketPrice, totalVolume
     };
 }
@@ -325,10 +325,19 @@ inline std::ostream& operator<<(std::ostream& out, OrderLocation o)
 {
     std::stringstream str;
     str << "OrderLocation(order: " << *o.itr << ", price: "
-    << o.price << ", side: ";
+    << o.price << ", map: ";
 
-    if (o.side == Order::Side::BUY) {str << "BUY)";}
-    if (o.side == Order::Side::SELL) {str << "SELL)";}
+    switch (o.map)
+    {
+        case OrderLocation::BID:
+            str << "BID)";
+            break;
+        case OrderLocation::ASK:
+            str << "ASK)";
+            break;
+        case OrderLocation::STOP:
+            str << "STOP)";
+    }
 
     return out << str.str();
 }

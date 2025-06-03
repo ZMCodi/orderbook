@@ -18,7 +18,7 @@ TEST_CASE("OrderBook", "[orderbook][basic]")
     Order sell60_3{Order::makeLimitSell(27, 60)};
     Order sellMarket{Order::makeMarketSell(5)};
 
-    std::vector<std::reference_wrapper<Order>> orders{
+    std::vector<std::reference_wrapper<Order>> orders_{
         buy50,  buy45,  buyMarket,  buy50_2,  buy50_3,
         sell50, sell60, sell55, sell60_2, sell60_3
     };
@@ -27,14 +27,14 @@ TEST_CASE("OrderBook", "[orderbook][basic]")
     {
         OrderBookState expected{
             bid_map(), ask_map(), id_map(),
-            trade_list(), std::vector<Order>(), // orders is already taken
+            trade_list(), orders(),
             -1, -1, -1, 0
         };
         REQUIRE(checkOBState(ob, expected));
         REQUIRE(ob.getIDPool().empty());
 
         // check clear method
-        for (auto order : orders)
+        for (auto order : orders_)
         {
             ob.placeOrder(order);
         }
@@ -235,7 +235,7 @@ TEST_CASE("OrderBook", "[orderbook][basic]")
         // market price not initialized
         REQUIRE_THROWS(ob.getMarketPrice());
 
-        for (auto order : orders)
+        for (auto order : orders_)
         {
             ob.placeOrder(order);
         }
@@ -249,7 +249,7 @@ TEST_CASE("OrderBook", "[orderbook][basic]")
         REQUIRE_THROWS(ob.getBestBid());
         REQUIRE_THROWS(ob.getBestAsk());
 
-        for (auto order: orders)
+        for (auto order: orders_)
         {
             ob.placeOrder(order);
         }
@@ -263,7 +263,7 @@ TEST_CASE("OrderBook", "[orderbook][basic]")
         // empty should be 0
         REQUIRE(ob.volumeAt(50.00) == 0);
 
-        for (auto order: orders)
+        for (auto order: orders_)
         {
             ob.placeOrder(order);
         }
@@ -279,7 +279,7 @@ TEST_CASE("OrderBook", "[orderbook][basic]")
         // empty should be 0
         REQUIRE(ob.getTotalVolume() == 0);
 
-        for (auto order: orders)
+        for (auto order: orders_)
         {
             ob.placeOrder(order);
         }

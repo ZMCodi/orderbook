@@ -8,29 +8,33 @@ TEST_CASE("ID generation", "[orderbook][id]")
 
     Order buy50{Order::makeLimitBuy(3, 50)};
     Order buy45{Order::makeLimitBuy(5, 45)};
+    Order buyStopLimit50{Order::makeStopLimitBuy(3, 50, 50)};
+    Order buyStop50{Order::makeStopBuy(3, 50)};
     Order buyMarket{Order::makeMarketBuy(10)};
 
     Order sell50{Order::makeLimitSell(3, 50)};
     Order sell60{Order::makeLimitSell(10, 60)};
+    Order sellStopLimit50{Order::makeStopLimitSell(3, 50, 50)};
+    Order sellStop50{Order::makeStopSell(3, 50)};
     Order sellMarket{Order::makeMarketSell(5)};
 
     SECTION("ID is generated strictly after placing an order")
     {
-        REQUIRE(!buy50.get_id());
+        REQUIRE(!buy50.id);
         ob.placeOrder(buy50);
-        REQUIRE(*buy50.get_id() != uuids::uuid{});
+        REQUIRE(*buy50.id != uuids::uuid{});
 
-        REQUIRE(!sell50.get_id());
+        REQUIRE(!sell50.id);
         ob.placeOrder(sell50);
-        REQUIRE(*sell50.get_id() != uuids::uuid{});
+        REQUIRE(*sell50.id != uuids::uuid{});
     }
 
     SECTION("Generate unique order IDs and stores them")
     {
         // ids are only generated when an order is placed
         std::vector orders{
-            buy50,  buy45,  buyMarket,
-            sell50, sell60, sellMarket
+            buy50,  buy45,  buyMarket, buyStopLimit50, buyStop50,
+            sell50, sell60, sellMarket, sellStopLimit50, sellStop50
         };
 
         std::unordered_set<uuids::uuid> ids{};
@@ -47,7 +51,7 @@ TEST_CASE("ID generation", "[orderbook][id]")
             ids.insert(*ordercpy.get_id());
         }
 
-        REQUIRE(ids.size() == 12);
+        REQUIRE(ids.size() == orders.size() * 2);
 
         id_pool ids_pool{ob.getIDPool()};
         for (auto id : ids)

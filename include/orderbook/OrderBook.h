@@ -40,15 +40,22 @@ struct PriceLevel
     order_list orders;
 };
 
-// bid/ask map = {price: (volume, [orders...])}
+// bid/ask/stop map = {price: (volume, [orders...])}
 using bid_map = std::map<tick_t, PriceLevel, std::greater<tick_t>>;
 using ask_map = std::map<tick_t, PriceLevel>;
+using stop_map = std::map<tick_t, PriceLevel>;
 
 struct OrderLocation
 {
+    enum Map{
+        BID,
+        ASK,
+        STOP,
+    };
+
     double price;
     order_list::iterator itr; // O(1) access to cancel/modify/fetch
-    Order::Side side; // easier to determine which map to search
+    Map map; // determine which map to search
 };
 
 // id map = {&id: (price, &order, BUY/SELL)}
@@ -59,6 +66,7 @@ struct OrderBookState
 {
     bid_map bidMap{};
     ask_map askMap{};
+    stop_map stopMap{};
     id_map idMap{};
     trade_list tradeList{};
     orders orderList{};
@@ -151,11 +159,12 @@ private:
     static const order_list emptyOrders;
 
     // internal helper functions
-    auto dispatchBySide(Order::Side side, auto&& func);
+    auto dispatchByMap(OrderLocation::Map map, auto&& func);
     const uuids::uuid* getPointer(const auto& id, bool throws);
     template<bool Volume>
     auto priceLevelQuery(const auto& orderMap, tick_t tickPrice)
         -> std::conditional_t<Volume, int, const order_list&>;
+    static Order::Side sideFromMap(OrderLocation::Map map);
 
     // placing order processing logic
     void stampOrder(Order& order);
@@ -176,6 +185,7 @@ private:
     // internal data structures
     bid_map bidMap{}; // store active bids
     ask_map askMap{}; // store active asks
+    stop_map stopMap{}; // store untriggered stop/limit orders
     id_map idMap{}; // store map of id : order to get query by id
     trade_list tradeList{}; // store all executed trades
     orders orderList{}; // store a list of orders for bookkeeping
@@ -217,7 +227,11 @@ void OrderBook::storeActiveOrder(Order& order, auto& orderMap, tick_t tickPrice,
     auto activeItr{std::prev(pLevel.orders.end())};
 
     // add to idMap and update pointer in result
-    idMap[order.id] = OrderLocation{tickPrice * tickSize, activeItr, order.side};
+    OrderLocation::Map map = (order.side == Order::Side::BUY
+                            ? OrderLocation::BID 
+                            : OrderLocation::ASK);
+
+    idMap[order.id] = OrderLocation{tickPrice * tickSize, activeItr, map};
     result.remainingOrder = &(*activeItr);
 }
 
@@ -342,9 +356,30 @@ OrderResult OrderBook::matchOrderTemplate(Order& order, auto& orderMap)
     }
 }
 
-auto OrderBook::dispatchBySide(Order::Side side, auto&& func)
+auto OrderBook::dispatchByMap(OrderLocation::Map map, auto&& func)
 {
-    return side == Order::Side::BUY ? func(bidMap) : func(askMap);
+    switch (map)
+    {
+        case OrderLocation::BID:
+            return func(bidMap);
+        case OrderLocation::ASK:
+            return func(askMap);
+        case OrderLocation::STOP:
+            return func(stopMap);
+    }
+}
+
+Order::Side OrderBook::sideFromMap(OrderLocation::Map map)
+{
+    switch (map)
+    {
+        case OrderLocation::ASK:
+            return Order::Side::SELL;
+        case OrderLocation::BID:
+            return Order::Side::BUY;
+        case OrderLocation::STOP:
+            return Order::Side::BUY; // invalid but idk what to put here for now
+    }
 }
 
 const uuids::uuid* OrderBook::getPointer(const auto& id, bool throws)
@@ -371,7 +406,7 @@ OrderResult OrderBook::cancelOrder(const auto& id_)
 {
     const uuids::uuid* id{getPointer(id_, true)};
 
-    auto [price, itr, side] = idMap.at(id); // unpack the OrderLocation
+    auto [price, itr, map] = idMap.at(id); // unpack the OrderLocation
     auto tickPrice{utils::convertTick(price, tickSize)};
     auto vol{itr->volume};
 
@@ -380,7 +415,7 @@ OrderResult OrderBook::cancelOrder(const auto& id_)
     idMap.erase(id);
 
     // remove order from bid/ask map and update best bid/ask
-    dispatchBySide(side, [&](auto& orderMap){
+    dispatchByMap(map, [&](auto& orderMap){
         orderMap.at(tickPrice).volume -= vol;
         orderMap.at(tickPrice).orders.erase(itr);
 
@@ -410,7 +445,7 @@ OrderResult OrderBook::modifyVolume(const auto& id_, int volume)
 
     const uuids::uuid* id{getPointer(id_, true)};
 
-    auto [price, itr, side] = idMap.at(id); // unpack the OrderLocation
+    auto [price, itr, map] = idMap.at(id); // unpack the OrderLocation
     auto vol{itr->volume};
     auto delta{vol - volume};
     auto tickPrice{utils::convertTick(price, tickSize)};
@@ -427,7 +462,7 @@ OrderResult OrderBook::modifyVolume(const auto& id_, int volume)
         totalVolume -= delta;
 
         // decrease volume maintain time priority
-        dispatchBySide(side, [&](auto& orderMap){
+        dispatchByMap(map, [&](auto& orderMap){
             itr->volume -= delta;
             orderMap.at(tickPrice).volume -= delta;
         });
@@ -465,7 +500,8 @@ OrderResult OrderBook::modifyPrice(const auto& id_, double price)
 
     const uuids::uuid* id{getPointer(id_, true)};
 
-    auto [prc, itr, side] = idMap.at(id);
+    auto [prc, itr, map] = idMap.at(id);
+    auto side{sideFromMap(map)};
 
     if (prc == price)
     {

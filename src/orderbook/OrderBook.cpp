@@ -71,7 +71,11 @@ OrderResult OrderBook::placeOrder(Order& order, callback callbackFn)
     if (activeCopy.volume > 0)
     {
         // store in bid/ask map and update any relevant fields
-        dispatchBySide(activeCopy.side, [&](auto& orderMap){
+        OrderLocation::Map map = (activeCopy.side == Order::Side::BUY
+                                 ? OrderLocation::BID
+                                 : OrderLocation::ASK);
+
+        dispatchByMap(map, [&](auto& orderMap){
             storeActiveOrder(activeCopy, orderMap, tickPrice, result);
         });
     }
