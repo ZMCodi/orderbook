@@ -302,4 +302,9 @@ TEST_CASE("Price modification", "[order manipulation][price modification]")
         REQUIRE(ob.getAuditList().size() == 1);
         REQUIRE(ob.getAuditList()[0].equals_to(expAudit));
     }
+
+    SECTION("Modify price stop order")
+    {
+        
+    }
 }

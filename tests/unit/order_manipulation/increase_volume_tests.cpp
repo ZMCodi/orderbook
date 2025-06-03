@@ -232,4 +232,9 @@ TEST_CASE("Increase order volume", "[order manipulation][increase volume]")
         REQUIRE(ob.getAuditList().size() == 1);
         REQUIRE(ob.getAuditList()[0].equals_to(expAudit));
     }
+
+    SECTION("Increase volume stop order")
+    {
+        
+    }
 }

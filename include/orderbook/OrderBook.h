@@ -150,6 +150,7 @@ public:
     OrderBookState getState();
     const id_pool& getIDPool() {return idPool;}
     audit_list getAuditList() {return auditList;}
+    std::pair<stop_buy_map, stop_sell_map> getStopMaps() {return {stopBuyMap, stopSellMap};}
     void clear();
 
     std::list<Order> dummy{{Order::Side::BUY, 3, Order::Type::LIMIT, 50}};

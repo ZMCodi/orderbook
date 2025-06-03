@@ -176,4 +176,9 @@ TEST_CASE("Order cancellation", "[order manipulation][cancellation]")
         REQUIRE(ob.getAuditList().size() == 1);
         REQUIRE(ob.getAuditList()[0].equals_to(expAudit));
     }
+
+    SECTION("Cancel stop orders")
+    {
+
+    }
 }

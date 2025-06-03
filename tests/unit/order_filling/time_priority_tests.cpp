@@ -261,4 +261,9 @@ TEST_CASE("Check time priority", "[order filling][time priority]")
         REQUIRE(compareOrderLists(ob.ordersAt(50.0), order_list{buy50_1, buy50_3}));
         REQUIRE(compareOrderLists(ob.ordersAt(51.0), order_list{sell51_1, sell51_3}));
     }
+
+    SECTION("Stop order time priority")
+    {
+        
+    }
 }
