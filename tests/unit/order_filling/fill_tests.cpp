@@ -30,7 +30,7 @@ TEST_CASE("Order filling", "[order filling][fill]")
         REQUIRE(actual.equals_to(expected));
 
         OrderBookState expState{
-            bid_map(), ask_map(), stop_map(), id_map(), 
+            bid_map(), ask_map(), id_map(), 
             trade_list{expTrade}, orders{sell50, buy50},
             -1, -1, 50, 0
         };
@@ -55,7 +55,7 @@ TEST_CASE("Order filling", "[order filling][fill]")
         REQUIRE(actual.equals_to(expected));
 
         OrderBookState expState{
-            bid_map(), ask_map(), stop_map(), id_map(), 
+            bid_map(), ask_map(), id_map(), 
             trade_list{expTrade}, orders{buy50, sell50},
             -1, -1, 50, 0
         };
@@ -78,7 +78,7 @@ TEST_CASE("Order filling", "[order filling][fill]")
         REQUIRE(actual.equals_to(expected));
 
         OrderBookState expState{
-            bid_map(), ask_map(), stop_map(), id_map(), 
+            bid_map(), ask_map(), id_map(), 
             trade_list(), orders{buyMarket}, // rejected orders are still stored
             -1, -1, -1, 0
         };
@@ -102,7 +102,7 @@ TEST_CASE("Order filling", "[order filling][fill]")
         REQUIRE(actual2.equals_to(expected2));
 
         OrderBookState expState2{
-            bid_map(), ask_map(), stop_map(), id_map(), 
+            bid_map(), ask_map(), id_map(), 
             trade_list(), orders{buyMarket}, // cannot reuse expState since its a copy
             -1, -1, -1, 0                    // but we can reuse buyMarket since it has the same
         };                                   // members as the rvalue and we changed the id
@@ -127,7 +127,7 @@ TEST_CASE("Order filling", "[order filling][fill]")
 
         buyMarket.volume = 5; // reset for orderList
         OrderBookState expState{
-            bid_map(), ask_map(), stop_map(), id_map(), 
+            bid_map(), ask_map(), id_map(), 
             trade_list{expTrade}, orders{sell50, buyMarket},
             -1, -1, 50, 0
         };
@@ -152,7 +152,7 @@ TEST_CASE("Order filling", "[order filling][fill]")
         REQUIRE(actual2.equals_to(expected2));
 
         OrderBookState expState2{
-            bid_map(), ask_map(), stop_map(), id_map(), 
+            bid_map(), ask_map(), id_map(), 
             trade_list{expTrade2}, orders{sell50, buyMarket},
             -1, -1, 50, 0
         };
@@ -177,7 +177,7 @@ TEST_CASE("Order filling", "[order filling][fill]")
 
         sellMarket.volume = 5; // reset for orderList
         OrderBookState expState{
-            bid_map(), ask_map(), stop_map(), id_map(), 
+            bid_map(), ask_map(), id_map(), 
             trade_list{expTrade}, orders{buy50, sellMarket},
             -1, -1, 50, 0
         };
@@ -202,7 +202,7 @@ TEST_CASE("Order filling", "[order filling][fill]")
         REQUIRE(actual2.equals_to(expected2));
 
         OrderBookState expState2{
-            bid_map(), ask_map(), stop_map(), id_map(), 
+            bid_map(), ask_map(), id_map(), 
             trade_list{expTrade2}, orders{buy50, sellMarket},
             -1, -1, 50, 0
         };

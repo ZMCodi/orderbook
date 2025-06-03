@@ -118,6 +118,49 @@ void benchmark(int argc, char* argv[])
 int main(int argc, char* argv[])
 {
     [[maybe_unused]] auto lol = argv[argc];
-    benchmark(argc, argv);
+    OrderBook ob{};
 
+    [[maybe_unused]] Order buy50{Order::makeLimitBuy(2, 50)};
+    [[maybe_unused]] Order buy51{Order::makeLimitBuy(2, 51)};
+    [[maybe_unused]] Order buy52{Order::makeLimitBuy(2, 52)};
+    [[maybe_unused]] Order buy53{Order::makeLimitBuy(2, 53)};
+    [[maybe_unused]] Order buyBig53{Order::makeLimitBuy(8, 53)};
+    [[maybe_unused]] Order buyMarket{Order::makeMarketBuy(8)};
+
+    [[maybe_unused]] Order sell50{Order::makeLimitSell(2, 50)};
+    [[maybe_unused]] Order sell51{Order::makeLimitSell(2, 51)};
+    [[maybe_unused]] Order sell52{Order::makeLimitSell(2, 52)};
+    [[maybe_unused]] Order sell53{Order::makeLimitSell(2, 53)};
+    [[maybe_unused]] Order sellBig50{Order::makeLimitSell(8, 50)};
+
+    ob.placeOrder(buy53);
+    ob.placeOrder(buy52);
+    ob.placeOrder(buy51);
+    auto actual{ob.placeOrder(sellBig50)};
+    auto id = sellBig50.get_id();
+
+    Trade expTrade1{nullptr, buy53.get_id(), sellBig50.get_id(), 53, 2, utils::now(), Order::Side::SELL};
+    Trade expTrade2{nullptr, buy52.get_id(), sellBig50.get_id(), 52, 2, utils::now(), Order::Side::SELL};
+    Trade expTrade3{nullptr, buy51.get_id(), sellBig50.get_id(), 51, 2, utils::now(), Order::Side::SELL};
+
+    sellBig50.volume = 2;
+
+    ask_map expAM{
+        {5000, PriceLevel{2, order_list{sellBig50}}}
+    };
+
+    id_map expIDM{
+        {id, OrderLocation{50, expAM.at(5000).orders.begin(), OrderLocation::BID}}
+    };
+
+    sellBig50.volume = 8; // reset for orderList
+    OrderBookState expState{
+        bid_map(), expAM, expIDM,
+        trade_list{expTrade1, expTrade2, expTrade3},
+        orders{buy53, buy52, buy51, sellBig50},
+        -1, 50, 51, 2
+    };
+
+    std::cout << "actual: " << ob.getState();
+    std::cout << "\n\nexpected: " << expState;
 }

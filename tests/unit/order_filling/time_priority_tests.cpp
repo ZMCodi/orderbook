@@ -87,7 +87,7 @@ TEST_CASE("Check time priority", "[order filling][time priority]")
         REQUIRE(actual.equals_to(expected));
 
         OrderBookState expState{
-            bid_map(), ask_map(), stop_map(), id_map(),
+            bid_map(), ask_map(), id_map(),
             trade_list{expTrade1, expTrade2, expTrade3},
             orders{sell51_1, sell51_2, sell51_3, buy51},
             -1, -1, 51, 0
@@ -116,7 +116,7 @@ TEST_CASE("Check time priority", "[order filling][time priority]")
         REQUIRE(actual.equals_to(expected));
 
         OrderBookState expState{
-            bid_map(), ask_map(), stop_map(), id_map(),
+            bid_map(), ask_map(), id_map(),
             trade_list{expTrade1, expTrade2, expTrade3},
             orders{buy50_1, buy50_2, buy50_3, sell50},
             -1, -1, 50, 0
@@ -146,7 +146,7 @@ TEST_CASE("Check time priority", "[order filling][time priority]")
 
         buyMarket.volume = 17; // reset for orderList
         OrderBookState expState{
-            bid_map(), ask_map(), stop_map(), id_map(),
+            bid_map(), ask_map(), id_map(),
             trade_list{expTrade1, expTrade2, expTrade3},
             orders{sell51_1, sell51_2, sell51_3, buyMarket},
             -1, -1, 51, 0
@@ -176,7 +176,7 @@ TEST_CASE("Check time priority", "[order filling][time priority]")
 
         sellMarket.volume = 17; // reset for orderList
         OrderBookState expState{
-            bid_map(), ask_map(), stop_map(), id_map(),
+            bid_map(), ask_map(), id_map(),
             trade_list{expTrade1, expTrade2, expTrade3},
             orders{buy50_1, buy50_2, buy50_3, sellMarket},
             -1, -1, 50, 0

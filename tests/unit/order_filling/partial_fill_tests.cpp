@@ -44,7 +44,7 @@ TEST_CASE("Partial filling orders", "[order filling][partial filling]")
 
         buy50.volume = 5; // reset for orderList
         OrderBookState expState{
-            expBM, ask_map(), stop_map(), expIDM,
+            expBM, ask_map(), expIDM,
             trade_list{expTrade}, orders{sell50, buy50},
             50, -1, 50, 2
         };
@@ -80,7 +80,7 @@ TEST_CASE("Partial filling orders", "[order filling][partial filling]")
 
         sell55.volume = 5; // reset for orderList
         OrderBookState expState{
-            bid_map(), expAM, stop_map(), expIDM,
+            bid_map(), expAM, expIDM,
             trade_list{expTrade}, orders{buy55, sell55},
             -1, 55, 55, 2
         };
@@ -106,7 +106,7 @@ TEST_CASE("Partial filling orders", "[order filling][partial filling]")
 
         buyMarket.volume = 5; // reset for orderList
         OrderBookState expState{
-            bid_map(), ask_map(), stop_map(), id_map(),
+            bid_map(), ask_map(), id_map(),
             trade_list{expTrade}, orders{sell50, buyMarket},
             -1, -1, 50, 0
         };
@@ -132,7 +132,7 @@ TEST_CASE("Partial filling orders", "[order filling][partial filling]")
         REQUIRE(actual2.equals_to(expected2));
 
         OrderBookState expState2{
-            bid_map(), ask_map(), stop_map(), id_map(),
+            bid_map(), ask_map(), id_map(),
             trade_list{expTrade2}, orders{sell50, buyMarket},
             -1, -1, 50, 0
         };
@@ -158,7 +158,7 @@ TEST_CASE("Partial filling orders", "[order filling][partial filling]")
 
         sellMarket.volume = 5; // reset for orderList
         OrderBookState expState{
-            bid_map(), ask_map(), stop_map(), id_map(),
+            bid_map(), ask_map(), id_map(),
             trade_list{expTrade}, orders{buy55, sellMarket},
             -1, -1, 55, 0
         };
@@ -183,7 +183,7 @@ TEST_CASE("Partial filling orders", "[order filling][partial filling]")
         REQUIRE(actual2.equals_to(expected2));
 
         OrderBookState expState2{
-            bid_map(), ask_map(), stop_map(), id_map(),
+            bid_map(), ask_map(), id_map(),
             trade_list{expTrade2}, orders{buy55, sellMarket},
             -1, -1, 55, 0
         };

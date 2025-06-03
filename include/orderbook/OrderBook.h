@@ -41,16 +41,18 @@ struct PriceLevel
 };
 
 // bid/ask/stop map = {price: (volume, [orders...])}
-using bid_map = std::map<tick_t, PriceLevel, std::greater<tick_t>>;
-using ask_map = std::map<tick_t, PriceLevel>;
-using stop_map = std::map<tick_t, PriceLevel>;
+using bid_map = std::map<tick_t, PriceLevel, std::greater<tick_t>>; // iterate down
+using ask_map = std::map<tick_t, PriceLevel>; // iterate up
+using stop_buy_map = std::map<tick_t, PriceLevel>; // iterate up
+using stop_sell_map = std::map<tick_t, PriceLevel, std::greater<tick_t>>; // iterate down
 
 struct OrderLocation
 {
     enum Map{
         BID,
         ASK,
-        STOP,
+        STOP_BUY,
+        STOP_SELL,
     };
 
     double price;
@@ -66,7 +68,6 @@ struct OrderBookState
 {
     bid_map bidMap{};
     ask_map askMap{};
-    stop_map stopMap{};
     id_map idMap{};
     trade_list tradeList{};
     orders orderList{};
@@ -185,7 +186,8 @@ private:
     // internal data structures
     bid_map bidMap{}; // store active bids
     ask_map askMap{}; // store active asks
-    stop_map stopMap{}; // store untriggered stop/limit orders
+    stop_buy_map stopBuyMap{}; // store untriggered stop/limit buy orders
+    stop_sell_map stopSellMap{}; // store untriggered stop/limit sell orders
     id_map idMap{}; // store map of id : order to get query by id
     trade_list tradeList{}; // store all executed trades
     orders orderList{}; // store a list of orders for bookkeeping
@@ -364,8 +366,10 @@ auto OrderBook::dispatchByMap(OrderLocation::Map map, auto&& func)
             return func(bidMap);
         case OrderLocation::ASK:
             return func(askMap);
-        case OrderLocation::STOP:
-            return func(stopMap);
+        case OrderLocation::STOP_BUY:
+            return func(stopBuyMap);
+        case OrderLocation::STOP_SELL:
+            return func(stopSellMap);
     }
 }
 
@@ -374,11 +378,11 @@ Order::Side OrderBook::sideFromMap(OrderLocation::Map map)
     switch (map)
     {
         case OrderLocation::ASK:
+        case OrderLocation::STOP_SELL:
             return Order::Side::SELL;
         case OrderLocation::BID:
+        case OrderLocation::STOP_BUY:
             return Order::Side::BUY;
-        case OrderLocation::STOP:
-            return Order::Side::BUY; // invalid but idk what to put here for now
     }
 }
 

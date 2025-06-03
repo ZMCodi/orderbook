@@ -54,7 +54,7 @@ TEST_CASE("Walking the book", "[order filling][walking the book]")
         REQUIRE(actual.equals_to(expected));
 
         OrderBookState expState{
-            bid_map(), ask_map(), stop_map(), id_map(),
+            bid_map(), ask_map(), id_map(),
             trade_list{expTrade1, expTrade2, expTrade3, expTrade4},
             orders{sell50, sell51, sell52, sell53, buyBig53},
             -1, -1, 53, 0
@@ -86,7 +86,7 @@ TEST_CASE("Walking the book", "[order filling][walking the book]")
         REQUIRE(actual.equals_to(expected));
 
         OrderBookState expState{
-            bid_map(), ask_map(), stop_map(), id_map(),
+            bid_map(), ask_map(), id_map(),
             trade_list{expTrade1, expTrade2, expTrade3, expTrade4},
             orders{buy50, buy51, buy52, buy53, sellBig50},
             -1, -1, 50, 0
@@ -128,7 +128,7 @@ TEST_CASE("Walking the book", "[order filling][walking the book]")
 
         buyBig53.volume = 8; // reset for orderList
         OrderBookState expState{
-            expBM, ask_map(), stop_map(), expIDM,
+            expBM, ask_map(), expIDM,
             trade_list{expTrade1, expTrade2, expTrade3},
             orders{sell50, sell51, sell52, buyBig53},
             53, -1, 52, 2
@@ -165,12 +165,12 @@ TEST_CASE("Walking the book", "[order filling][walking the book]")
         };
 
         id_map expIDM{
-            {id, OrderLocation{50, expAM.at(5000).orders.begin(), OrderLocation::BID}}
+            {id, OrderLocation{50, expAM.at(5000).orders.begin(), OrderLocation::ASK}}
         };
 
         sellBig50.volume = 8; // reset for orderList
         OrderBookState expState{
-            bid_map(), expAM, stop_map(), expIDM,
+            bid_map(), expAM, expIDM,
             trade_list{expTrade1, expTrade2, expTrade3},
             orders{buy53, buy52, buy51, sellBig50},
             -1, 50, 51, 2
@@ -203,7 +203,7 @@ TEST_CASE("Walking the book", "[order filling][walking the book]")
 
         buyMarket.volume = 8; // reset for orderList
         OrderBookState expState{
-            bid_map(), ask_map(), stop_map(), id_map(),
+            bid_map(), ask_map(), id_map(),
             trade_list{expTrade1, expTrade2, expTrade3, expTrade4},
             orders{sell50, sell51, sell52, sell53, buyMarket},
             -1, -1, 53, 0
@@ -236,7 +236,7 @@ TEST_CASE("Walking the book", "[order filling][walking the book]")
 
         sellMarket.volume = 8; // reset for orderList
         OrderBookState expState{
-            bid_map(), ask_map(), stop_map(), id_map(),
+            bid_map(), ask_map(), id_map(),
             trade_list{expTrade1, expTrade2, expTrade3, expTrade4},
             orders{buy50, buy51, buy52, buy53, sellMarket},
             -1, -1, 50, 0
@@ -268,7 +268,7 @@ TEST_CASE("Walking the book", "[order filling][walking the book]")
 
         buyMarket.volume = 8; // reset for orderList
         OrderBookState expState{
-            bid_map(), ask_map(), stop_map(), id_map(),
+            bid_map(), ask_map(), id_map(),
             trade_list{expTrade1, expTrade2, expTrade3},
             orders{sell50, sell51, sell52, buyMarket},
             -1, -1, 52, 0
@@ -300,7 +300,7 @@ TEST_CASE("Walking the book", "[order filling][walking the book]")
 
         sellMarket.volume = 8; // reset for orderList
         OrderBookState expState{
-            bid_map(), ask_map(), stop_map(), id_map(),
+            bid_map(), ask_map(), id_map(),
             trade_list{expTrade1, expTrade2, expTrade3},
             orders{buy53, buy52, buy51, sellMarket},
             -1, -1, 51, 0

@@ -75,7 +75,7 @@ TEST_CASE("Decrease order volume", "[order manipulation][decrease volume]")
 
         buy50.volume = 5; // reset for orderList
         OrderBookState expState{
-            expBM, ask_map(), stop_map(), expIDM,
+            expBM, ask_map(), expIDM,
             trade_list(), orders{buy50, buy50_2},
             50, -1, -1, 5
         };
@@ -119,7 +119,7 @@ TEST_CASE("Decrease order volume", "[order manipulation][decrease volume]")
 
         sell50.volume = 5; // reset for orderList
         OrderBookState expState{
-            bid_map(), expAM, stop_map(), expIDM,
+            bid_map(), expAM, expIDM,
             trade_list(), orders{sell50, sell50_2},
             -1, 50, -1, 5
         };
@@ -167,7 +167,7 @@ TEST_CASE("Decrease order volume", "[order manipulation][decrease volume]")
 
         buy50.volume = 5; // reset for orderList
         OrderBookState expState{
-            expBM, ask_map(), stop_map(), expIDM,
+            expBM, ask_map(), expIDM,
             trade_list{expTrade}, orders{buy50, sell50_2, buy50_2},
             50, -1, 50, 4
         };
@@ -215,7 +215,7 @@ TEST_CASE("Decrease order volume", "[order manipulation][decrease volume]")
 
         sell50.volume = 5; // reset for orderList
         OrderBookState expState{
-            bid_map(), expAM, stop_map(), expIDM,
+            bid_map(), expAM, expIDM,
             trade_list{expTrade}, orders{sell50, buy50_2, sell50_2},
             -1, 50, 50, 4
         };

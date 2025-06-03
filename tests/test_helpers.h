@@ -6,6 +6,11 @@
 #include <iostream>
 #include "orderbook/OrderBook.h"
 
+static const OrderBookState emptyState{
+    bid_map(), ask_map(), id_map(),
+    trade_list(), orders(),
+    -1, -1, -1, 0
+};
 
 inline Order truncPrice(const Order& order, double tickSize)
 {
@@ -33,9 +38,28 @@ inline bool compareOrderLists(const order_list& first, const order_list& sec, do
 inline OrderBookState OrderBook::getState()
 {
     return {
-        bidMap, askMap, stopMap, idMap, tradeList, orderList,
+        bidMap, askMap, idMap, tradeList, orderList,
         bestBid, bestAsk, marketPrice, totalVolume
     };
+}
+
+// template function to compare bid/ask/stop maps
+inline bool compareMaps(const auto& map, const auto& expMap)
+{
+    if (map.size() != expMap.size()) {return false;}
+    for (const auto& [price, expLevel] : expMap)
+    {
+        const auto& [expVolume, expOrders] = expLevel;
+        const auto& [actVolume, actOrders] = map.at(price);
+
+        if (expVolume != actVolume) {return false;}
+
+        if (expOrders.size() != actOrders.size()) {return false;}
+
+        if (!compareOrderLists(expOrders, actOrders)) {return false;}
+    }
+
+    return true;
 }
 
 // helpers for checking OB state after trades
@@ -51,33 +75,11 @@ inline bool checkOBState(const OrderBook& ob, const OrderBookState& state)
     try
     {
         // compare bid map
-        if (ob.bidMap.size() != state.bidMap.size()) {return false;}
-        for (const auto& [price, expLevel] : state.bidMap)
-        {
-            const auto& [expVolume, expOrders] = expLevel;
-            const auto& [actVolume, actOrders] = ob.bidMap.at(price);
-
-            if (expVolume != actVolume) {return false;}
-
-            if (expOrders.size() != actOrders.size()) {return false;}
-
-            if (!compareOrderLists(expOrders, actOrders)) {return false;}
-        }
+        if (!compareMaps(ob.bidMap, state.bidMap)) {return false;}
         // std::cout << "Pass bid map\n";
 
         // compare ask map
-        if (ob.askMap.size() != state.askMap.size()) {return false;}
-        for (const auto& [price, expLevel] : state.askMap)
-        {
-            const auto& [expVolume, expOrders] = expLevel;
-            const auto& [actVolume, actOrders] = ob.askMap.at(price);
-
-            if (expVolume != actVolume) {return false;}
-
-            if (expOrders.size() != actOrders.size()) {return false;}
-
-            if (!compareOrderLists(expOrders, actOrders)) {return false;}
-        }
+        if (!compareMaps(ob.askMap, state.askMap)) {return false;}
         // std::cout << "Pass ask map\n";
 
         // compare id map
@@ -335,8 +337,10 @@ inline std::ostream& operator<<(std::ostream& out, OrderLocation o)
         case OrderLocation::ASK:
             str << "ASK)";
             break;
-        case OrderLocation::STOP:
-            str << "STOP)";
+        case OrderLocation::STOP_BUY:
+            str << "STOP_BUY)";
+        case OrderLocation::STOP_SELL:
+            str << "STOP_SELL)";
     }
 
     return out << str.str();
