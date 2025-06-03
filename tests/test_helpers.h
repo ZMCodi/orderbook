@@ -136,7 +136,7 @@ inline void OrderBook::clear()
 inline std::ostream& operator<<(std::ostream& out, const Order& o)
 {
     std::stringstream str;
-    str << "Order(id: " << *o.id << ", side: ";
+    str << "Order(id: " << (o.id ? *o.id : uuids::uuid{}) << ", side: ";
 
     if (o.side == Order::Side::BUY)
     {

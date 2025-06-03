@@ -50,6 +50,7 @@ set(TEST_SOURCES
     tests/unit/order_filling/callback_tests.cpp
     tests/unit/order_filling/fill_tests.cpp
     tests/unit/order_filling/partial_fill_tests.cpp
+    tests/unit/order_filling/stop_order_tests.cpp
     tests/unit/order_filling/time_priority_tests.cpp
     tests/unit/order_filling/walk_the_book_tests.cpp
     tests/unit/order_manipulation/cancel_tests.cpp
